@@ -68,9 +68,6 @@ public class TeleopManual extends LinearOpMode{
             if (gamepad1.b){
                 outtake.sampleScore();
             }
-            if (gamepad1.a){
-                outtake.specGrab();
-            }
             if (gamepad1.dpad_up){
                 outtake.specHold();
             }

@@ -52,7 +52,7 @@ public class Intake {
     }
     public void setCover(boolean closed){
         if (closed){
-            cover.setPosition(0.9);
+            cover.setPosition(0.95);
         }else{
             cover.setPosition(0.05);
         }
@@ -70,12 +70,12 @@ public class Intake {
         if (controller.getSetPoint() == 0){
             if (!retracted){
                 power=-1;
-                System.out.println("Retracting and not pressed");
+                //System.out.println("Retracting and not pressed");
             }else{
                 power=-0.4;
                 if (currExtendoPos!=0) {
                     backrightdt.resetEncoder();
-                    System.out.println("Resetting encoder and setting power to -0.4");
+                    //System.out.println("Resetting encoder and setting power to -0.4");
                 }else{
                     System.out.println("setting power to -0.4 without resetting encoder");
                 }

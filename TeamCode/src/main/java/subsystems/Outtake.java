@@ -2,9 +2,7 @@ package subsystems;
 
 
 import com.arcrobotics.ftclib.controller.PIDFController;
-import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
 public class Outtake {
@@ -88,9 +86,9 @@ public class Outtake {
     }
     public void transferPos(){
         closeClaw();
-        setRail(0.35);
-        setFlip(0.9);
-        setWrist(0.13);
+        setRail(0.33);
+        setFlip(0.8);
+        setWrist(0.2);
         setTargetPos(0);
     }
     public void partialSampleFlip(){
@@ -103,27 +101,26 @@ public class Outtake {
     public void sampleScore(){
         closeClaw();
         setRail(0.1);
-        setFlip(0.2);
+        setFlip(0.0);
         setWrist(0.5);
         setTargetPos(1000);
     }
-    public void specGrab(){
-        openClawWide();
-        setRail(0.2);
-        setFlip(0.12);
-        setWrist(0.53);
-    }
+
     public void specHold(){
         closeClaw();
-        setRail(0.6);
+        setRail(0.85);
         setFlip(0.7);
-        setWrist(0.45);
+        setWrist(0.4);
+        setTargetPos(500);
+
     }
     public void specScore(){
         openClaw();
-        setRail(0.6);
-        setFlip(0.4);
+        setRail(0.85);
+        setFlip(0.45);
         setWrist(0.5);
+        setTargetPos(500);
+
     }
     public int getCachedPos(){
         //return currMotorPos;
@@ -131,12 +128,15 @@ public class Outtake {
     }
     public void openClaw(){
         claw.setPosition(0.7);
+        System.out.println("Opened claw");
     }
     public void openClawWide(){
         claw.setPosition(0.5);
+        System.out.println("Opened wide claw");
     }
     public void closeClaw(){
-        claw.setPosition(0.9);
+        claw.setPosition(0.95);
+        System.out.println("Closed claw");
     }
     public double getSetPoint() {
         return controller.getSetPoint();
