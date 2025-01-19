@@ -34,6 +34,7 @@ public class OuttakeTestingClass extends LinearOpMode {
             outtake.setTargetPos(outtakeTargetPos);
             outtake.update();
             telemetry.addData("Outtake Pos", outtake.getCachedPos());
+            telemetry.addData("Flip Pos", outtake.getFlipAnalog());
             telemetry.update();
         }
     }

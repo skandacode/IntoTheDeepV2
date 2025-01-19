@@ -1,11 +1,8 @@
 package subsystems;
 
 import com.arcrobotics.ftclib.controller.PIDFController;
-import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.qualcomm.hardware.rev.RevColorSensorV3;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -77,11 +74,11 @@ public class Intake {
                     backrightdt.resetEncoder();
                     //System.out.println("Resetting encoder and setting power to -0.4");
                 }else{
-                    System.out.println("setting power to -0.4 without resetting encoder");
+                    //System.out.println("setting power to -0.4 without resetting encoder");
                 }
             }
         }
-        if (Math.abs(currExtendoPos-controller.getSetPoint())<10){
+        else if (Math.abs(currExtendoPos-controller.getSetPoint())<10){
             power=0;
         }
         setExtendoPower(power);

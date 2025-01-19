@@ -40,4 +40,10 @@ public class CachedMotorEx extends MotorEx {
     public double getPrevPower(){
         return prevPower;
     }
+    public void setCurrentLimit(double a){
+        super.motorEx.setCurrentAlert(a, CurrentUnit.AMPS);
+    }
+    public boolean isOverCurrent(){
+        return super.motorEx.isOverCurrent();
+    }
 }

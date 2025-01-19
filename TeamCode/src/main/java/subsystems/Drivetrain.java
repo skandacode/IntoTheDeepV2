@@ -59,7 +59,7 @@ public class Drivetrain {
         leftBack.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
         rightBack.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
 
-        odometry = hwMap.get(SparkFunOTOS.class, "otos");
+        /*odometry = hwMap.get(SparkFunOTOS.class, "otos");
         odometry.calibrateImu();
         odometry.setLinearScalar(1.0726534030253347);
         odometry.setAngularScalar(0.9885441764832054);
@@ -69,7 +69,7 @@ public class Drivetrain {
         odometry.setOffset(offset);
         odometry.resetTracking();
 
-        odometry.setPosition(new SparkFunOTOS.Pose2D());
+        odometry.setPosition(new SparkFunOTOS.Pose2D());*/
     }
     public void setRawPowers(double frontleft, double frontright, double backleft, double backright){
         double maximum=Math.max(frontleft, frontright);

@@ -1,9 +1,5 @@
 package subsystems.pathing;
 
-import com.arcrobotics.ftclib.geometry.Rotation2d;
-import com.arcrobotics.ftclib.geometry.Transform2d;
-import com.arcrobotics.ftclib.geometry.Translation2d;
-
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 
 public class WayPoint {

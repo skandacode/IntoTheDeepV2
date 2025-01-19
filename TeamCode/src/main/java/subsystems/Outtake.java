@@ -2,6 +2,7 @@ package subsystems;
 
 
 import com.arcrobotics.ftclib.controller.PIDFController;
+import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
@@ -15,6 +16,8 @@ public class Outtake {
     private CachedServo flip2;
 
     private TouchSensor limitSwitch;
+
+    private AnalogInput flipAnalog;
 
     private PIDFController controller = new PIDFController(0.01, 0, 0, 0);
 
@@ -32,10 +35,14 @@ public class Outtake {
 
         limitSwitch = hwMap.touchSensor.get("outtakeEnd");
 
+        flipAnalog = hwMap.analogInput.get("flip_analog");
+
         currMotorPos = 0;
 
         controller.setTolerance(10);
         controller.setSetPoint(0);
+        outtakeMotor1.setCurrentLimit(6);
+
     }
     public void update(){
         currMotorPos = getOuttakePosition();
@@ -49,14 +56,15 @@ public class Outtake {
                 outtakeMotor1.resetEncoder();
             }
         }
-
-        if (currMotorPos<controller.getSetPoint()){
-            power+=0.4;
-        }else{
-            power+=0.12;
-        }
-        if (Math.abs(currMotorPos-controller.getSetPoint())<10){
+        else if (Math.abs(currMotorPos-controller.getSetPoint())<10){
             power=0.25;
+        }
+        else{
+            if (currMotorPos<controller.getSetPoint()){
+                power+=0.4;
+            }else{
+                power+=0.12;
+            }
         }
         outtakeMotor1.set(-power);
         outtakeMotor2.set(power);
@@ -86,40 +94,40 @@ public class Outtake {
     }
     public void transferPos(){
         closeClaw();
-        setRail(0.33);
-        setFlip(0.8);
-        setWrist(0.2);
+        setRail(0.25);
+        setFlip(0.69);
+        setWrist(0.15);
         setTargetPos(0);
     }
     public void partialSampleFlip(){
         closeClaw();
         setRail(0.1);
         setFlip(0.4);
-        setWrist(0.5);
+        setWrist(0.55);
         setTargetPos(1000);
     }
     public void sampleScore(){
         closeClaw();
-        setRail(0.1);
+        setRail(0.25);
         setFlip(0.0);
         setWrist(0.5);
-        setTargetPos(1000);
+        setTargetPos(1250);
     }
 
     public void specHold(){
         closeClaw();
-        setRail(0.85);
-        setFlip(0.7);
-        setWrist(0.4);
-        setTargetPos(500);
+        setRail(0.8);
+        setFlip(0.65);
+        setWrist(0.6);
+        setTargetPos(545);
 
     }
     public void specScore(){
         openClaw();
-        setRail(0.85);
+        setRail(0.8);
         setFlip(0.45);
         setWrist(0.5);
-        setTargetPos(500);
+        setTargetPos(580);
 
     }
     public int getCachedPos(){
@@ -131,7 +139,7 @@ public class Outtake {
         System.out.println("Opened claw");
     }
     public void openClawWide(){
-        claw.setPosition(0.5);
+        claw.setPosition(0.45);
         System.out.println("Opened wide claw");
     }
     public void closeClaw(){
@@ -142,9 +150,12 @@ public class Outtake {
         return controller.getSetPoint();
     }
     public boolean isRetracted() {
-        return retracted;
+        return limitSwitch.isPressed();
     }
     public boolean atTarget(){
         return controller.atSetPoint();
+    }
+    public double getFlipAnalog(){
+        return flipAnalog.getVoltage();
     }
 }
