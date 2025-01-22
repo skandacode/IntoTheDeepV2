@@ -31,7 +31,7 @@ public class TeleopManual extends LinearOpMode{
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         outtake = new Outtake(hardwareMap);
         intake = new Intake(hardwareMap);
-        drive = new Drivetrain(hardwareMap);
+        drive = new Drivetrain(hardwareMap, telemetry, FtcDashboard.getInstance());
 
         waitForStart();
 

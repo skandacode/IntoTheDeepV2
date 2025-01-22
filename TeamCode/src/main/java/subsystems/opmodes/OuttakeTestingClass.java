@@ -22,7 +22,6 @@ public class OuttakeTestingClass extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         outtake = new Outtake(hardwareMap);
-        GamepadEx betterGamepad = new GamepadEx(gamepad1);
 
         waitForStart();
 

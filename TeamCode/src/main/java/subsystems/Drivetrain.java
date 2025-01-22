@@ -21,17 +21,17 @@ public class Drivetrain {
     CachedMotorEx rightFront;
     CachedMotorEx rightBack;
 
-    SimpleMotorFeedforward forwardFeedforward=new SimpleMotorFeedforward(0.12, 1);
-    SimpleMotorFeedforward strafeFeedforward=new SimpleMotorFeedforward(0.26, 1);
-    SimpleMotorFeedforward headingFeedforward=new SimpleMotorFeedforward(0.135, 1);
+    SimpleMotorFeedforward forwardFeedforward=new SimpleMotorFeedforward(0.08, 0.9);
+    SimpleMotorFeedforward strafeFeedforward=new SimpleMotorFeedforward(0.2, 1);
+    SimpleMotorFeedforward headingFeedforward=new SimpleMotorFeedforward(0.11, 1);
 
-    PIDFController translationalControllerY=new PIDFController(0.09, 0, 0.01, 0);
+    PIDFController translationalControllerY=new PIDFController(0.07, 0, 0.007, 0);
     PIDFController translationalControllerX=new PIDFController(
             translationalControllerY.getP(),
             translationalControllerY.getI(),
             translationalControllerY.getD(),
             translationalControllerY.getF());
-    PIDFController headingController=new PIDFController(1, 0, 0, 0);
+    PIDFController headingController=new PIDFController(0.8, 0, 0.03, 0);
 
     Telemetry telemetry;
     FtcDashboard dashboard;
@@ -44,7 +44,7 @@ public class Drivetrain {
 
     CachedServo leftpto, rightpto;
 
-    public Drivetrain(HardwareMap hwMap) {
+    public Drivetrain(HardwareMap hwMap, Telemetry telemetry, FtcDashboard dashboard) {
         leftFront = new CachedMotorEx(hwMap, "frontleft");
         leftBack = new CachedMotorEx(hwMap, "backleft");
         rightFront = new CachedMotorEx(hwMap, "frontright");
@@ -59,17 +59,20 @@ public class Drivetrain {
         leftBack.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
         rightBack.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
 
-        /*odometry = hwMap.get(SparkFunOTOS.class, "otos");
+        odometry = hwMap.get(SparkFunOTOS.class, "otos");
         odometry.calibrateImu();
-        odometry.setLinearScalar(1.0726534030253347);
-        odometry.setAngularScalar(0.9885441764832054);
+        odometry.setLinearScalar(1.008);
+        odometry.setAngularScalar(0.9896091044037605);
         odometry.setLinearUnit(DistanceUnit.INCH);
         odometry.setAngularUnit(AngleUnit.DEGREES);
-        SparkFunOTOS.Pose2D offset = new SparkFunOTOS.Pose2D(-5, 0, 90);
+        SparkFunOTOS.Pose2D offset = new SparkFunOTOS.Pose2D(-7, -0.5, 90);
         odometry.setOffset(offset);
         odometry.resetTracking();
 
-        odometry.setPosition(new SparkFunOTOS.Pose2D());*/
+        odometry.setPosition(new SparkFunOTOS.Pose2D());
+
+        this.dashboard=dashboard;
+        this.telemetry=telemetry;
     }
     public void setRawPowers(double frontleft, double frontright, double backleft, double backright){
         double maximum=Math.max(frontleft, frontright);
@@ -166,17 +169,15 @@ public class Drivetrain {
         telemetry.addData("velocity y", y_velo);
         telemetry.addData("velocity heading", heading_velo);
 
-        if (translationalControllerY.atSetPoint()){
+        if (Math.abs(position.getY(DistanceUnit.INCH)-translationalControllerY.getSetPoint())<0.5){
             y_velo=0;
         }
-        if (translationalControllerX.atSetPoint()){
+        if (Math.abs(position.getX(DistanceUnit.INCH)-translationalControllerX.getSetPoint())<0.5){
             x_velo=0;
         }
-        if (headingController.atSetPoint()){
+        if (Math.abs(position.getHeading(AngleUnit.DEGREES)-headingController.getSetPoint())<0.5){
             heading_velo=0;
         }
-
-
         driveFieldCentric(x_velo, y_velo,heading_velo, heading);
     }
     public boolean atTarget(){

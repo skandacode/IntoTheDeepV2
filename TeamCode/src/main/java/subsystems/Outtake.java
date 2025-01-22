@@ -66,6 +66,9 @@ public class Outtake {
                 power+=0.12;
             }
         }
+        setMotors(power);
+    }
+    public void setMotors(double power){
         outtakeMotor1.set(-power);
         outtakeMotor2.set(power);
     }
@@ -95,39 +98,39 @@ public class Outtake {
     public void transferPos(){
         closeClaw();
         setRail(0.25);
-        setFlip(0.69);
-        setWrist(0.15);
+        setFlip(0.72);
+        setWrist(0.12);
         setTargetPos(0);
     }
     public void partialSampleFlip(){
         closeClaw();
-        setRail(0.1);
+        setRail(0.23);
         setFlip(0.4);
         setWrist(0.55);
         setTargetPos(1000);
     }
     public void sampleScore(){
         closeClaw();
-        setRail(0.25);
-        setFlip(0.0);
+        setRail(0.23);
+        setFlip(0.03);
         setWrist(0.5);
         setTargetPos(1250);
     }
 
     public void specHold(){
         closeClaw();
-        setRail(0.8);
-        setFlip(0.65);
-        setWrist(0.6);
-        setTargetPos(545);
+        setRail(0.45);
+        setFlip(0.72);
+        setWrist(0.55);
+        setTargetPos(590);
 
     }
     public void specScore(){
-        openClaw();
-        setRail(0.8);
-        setFlip(0.45);
-        setWrist(0.5);
-        setTargetPos(580);
+        closeClaw();
+        setRail(0.45);
+        setFlip(0.6);
+        setWrist(0.6);
+        setTargetPos(800);
 
     }
     public int getCachedPos(){
@@ -135,16 +138,16 @@ public class Outtake {
         return getOuttakePosition();
     }
     public void openClaw(){
-        claw.setPosition(0.7);
-        System.out.println("Opened claw");
+        claw.setPosition(0.66);
+        //System.out.println("Opened claw");
     }
     public void openClawWide(){
         claw.setPosition(0.45);
-        System.out.println("Opened wide claw");
+        //System.out.println("Opened wide claw");
     }
     public void closeClaw(){
-        claw.setPosition(0.95);
-        System.out.println("Closed claw");
+        claw.setPosition(0.8);
+        //System.out.println("Closed claw");
     }
     public double getSetPoint() {
         return controller.getSetPoint();
