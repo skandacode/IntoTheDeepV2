@@ -20,9 +20,10 @@ public class IntakeTestingClass extends LinearOpMode {
         intake = new Intake(hardwareMap);
         waitForStart();
         while (opModeIsActive()){
-            intake.setTargetPos(extendoPos);
+            intake.setExtendoPower(extendoPos);
             intake.update();
             telemetry.addData("intake extendo pos", intake.getExtendoMotorPosition());
+            telemetry.addData("intake limit", intake.isRetracted());
             telemetry.update();
         }
     }

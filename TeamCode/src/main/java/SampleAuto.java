@@ -61,13 +61,13 @@ public class SampleAuto extends LinearOpMode {
                 new Pose2D(DistanceUnit.INCH, 1, 1, AngleUnit.DEGREES, 2));
         WayPoint bucketPos3 = new WayPoint(new Pose2D(DistanceUnit.INCH, -50, -56.5, AngleUnit.DEGREES, 42),
                 new Pose2D(DistanceUnit.INCH, 1, 1, AngleUnit.DEGREES, 2));
-        WayPoint bucketPos25th = new WayPoint(new Pose2D(DistanceUnit.INCH, -50, -53.5, AngleUnit.DEGREES, 55),
+        WayPoint bucketPos25th = new WayPoint(new Pose2D(DistanceUnit.INCH, -50, -53.5, AngleUnit.DEGREES, 40),
                 new Pose2D(DistanceUnit.INCH, 1, 1, AngleUnit.DEGREES, 2));
         WayPoint presub = new WayPoint(new Pose2D(DistanceUnit.INCH, -36, -9, AngleUnit.DEGREES, 0),
                 new Pose2D(DistanceUnit.INCH, 5, 5, AngleUnit.DEGREES, 2));
-        WayPoint sub = new WayPoint(new Pose2D(DistanceUnit.INCH, -13, -11, AngleUnit.DEGREES, 0),
+        WayPoint sub = new WayPoint(new Pose2D(DistanceUnit.INCH, -12, -11, AngleUnit.DEGREES, 0),
                 new Pose2D(DistanceUnit.INCH, 3, 3, AngleUnit.DEGREES, 2));
-        WayPoint subStrafe = new WayPoint(new Pose2D(DistanceUnit.INCH, -15, -6, AngleUnit.DEGREES, 0),
+        WayPoint subStrafe = new WayPoint(new Pose2D(DistanceUnit.INCH, -12, -6, AngleUnit.DEGREES, 0),
                 new Pose2D(DistanceUnit.INCH, 3, 3, AngleUnit.DEGREES, 2));
         WayPoint farStrafe = new WayPoint(new Pose2D(DistanceUnit.INCH, -15, 0, AngleUnit.DEGREES, 0),
                 new Pose2D(DistanceUnit.INCH, 3, 3, AngleUnit.DEGREES, 2));
@@ -75,9 +75,9 @@ public class SampleAuto extends LinearOpMode {
 
         WayPoint sample1 = new WayPoint(new Pose2D(DistanceUnit.INCH, -43.5, -49, AngleUnit.DEGREES, 89),
                 new Pose2D(DistanceUnit.INCH, 5, 5, AngleUnit.DEGREES, 5));
-        WayPoint sample2 = new WayPoint(new Pose2D(DistanceUnit.INCH, -52.5, -49, AngleUnit.DEGREES, 90),
+        WayPoint sample2 = new WayPoint(new Pose2D(DistanceUnit.INCH, -53.5, -49, AngleUnit.DEGREES, 90),
                 new Pose2D(DistanceUnit.INCH, 5, 5, AngleUnit.DEGREES, 5));
-        WayPoint sample3 = new WayPoint(new Pose2D(DistanceUnit.INCH, -39, -38, AngleUnit.DEGREES, 155),
+        WayPoint sample3 = new WayPoint(new Pose2D(DistanceUnit.INCH, -39, -36, AngleUnit.DEGREES, 157),
                 new Pose2D(DistanceUnit.INCH, 5, 5, AngleUnit.DEGREES, 2));
 
 
@@ -256,13 +256,13 @@ public class SampleAuto extends LinearOpMode {
                 .transitionTimed(0.7)
                 .state(autoStates.EXTENDSUB)
                 .onEnter(() -> {
-                    intake.setTargetPos(500);
+                    intake.setTargetPos(1100);
                 })
-                .transitionTimed(0.1)
+                .transitionTimed(0.15)
                 .state(autoStates.INTAKESUB)
                 .onEnter(() -> {
                     intake.intakePos();
-                    intake.setTargetPos(1000);
+                    intake.setTargetPos(1100);
                 })
                 .transitionTimed(0.6, autoStates.RETRACTSUB)
                 .transition(() -> intake.getColor() == Intake.SampleColor.YELLOW || intake.getColor() == allianceColor, autoStates.PREBUCKETSUB)
@@ -273,19 +273,19 @@ public class SampleAuto extends LinearOpMode {
                     intake.transferPos();
                     intake.setIntakePower(-0.5);
                 })
-                .transitionTimed(0.4, autoStates.EXTENDAGAIN)
+                .transition(()->intake.isRetracted(), autoStates.EXTENDAGAIN)
 
                 .state(autoStates.EXTENDAGAIN)
                 .onEnter(() -> {
-                    intake.setTargetPos(1000);
+                    intake.setTargetPos(1100);
                     intake.setIntakePower(-1);
                 })
-                .transitionTimed(0.1)
+                .transitionTimed(0.15)
 
                 .state(autoStates.INTAKEAGAIN)
                 .onEnter(() -> {
                     intake.setIntakePower(1);
-                    intake.intakePos(1000);
+                    intake.intakePos(1100);
                 })
                 .transitionTimed(0.7, autoStates.INTAKESUBSTRAFE)
                 .transition(() -> intake.getColor() == Intake.SampleColor.YELLOW || intake.getColor() == allianceColor, autoStates.PREBUCKETSUB)
@@ -336,6 +336,7 @@ public class SampleAuto extends LinearOpMode {
             telemetry.update();
             if (gamepad1.touchpad) {
                 drive.calibrateIMU();
+                drive.setPosition(startPoint.getPosition());
             }
             if (gamepad1.a) {
                 allianceColor = Intake.SampleColor.BLUE;

@@ -14,6 +14,8 @@ import com.pedropathing.pathgen.Point;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
+import subsystems.Hang;
+import subsystems.Intake;
 
 /**
  * This is the Circle autonomous OpMode. It runs the robot in a PathChain that's actually not quite
@@ -37,6 +39,10 @@ public class Circle extends OpMode {
 
     private PathChain circle;
 
+    private Hang hang;
+
+    private Intake intake;
+
     /**
      * This initializes the Follower and creates the PathChain for the "circle". Additionally, this
      * initializes the FTC Dashboard telemetry.
@@ -45,7 +51,10 @@ public class Circle extends OpMode {
     public void init() {
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
-
+        hang=new Hang(hardwareMap);
+        hang.setPtoEngaged(false);
+        intake=new Intake(hardwareMap);
+        intake.transferPos();
         circle = follower.pathBuilder()
                 .addPath(new BezierCurve(new Point(0,0, Point.CARTESIAN), new Point(RADIUS,0, Point.CARTESIAN), new Point(RADIUS, RADIUS, Point.CARTESIAN)))
                 .addPath(new BezierCurve(new Point(RADIUS, RADIUS, Point.CARTESIAN), new Point(RADIUS,2*RADIUS, Point.CARTESIAN), new Point(0,2*RADIUS, Point.CARTESIAN)))
@@ -69,6 +78,7 @@ public class Circle extends OpMode {
     @Override
     public void loop() {
         follower.update();
+        intake.update();
         if (follower.atParametricEnd()) {
             follower.followPath(circle);
         }

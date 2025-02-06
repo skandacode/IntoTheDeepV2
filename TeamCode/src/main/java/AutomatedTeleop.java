@@ -28,6 +28,7 @@ public class AutomatedTeleop extends LinearOpMode {
     public static Intake.SampleColor allianceColor= Intake.SampleColor.BLUE;
     Intake.SampleColor currentSense= Intake.SampleColor.NONE;
     public static int hangPos=550;
+    public static int maxExtend=500;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -52,9 +53,9 @@ public class AutomatedTeleop extends LinearOpMode {
                     intake.setIntakePower(0);
                 })
                 .loop(()->{
-                    intake.setTargetPos((int)(1000*gamepad1.left_trigger));
+                    intake.setTargetPos((int)(maxExtend*gamepad1.left_trigger));
                 })
-                .transition(() -> gamepad1.right_bumper && gamepad1.left_trigger>0.1)
+                .transition(() -> gamepad1.right_bumper && gamepad1.left_trigger>0.1 && intake.getCachedExtendoPos()>100)
                 .state(SampleStates.EXTEND)
                 .onEnter(()->intake.intakePos())
                 .loop(()->{
@@ -63,7 +64,7 @@ public class AutomatedTeleop extends LinearOpMode {
                     }else{
                         intake.setIntakePower(1);
                     }
-                    intake.setTargetPos((int)(1000*gamepad1.left_trigger));
+                    intake.setTargetPos((int)(maxExtend*gamepad1.left_trigger));
                 })
                 .transition(()->intake.isSampleIntaked())
                 .transition(()->!gamepad1.right_bumper, SampleStates.IDLE)
@@ -71,6 +72,7 @@ public class AutomatedTeleop extends LinearOpMode {
                 .state(SampleStates.SENSORWAIT)
                 .onEnter(()->intake.intakePos())
                 .transitionTimed(0.05)
+                .loop(()->intake.getLaserDistance())
                 .state(SampleStates.SENSE)
                 .transition(() -> {
                     currentSense=intake.getColor();
@@ -94,12 +96,17 @@ public class AutomatedTeleop extends LinearOpMode {
                 .state(SampleStates.RETRACT)
                 .onEnter(()->{
                     intake.transferPos();
-                    intake.setIntakePower(0.3);
+                    intake.setIntakePower(-1);
+                    /*if (intake.isJammed() || intake.getLaserDistance()<62) {
+
+                    }else{
+                        intake.setIntakePower(0.3);
+                    }*/
                     intake.setCover(true);
                     outtake.transferPos();
                     outtake.openClaw();
                 })
-                .transitionTimed(0.05)
+                .transitionTimed(0.02)
                 .state(SampleStates.OPENCOVER)
                 .onEnter(() -> {
                     intake.setCover(false);
@@ -111,21 +118,21 @@ public class AutomatedTeleop extends LinearOpMode {
                 .state(SampleStates.WAIT)
                 .onEnter(() -> {
                     intake.setIntakePower(0.4);
-                    outtake.setRail(0.29);
+                    outtake.setRail(0.5);
                 })
-                .transitionTimed(0.6)
+                .transitionTimed(0.3)
 
                 .state(SampleStates.CLOSE)
                 .onEnter(() -> {
                     outtake.closeClaw();
                     intake.setIntakePower(0.4);
                 })
-                .transitionTimed(0.2)
+                .transitionTimed(0.3)
 
                 .state(SampleStates.LIFT)
                 .onEnter(() -> {
                     outtake.setTargetPos(970);
-                    intake.setIntakePower(-1);
+                    intake.setIntakePower(-0.5);
                 })
                 .transition(()->gamepad1.left_trigger>0.3)
                 .transitionTimed(0.3)
@@ -236,6 +243,7 @@ public class AutomatedTeleop extends LinearOpMode {
             telemetry.update();
         }
         waitForStart();
+        intake.setCover(false);
         drive.setPtoEngaged(false);
         intake.transferPos();
         outtake.transferPos();
@@ -246,6 +254,7 @@ public class AutomatedTeleop extends LinearOpMode {
         while (opModeIsActive() && !gamepad1.left_stick_button) {
             if (!(controlhub==null)) {
                 controlhub.clearBulkCache();
+                telemetry.addLine("bulk reading only chub");
             }else{
                 for (LynxModule hub:allHubs){
                     hub.clearBulkCache();
@@ -293,6 +302,9 @@ public class AutomatedTeleop extends LinearOpMode {
 
             telemetry.addData("Outtake Pos", outtake.getCachedPos());
             telemetry.addData("Extendo Pos", intake.getCachedExtendoPos());
+            telemetry.addData("Intake target pos", intake.getTarget());
+            telemetry.addData("Outtake target pos", outtake.getSetPoint());
+            telemetry.addData("intake end direct", intake.limitSwitch.isPressed());
 
             long currLoop = System.nanoTime();
             telemetry.addData("Ms per loop", (currLoop - prevLoop) / 1000000);
@@ -318,7 +330,7 @@ public class AutomatedTeleop extends LinearOpMode {
                     }
                 }
                 if (timer.milliseconds()>1000){
-                    outtake.setRail(0.85);
+                    outtake.setRail(1);
                 }
                 pulledDown=pulledDown || gamepad1.right_stick_button;
                 if (pulledDown){
@@ -338,7 +350,6 @@ public class AutomatedTeleop extends LinearOpMode {
                     outtake.update();
                 }
                 intake.update();
-
                 telemetry.addData("Outtake Pos", outtake.getCachedPos());
                 telemetry.update();
             }

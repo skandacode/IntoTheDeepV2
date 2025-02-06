@@ -20,7 +20,7 @@ import subsystems.pathing.WayPoint;
 
 @Autonomous
 @Config
-public class SpecimenAuto extends LinearOpMode {
+public class SpecimenAutoPlusWall extends LinearOpMode {
     Drivetrain drive;
     Intake intake;
     Outtake outtake;
@@ -36,6 +36,7 @@ public class SpecimenAuto extends LinearOpMode {
         preintake2, intakePos2, intakePos2f2, closeClaw2, depositPos2, depositPos2f2,score2,
         preintake3,intakePos3, intakePos3f2, closeClaw3, depositPos3, depositPos3f2, score3,
         preintake4,intakePos4, intakePos4f2, closeClaw4, depositPos4, depositPos4f2, score4,
+        wallgrab11, wallgrag12, closeClaw5, bucket1, clawOpen1,
         park
     }
 
@@ -58,6 +59,8 @@ public class SpecimenAuto extends LinearOpMode {
 
         WayPoint preintake=new WayPoint(new Pose2D(DistanceUnit.INCH, -5, -38, AngleUnit.DEGREES, 90),
                 new Pose2D(DistanceUnit.INCH,  3, 3, AngleUnit.DEGREES, 5));
+        WayPoint bucketPos = new WayPoint(new Pose2D(DistanceUnit.INCH, -50, -53.5, AngleUnit.DEGREES, 30),
+                new Pose2D(DistanceUnit.INCH, 1, 1, AngleUnit.DEGREES, 2));
         WayPoint depositPosPreload2=new WayPoint(new Pose2D(DistanceUnit.INCH, 0, -26, AngleUnit.DEGREES, 90),
                 new Pose2D(DistanceUnit.INCH,  1, 1, AngleUnit.DEGREES, 2));
         WayPoint depositPos1=new WayPoint(new Pose2D(DistanceUnit.INCH, -2, -45, AngleUnit.DEGREES, 90),
@@ -92,20 +95,20 @@ public class SpecimenAuto extends LinearOpMode {
                 new Pose2D(DistanceUnit.INCH, 1, 1, AngleUnit.DEGREES, 2));
         WayPoint intakePreExtend2=new WayPoint(new Pose2D(DistanceUnit.INCH, 22, -42, AngleUnit.DEGREES, 30),
                 new Pose2D(DistanceUnit.INCH, 1, 1, AngleUnit.DEGREES, 2));
-        WayPoint specimenGrab=new WayPoint(new Pose2D(DistanceUnit.INCH, 36, -51, AngleUnit.DEGREES, 90),
+        WayPoint specimenGrab=new WayPoint(new Pose2D(DistanceUnit.INCH, 36, -50, AngleUnit.DEGREES, 90),
                 new Pose2D(DistanceUnit.INCH, 1, 1, AngleUnit.DEGREES, 2));
-        WayPoint specimenGrabForward=new WayPoint(new Pose2D(DistanceUnit.INCH, 36, -56, AngleUnit.DEGREES, 90),
+        WayPoint specimenGrabForward=new WayPoint(new Pose2D(DistanceUnit.INCH, 36, -53.5, AngleUnit.DEGREES, 90),
                 new Pose2D(DistanceUnit.INCH, 1, 0.5, AngleUnit.DEGREES, 2));
-        WayPoint specimenGrab2=new WayPoint(new Pose2D(DistanceUnit.INCH, 36, -51, AngleUnit.DEGREES, 90),
+        WayPoint specimenGrab2=new WayPoint(new Pose2D(DistanceUnit.INCH, 36, -49, AngleUnit.DEGREES, 90),
                 new Pose2D(DistanceUnit.INCH, 1, 1, AngleUnit.DEGREES, 2));
-        WayPoint specimenGrabForward2=new WayPoint(new Pose2D(DistanceUnit.INCH, 36, -55.5, AngleUnit.DEGREES, 90),
+        WayPoint specimenGrabForward2=new WayPoint(new Pose2D(DistanceUnit.INCH, 36, -52.5, AngleUnit.DEGREES, 90),
                 new Pose2D(DistanceUnit.INCH, 0.5, 0.5, AngleUnit.DEGREES, 2));
-        WayPoint specimenGrab3=new WayPoint(new Pose2D(DistanceUnit.INCH, 36, -50, AngleUnit.DEGREES, 90),
+        WayPoint specimenGrab3=new WayPoint(new Pose2D(DistanceUnit.INCH, 36, -46, AngleUnit.DEGREES, 90),
                 new Pose2D(DistanceUnit.INCH, 1, 0.5, AngleUnit.DEGREES, 2));
-        WayPoint specimenGrabForward3=new WayPoint(new Pose2D(DistanceUnit.INCH, 36, -55, AngleUnit.DEGREES, 90),
+        WayPoint specimenGrabForward3=new WayPoint(new Pose2D(DistanceUnit.INCH, 36, -49, AngleUnit.DEGREES, 90),
                 new Pose2D(DistanceUnit.INCH, 0.5, 0.5, AngleUnit.DEGREES, 2));
 
-        WayPoint park=new WayPoint(new Pose2D(DistanceUnit.INCH, 45, -52, AngleUnit.DEGREES, 180),
+        WayPoint park=new WayPoint(new Pose2D(DistanceUnit.INCH, 45, -52, AngleUnit.DEGREES, 0),
                 new Pose2D(DistanceUnit.INCH, 1, 1, AngleUnit.DEGREES, 2));
 
         StateMachine specimenMachine = new StateMachineBuilder()
@@ -209,20 +212,20 @@ public class SpecimenAuto extends LinearOpMode {
                 .transitionTimed(0.1)
                 .state(autoStates.intakePos1)
                 .onEnter(()->drive.setTarget(specimenGrab))
-                .transitionTimed(1.4)
+                .transition(() -> drive.atTarget())
                 .state(autoStates.intakePos1f2)
                 .onEnter(()->drive.setTarget(specimenGrabForward))
-                .transitionTimed(0.4)
+                .transitionTimed(0.3)
                 .state(autoStates.closeClaw1)
                 .onEnter(()-> closedPressed=true)
-                .transitionTimed(0.25)
+                .transitionTimed(0.2)
                 .state(autoStates.depositPos1)
                 .onEnter(()->drive.setTarget(depositPos1))
                 .transition(()->drive.atTarget())
                 .transitionTimed(0.7)
                 .state(autoStates.depositPos1f2)
                 .onEnter(()->drive.setTarget(depositPos2))
-                .transitionTimed(0.8)
+                .transitionTimed(1.2)
                 .state(autoStates.score1)
                 .onEnter(()->scoredPressed=true)
                 .transition(()->specimenMachine.getState()== AutomatedTeleop.SpecimenScoreStates.OPENCLAW)
@@ -232,20 +235,20 @@ public class SpecimenAuto extends LinearOpMode {
                 .transitionTimed(0.2)
                 .state(autoStates.intakePos2)
                 .onEnter(()->drive.setTarget(specimenGrab2))
-                .transitionTimed(1.4)
+                .transition(() -> drive.atTarget())
                 .state(autoStates.intakePos2f2)
                 .onEnter(()->drive.setTarget(specimenGrabForward2))
-                .transitionTimed(0.4)
+                .transitionTimed(0.2)
                 .state(autoStates.closeClaw2)
                 .onEnter(()-> closedPressed=true)
-                .transitionTimed(0.3)
+                .transitionTimed(0.1)
                 .state(autoStates.depositPos2)
                 .onEnter(()->drive.setTarget(depositPos12))
                 .transition(()->drive.atTarget())
                 .transitionTimed(0.7)
                 .state(autoStates.depositPos2f2)
                 .onEnter(()->drive.setTarget(depositPos22))
-                .transitionTimed(0.8)
+                .transitionTimed(1.2)
                 .state(autoStates.score2)
                 .onEnter(()->scoredPressed=true)
                 .transition(()->specimenMachine.getState()== AutomatedTeleop.SpecimenScoreStates.OPENCLAW)
@@ -256,20 +259,20 @@ public class SpecimenAuto extends LinearOpMode {
                 .transitionTimed(0.2)
                 .state(autoStates.intakePos3)
                 .onEnter(()->drive.setTarget(specimenGrab3))
-                .transitionTimed(1.4)
+                .transition(() -> drive.atTarget())
                 .state(autoStates.intakePos3f2)
                 .onEnter(()->drive.setTarget(specimenGrabForward3))
-                .transitionTimed(0.4)
+                .transitionTimed(0.2)
                 .state(autoStates.closeClaw3)
                 .onEnter(()-> closedPressed=true)
-                .transitionTimed(0.3)
+                .transitionTimed(0.1)
                 .state(autoStates.depositPos3)
                 .onEnter(()->drive.setTarget(depositPos13))
                 .transition(()->drive.atTarget())
-                .transitionTimed(0.7)
+                .transitionTimed(0.3)
                 .state(autoStates.depositPos3f2)
                 .onEnter(()->drive.setTarget(depositPos23))
-                .transitionTimed(0.8)
+                .transitionTimed(1.2)
                 .state(autoStates.score3)
                 .onEnter(()->scoredPressed=true)
                 .transition(()->specimenMachine.getState()== AutomatedTeleop.SpecimenScoreStates.OPENCLAW)
@@ -280,27 +283,46 @@ public class SpecimenAuto extends LinearOpMode {
                 .transitionTimed(0.2)
                 .state(autoStates.intakePos4)
                 .onEnter(()->drive.setTarget(specimenGrab3))
-                .transitionTimed(1.6)
+                .transition(() -> drive.atTarget())
                 .state(autoStates.intakePos4f2)
                 .onEnter(()->drive.setTarget(specimenGrabForward3))
-                .transitionTimed(0.4)
+                .transitionTimed(0.2)
                 .state(autoStates.closeClaw4)
                 .onEnter(()-> closedPressed=true)
-                .transitionTimed(0.3)
+                .transitionTimed(0.1)
                 .state(autoStates.depositPos4)
                 .onEnter(()->drive.setTarget(depositPos14))
-                .transition(()->drive.atTarget())
-                .transitionTimed(0.8)
+                .transitionTimed(0.2)
                 .state(autoStates.depositPos4f2)
                 .onEnter(()->drive.setTarget(depositPos24))
-                .transitionTimed(1.4)
+                .transitionTimed(1.2)
                 .state(autoStates.score4)
                 .onEnter(()->scoredPressed=true)
                 .transition(()->specimenMachine.getState()== AutomatedTeleop.SpecimenScoreStates.OPENCLAW)
-
                 .transitionTimed(0.8)
+                .state(autoStates.wallgrab11)
+                .onEnter(()->drive.setTarget(specimenGrab3))
+                .transition(() -> drive.atTarget())
+                .state(autoStates.wallgrag12)
+                .onEnter(()->drive.setTarget(specimenGrabForward3))
+                .transitionTimed(0.2)
+                .state(autoStates.closeClaw5)
+                .onEnter(()-> outtake.closeClaw())
+                .transitionTimed(0.1)
+                .state(autoStates.bucket1)
+                .onEnter(() -> {
+                    drive.setTarget(bucketPos);
+                    outtake.setTargetPos(1250);
+                })
+                .transitionTimed(2.5)
+                .state(autoStates.clawOpen1)
+                .onEnter(()->outtake.openClaw())
+                .transitionTimed(0.2)
                 .state(autoStates.park)
-                .onEnter(()->drive.setTarget(park))
+                .onEnter(() -> {
+                    drive.setTarget(park);
+                    outtake.setTargetPos(0);
+                })
                 .build();
 
         WayPoint startPoint=new WayPoint(new Pose2D(DistanceUnit.INCH, 2, -60.5, AngleUnit.DEGREES, 90),

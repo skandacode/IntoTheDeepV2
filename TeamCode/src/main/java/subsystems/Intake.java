@@ -1,6 +1,8 @@
 package subsystems;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDFController;
+import com.qualcomm.hardware.lynx.LynxI2cDeviceSynch;
 import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.TouchSensor;
@@ -8,16 +10,18 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 import java.util.Arrays;
-
+@Config
 public class Intake {
-    private CachedMotorEx extendoMotor;
-    private CachedMotorEx intakeMotor;
+    CachedMotorEx extendoMotor;
+    CachedMotorEx intakeMotor;
     private CachedServo intakeFlip1;
     private CachedServo intakeFlip2;
     private CachedServo cover;
-    private TouchSensor limitSwitch;
+    public TouchSensor limitSwitch;
     private CachedMotorEx backrightdt;
     private RevColorSensorV3 intakecolor;
+
+    LaserRangefinder lrf;
 
     private PIDFController controller = new PIDFController(0.01, 0, 0, 0);
 
@@ -26,6 +30,13 @@ public class Intake {
 
     public enum SampleColor {RED, BLUE, YELLOW, NONE}
     public static double distThreshold = 3;
+
+    public static double secondSampleDistThresh = 50;
+
+    public double intakePower=0;
+
+    public static double k=0.05;
+    private double filtered=50;
 
     public Intake(HardwareMap hwMap){
         extendoMotor = new CachedMotorEx(hwMap, "extendo");
@@ -36,12 +47,15 @@ public class Intake {
         cover = new CachedServo(hwMap.servo.get("cover"));
         limitSwitch = hwMap.touchSensor.get("intakeEnd");
         intakecolor = hwMap.get(RevColorSensorV3.class, "color");
+        lrf = new LaserRangefinder(hwMap.get(RevColorSensorV3.class, "laser"));
+        lrf.i2c.setBusSpeed(LynxI2cDeviceSynch.BusSpeed.FAST_400K);
     }
     public void setExtendoPower(double power){
         extendoMotor.set(-power);
     }
     public void setIntakePower(double power){
         intakeMotor.set(-power);
+        intakePower=power;
     }
     public void setIntakeFlip(double pos){
         intakeFlip1.setPosition(pos);
@@ -49,9 +63,9 @@ public class Intake {
     }
     public void setCover(boolean closed){
         if (closed){
-            cover.setPosition(0.95);
+            cover.setPosition(0.93);
         }else{
-            cover.setPosition(0.05);
+            cover.setPosition(0.1);
         }
     }
     public int getExtendoMotorPosition(){
@@ -68,6 +82,7 @@ public class Intake {
             if (!retracted){
                 power=-1;
                 //System.out.println("Retracting and not pressed");
+
             }else{
                 power=-0.4;
                 if (currExtendoPos!=0) {
@@ -91,9 +106,9 @@ public class Intake {
     }
     public void transferPos(){
         controller.setSetPoint(0);
-        setIntakeFlip(0.47);
+        setIntakeFlip(0.45);
         setCover(false);
-        setIntakePower(0.3);
+        //setIntakePower(0.3);
     }
     public void intakePos(int target){
         controller.setSetPoint(target);
@@ -105,10 +120,10 @@ public class Intake {
         setIntakePower(1);
     }
     public void eject(){
-        setIntakeFlip(0.35);
+        setIntakeFlip(0.3);
     }
     public boolean isRetracted(){
-        return retracted;
+        return limitSwitch.isPressed();
     }
     public int[] getRawSensorValues() {
         return new int[]{intakecolor.red(), intakecolor.green(), intakecolor.blue()}; // Return RGB as an array
@@ -145,4 +160,15 @@ public class Intake {
     public double getTarget(){
         return controller.getSetPoint();
     }
+    public double getLaserDistance(){
+        double distance = lrf.getDistance(DistanceUnit.MM);
+        filtered=filtered*(1-k)+distance*k;
+        return distance;
+    }
+    public boolean isJammed(){
+        double c=intakeMotor.getCurrent();
+        System.out.println(c);
+        return c>5;
+    }
+
 }
