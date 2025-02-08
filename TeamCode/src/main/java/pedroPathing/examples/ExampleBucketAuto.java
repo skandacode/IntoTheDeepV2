@@ -1,5 +1,7 @@
 package pedroPathing.examples;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierCurve;
@@ -14,6 +16,8 @@ import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
+import subsystems.Hang;
+import subsystems.Intake;
 
 /**
  * This is an example auto that showcases movement and control of two servos autonomously.
@@ -29,6 +33,8 @@ import pedroPathing.constants.LConstants;
 public class ExampleBucketAuto extends OpMode {
 
     private Follower follower;
+    private Hang hang;
+    private Intake intake;
     private Timer pathTimer, actionTimer, opmodeTimer;
 
     /** This is the variable where we store the state of our auto.
@@ -45,22 +51,22 @@ public class ExampleBucketAuto extends OpMode {
      * Lets assume the Robot is facing the human player and we want to score in the bucket */
 
     /** Start Pose of our robot */
-    private final Pose startPose = new Pose(9, 111, Math.toRadians(270));
+    private final Pose startPose = new Pose(14, 129, Math.toRadians(270));
 
     /** Scoring Pose of our robot. It is facing the submersible at a -45 degree (315 degree) angle. */
-    private final Pose scorePose = new Pose(14, 129, Math.toRadians(315));
+    private final Pose scorePose = new Pose(9, 111, Math.toRadians(315));
 
     /** Lowest (First) Sample from the Spike Mark */
-    private final Pose pickup1Pose = new Pose(37, 121, Math.toRadians(0));
+    private final Pose pickup1Pose = new Pose(14, 111, Math.toRadians(270));
 
     /** Middle (Second) Sample from the Spike Mark */
-    private final Pose pickup2Pose = new Pose(43, 130, Math.toRadians(0));
+    private final Pose pickup2Pose = new Pose(8, 110, Math.toRadians(270));
 
     /** Highest (Third) Sample from the Spike Mark */
-    private final Pose pickup3Pose = new Pose(49, 135, Math.toRadians(0));
+    private final Pose pickup3Pose = new Pose(27, 115, Math.toRadians(255));
 
     /** Park Pose for our robot, after we do all of the scoring. */
-    private final Pose parkPose = new Pose(60, 98, Math.toRadians(90));
+    private final Pose parkPose = new Pose(20, 98, Math.toRadians(0));
 
     /** Park Control Pose for our robot, this is used to manipulate the bezier curve that we will create for the parking.
      * The Robot will not go to this pose, it is used a control point for our bezier curve. */
@@ -248,6 +254,8 @@ public class ExampleBucketAuto extends OpMode {
 
         // These loop the movements of the robot
         follower.update();
+        intake.update();
+        //follower.telemetryDebug(telemetry);
         autonomousPathUpdate();
 
         // Feedback to Driver Hub
@@ -264,9 +272,13 @@ public class ExampleBucketAuto extends OpMode {
         pathTimer = new Timer();
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
-
+        telemetry=new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
+        hang=new Hang(hardwareMap);
+        hang.setPtoEngaged(false);
+        intake=new Intake(hardwareMap);
+        intake.transferPos();
         follower.setStartingPose(startPose);
         buildPaths();
     }

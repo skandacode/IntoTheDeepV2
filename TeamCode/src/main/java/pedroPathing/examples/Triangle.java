@@ -15,8 +15,6 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
-import subsystems.Hang;
-import subsystems.Intake;
 
 
 /**
@@ -30,8 +28,7 @@ import subsystems.Intake;
 @Autonomous(name = "Triangle", group = "Examples")
 public class Triangle extends OpMode {
     private Follower follower;
-    private Hang hang;
-    private Intake intake;
+
     private final Pose startPose = new Pose(0,0, Math.toRadians(0));
     private final Pose interPose = new Pose(24, -24, Math.toRadians(90));
     private final Pose endPose = new Pose(24, 24, Math.toRadians(45));
@@ -47,7 +44,7 @@ public class Triangle extends OpMode {
     @Override
     public void loop() {
         follower.update();
-        intake.update();
+
         if (follower.atParametricEnd()) {
             follower.followPath(triangle, true);
         }
@@ -64,10 +61,7 @@ public class Triangle extends OpMode {
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
         follower.setStartingPose(startPose);
-        hang=new Hang(hardwareMap);
-        hang.setPtoEngaged(false);
-        intake=new Intake(hardwareMap);
-        intake.transferPos();
+
         triangle = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(startPose), new Point(interPose)))
                 .setLinearHeadingInterpolation(startPose.getHeading(), interPose.getHeading())
