@@ -1,7 +1,10 @@
+package Old_autos;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.hardware.lynx.LynxModule;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import java.util.List;
@@ -12,6 +15,8 @@ import subsystems.Outtake;
 
 @Config
 @TeleOp
+@Disabled
+
 public class TeleopManual extends LinearOpMode{
     Outtake outtake;
     Intake intake;

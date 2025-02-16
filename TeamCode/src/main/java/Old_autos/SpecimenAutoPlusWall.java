@@ -1,8 +1,11 @@
+package Old_autos;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.sfdev.assembly.state.StateMachine;
 import com.sfdev.assembly.state.StateMachineBuilder;
@@ -20,6 +23,8 @@ import subsystems.pathing.WayPoint;
 
 @Autonomous
 @Config
+@Disabled
+
 public class SpecimenAutoPlusWall extends LinearOpMode {
     Drivetrain drive;
     Intake intake;
@@ -39,6 +44,8 @@ public class SpecimenAutoPlusWall extends LinearOpMode {
         wallgrab11, wallgrag12, closeClaw5, bucket1, clawOpen1,
         park
     }
+    public enum SpecimenScoreStates {IDLE, C, INTAKEPOS, INTAKE, CLOSE_CLAW, HOLD, SCORE, OPENCLAW, CLOSEBEFORERETRACT, RESET, RETRACT}
+
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -112,7 +119,7 @@ public class SpecimenAutoPlusWall extends LinearOpMode {
                 new Pose2D(DistanceUnit.INCH, 1, 1, AngleUnit.DEGREES, 2));
 
         StateMachine specimenMachine = new StateMachineBuilder()
-                .state(AutomatedTeleop.SpecimenScoreStates.INTAKE)
+                .state(SpecimenScoreStates.INTAKE)
                 .onEnter(() -> {
                     outtake.sampleScore();
                     outtake.setTargetPos(0);
@@ -120,22 +127,22 @@ public class SpecimenAutoPlusWall extends LinearOpMode {
                 })
                 .transition(() -> closedPressed)
                 .onExit(()->closedPressed=false)
-                .state(AutomatedTeleop.SpecimenScoreStates.CLOSE_CLAW)
+                .state(SpecimenScoreStates.CLOSE_CLAW)
                 .onEnter(() -> outtake.closeClaw())
                 .transitionTimed(0.3)
-                .state(AutomatedTeleop.SpecimenScoreStates.HOLD)
+                .state(SpecimenScoreStates.HOLD)
                 .onEnter(() -> outtake.specHold())
                 .transition(() -> (outtake.atTarget() && scoredPressed))
                 .onExit(()->scoredPressed=false)
-                .state(AutomatedTeleop.SpecimenScoreStates.SCORE)
+                .state(SpecimenScoreStates.SCORE)
                 .onEnter(() -> outtake.specScore())
                 .transitionTimed(0.1)
-                .state(AutomatedTeleop.SpecimenScoreStates.OPENCLAW)
+                .state(SpecimenScoreStates.OPENCLAW)
                 .onEnter(() -> outtake.openClaw())
                 .transitionTimed(0.1)
-                .state(AutomatedTeleop.SpecimenScoreStates.CLOSEBEFORERETRACT)
+                .state(SpecimenScoreStates.CLOSEBEFORERETRACT)
                 .onEnter(() -> outtake.closeClaw())
-                .transitionTimed(0.3, AutomatedTeleop.SpecimenScoreStates.INTAKE)
+                .transitionTimed(0.3, SpecimenScoreStates.INTAKE)
                 .build();
 
 
@@ -153,7 +160,7 @@ public class SpecimenAutoPlusWall extends LinearOpMode {
                 .transitionTimed(1)
                 .state(autoStates.scorePreload)
                 .onEnter(()->scoredPressed=true)
-                .transition(()->specimenMachine.getState()== AutomatedTeleop.SpecimenScoreStates.OPENCLAW)
+                .transition(()->specimenMachine.getState()== SpecimenScoreStates.OPENCLAW)
 
                 .state(autoStates.intakePreExtend1)
                 .onEnter(()->drive.setTarget(intakePreExtend1))
@@ -228,7 +235,7 @@ public class SpecimenAutoPlusWall extends LinearOpMode {
                 .transitionTimed(1.2)
                 .state(autoStates.score1)
                 .onEnter(()->scoredPressed=true)
-                .transition(()->specimenMachine.getState()== AutomatedTeleop.SpecimenScoreStates.OPENCLAW)
+                .transition(()->specimenMachine.getState()== SpecimenScoreStates.OPENCLAW)
                 .transitionTimed(0.8)
                 .state(autoStates.preintake2)
                 .onEnter(()->drive.setTarget(preintake))
@@ -251,7 +258,7 @@ public class SpecimenAutoPlusWall extends LinearOpMode {
                 .transitionTimed(1.2)
                 .state(autoStates.score2)
                 .onEnter(()->scoredPressed=true)
-                .transition(()->specimenMachine.getState()== AutomatedTeleop.SpecimenScoreStates.OPENCLAW)
+                .transition(()->specimenMachine.getState()== SpecimenScoreStates.OPENCLAW)
 
                 .transitionTimed(0.8)
                 .state(autoStates.preintake3)
@@ -275,7 +282,7 @@ public class SpecimenAutoPlusWall extends LinearOpMode {
                 .transitionTimed(1.2)
                 .state(autoStates.score3)
                 .onEnter(()->scoredPressed=true)
-                .transition(()->specimenMachine.getState()== AutomatedTeleop.SpecimenScoreStates.OPENCLAW)
+                .transition(()->specimenMachine.getState()== SpecimenScoreStates.OPENCLAW)
 
                 .transitionTimed(0.7)
                 .state(autoStates.preintake4)
@@ -298,7 +305,7 @@ public class SpecimenAutoPlusWall extends LinearOpMode {
                 .transitionTimed(1.2)
                 .state(autoStates.score4)
                 .onEnter(()->scoredPressed=true)
-                .transition(()->specimenMachine.getState()== AutomatedTeleop.SpecimenScoreStates.OPENCLAW)
+                .transition(()->specimenMachine.getState()== SpecimenScoreStates.OPENCLAW)
                 .transitionTimed(0.8)
                 .state(autoStates.wallgrab11)
                 .onEnter(()->drive.setTarget(specimenGrab3))
@@ -349,7 +356,7 @@ public class SpecimenAutoPlusWall extends LinearOpMode {
         drive.setPosition(startPoint.getPosition());
         autoMachine.start();
         specimenMachine.start();
-        specimenMachine.setState(AutomatedTeleop.SpecimenScoreStates.CLOSE_CLAW);
+        specimenMachine.setState(SpecimenScoreStates.CLOSE_CLAW);
         outtake.specHold();
         long prevLoop = System.nanoTime();
         while (opModeIsActive()) {

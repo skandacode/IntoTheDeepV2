@@ -1,8 +1,11 @@
+package Old_autos;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.sfdev.assembly.state.StateMachine;
 import com.sfdev.assembly.state.StateMachineBuilder;
@@ -20,7 +23,8 @@ import subsystems.pathing.WayPoint;
 
 @Autonomous
 @Config
-public class SpecimenAutoSlow extends LinearOpMode {
+@Disabled
+public class SpecimenAuto extends LinearOpMode {
     Drivetrain drive;
     Intake intake;
     Outtake outtake;
@@ -34,10 +38,12 @@ public class SpecimenAutoSlow extends LinearOpMode {
         intakePreExtend3, intakeExtend3, intakeExtend3Pos, intakeReversePos3, intakeReverse3,
         intakeRetract1, intakePos1,intakePos1f2, closeClaw1, depositPos1, depositPos1f2, score1,
         preintake2, intakePos2, intakePos2f2, closeClaw2, depositPos2, depositPos2f2,score2,
-        preintake3,intakePos3, intakePos3f2, closeClaw3, depositPos3, depositPos3f2, strafe,score3,
+        preintake3,intakePos3, intakePos3f2, closeClaw3, depositPos3, depositPos3f2, score3,
         preintake4,intakePos4, intakePos4f2, closeClaw4, depositPos4, depositPos4f2, score4,
         park
     }
+    public enum SpecimenScoreStates {IDLE, C, INTAKEPOS, INTAKE, CLOSE_CLAW, HOLD, SCORE, OPENCLAW, CLOSEBEFORERETRACT, RESET, RETRACT}
+
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -64,19 +70,19 @@ public class SpecimenAutoSlow extends LinearOpMode {
                 new Pose2D(DistanceUnit.INCH,  4, 4, AngleUnit.DEGREES, 3));
         WayPoint depositPos2=new WayPoint(new Pose2D(DistanceUnit.INCH, -2, -24, AngleUnit.DEGREES, 90),
                 new Pose2D(DistanceUnit.INCH,  1, 1, AngleUnit.DEGREES, 2));
-        WayPoint depositPos12=new WayPoint(new Pose2D(DistanceUnit.INCH, -7, -45, AngleUnit.DEGREES, 90),
+        WayPoint depositPos12=new WayPoint(new Pose2D(DistanceUnit.INCH, -4, -45, AngleUnit.DEGREES, 90),
                 new Pose2D(DistanceUnit.INCH,  4, 4, AngleUnit.DEGREES, 3));
-        WayPoint depositPos22=new WayPoint(new Pose2D(DistanceUnit.INCH, -7, -24, AngleUnit.DEGREES, 90),
+        WayPoint depositPos22=new WayPoint(new Pose2D(DistanceUnit.INCH, -4, -24, AngleUnit.DEGREES, 90),
                 new Pose2D(DistanceUnit.INCH,  1, 1, AngleUnit.DEGREES, 2));
-        WayPoint depositPos22Strafe=new WayPoint(new Pose2D(DistanceUnit.INCH, -2, -24, AngleUnit.DEGREES, 90),
+        WayPoint depositPos22Strafe=new WayPoint(new Pose2D(DistanceUnit.INCH, -5, -24, AngleUnit.DEGREES, 90),
                 new Pose2D(DistanceUnit.INCH,  1, 1, AngleUnit.DEGREES, 2));
-        WayPoint depositPos13=new WayPoint(new Pose2D(DistanceUnit.INCH, -10, -45, AngleUnit.DEGREES, 90),
+        WayPoint depositPos13=new WayPoint(new Pose2D(DistanceUnit.INCH, -7.5, -45, AngleUnit.DEGREES, 90),
                 new Pose2D(DistanceUnit.INCH,  4, 4, AngleUnit.DEGREES, 3));
-        WayPoint depositPos23=new WayPoint(new Pose2D(DistanceUnit.INCH, -10, -24, AngleUnit.DEGREES, 90),
+        WayPoint depositPos23=new WayPoint(new Pose2D(DistanceUnit.INCH, -7.5, -24, AngleUnit.DEGREES, 90),
                 new Pose2D(DistanceUnit.INCH,  1, 1, AngleUnit.DEGREES, 2));
-        WayPoint depositPos14=new WayPoint(new Pose2D(DistanceUnit.INCH, -10, -45, AngleUnit.DEGREES, 90),
+        WayPoint depositPos14=new WayPoint(new Pose2D(DistanceUnit.INCH, -6, -45, AngleUnit.DEGREES, 90),
                 new Pose2D(DistanceUnit.INCH,  4, 4, AngleUnit.DEGREES, 3));
-        WayPoint depositPos24=new WayPoint(new Pose2D(DistanceUnit.INCH, -10, -23, AngleUnit.DEGREES, 90),
+        WayPoint depositPos24=new WayPoint(new Pose2D(DistanceUnit.INCH, -6, -23, AngleUnit.DEGREES, 90),
                 new Pose2D(DistanceUnit.INCH,  1, 1, AngleUnit.DEGREES, 2));
         WayPoint intakeExtend1Pos=new WayPoint(new Pose2D(DistanceUnit.INCH, 22, -37, AngleUnit.DEGREES, 34),
                 new Pose2D(DistanceUnit.INCH, 1, 1, AngleUnit.DEGREES, 1));
@@ -94,22 +100,22 @@ public class SpecimenAutoSlow extends LinearOpMode {
                 new Pose2D(DistanceUnit.INCH, 1, 1, AngleUnit.DEGREES, 2));
         WayPoint specimenGrab=new WayPoint(new Pose2D(DistanceUnit.INCH, 36, -51, AngleUnit.DEGREES, 90),
                 new Pose2D(DistanceUnit.INCH, 1, 1, AngleUnit.DEGREES, 2));
-        WayPoint specimenGrabForward=new WayPoint(new Pose2D(DistanceUnit.INCH, 36, -57, AngleUnit.DEGREES, 90),
+        WayPoint specimenGrabForward=new WayPoint(new Pose2D(DistanceUnit.INCH, 36, -56, AngleUnit.DEGREES, 90),
                 new Pose2D(DistanceUnit.INCH, 1, 0.5, AngleUnit.DEGREES, 2));
-        WayPoint specimenGrab2=new WayPoint(new Pose2D(DistanceUnit.INCH, 36, -49, AngleUnit.DEGREES, 90),
+        WayPoint specimenGrab2=new WayPoint(new Pose2D(DistanceUnit.INCH, 36, -51, AngleUnit.DEGREES, 90),
                 new Pose2D(DistanceUnit.INCH, 1, 1, AngleUnit.DEGREES, 2));
-        WayPoint specimenGrabForward2=new WayPoint(new Pose2D(DistanceUnit.INCH, 36, -57, AngleUnit.DEGREES, 90),
+        WayPoint specimenGrabForward2=new WayPoint(new Pose2D(DistanceUnit.INCH, 36, -55.5, AngleUnit.DEGREES, 90),
                 new Pose2D(DistanceUnit.INCH, 0.5, 0.5, AngleUnit.DEGREES, 2));
-        WayPoint specimenGrab3=new WayPoint(new Pose2D(DistanceUnit.INCH, 36, -48, AngleUnit.DEGREES, 90),
+        WayPoint specimenGrab3=new WayPoint(new Pose2D(DistanceUnit.INCH, 36, -50, AngleUnit.DEGREES, 90),
                 new Pose2D(DistanceUnit.INCH, 1, 0.5, AngleUnit.DEGREES, 2));
-        WayPoint specimenGrabForward3=new WayPoint(new Pose2D(DistanceUnit.INCH, 36, -57, AngleUnit.DEGREES, 90),
+        WayPoint specimenGrabForward3=new WayPoint(new Pose2D(DistanceUnit.INCH, 36, -55, AngleUnit.DEGREES, 90),
                 new Pose2D(DistanceUnit.INCH, 0.5, 0.5, AngleUnit.DEGREES, 2));
 
         WayPoint park=new WayPoint(new Pose2D(DistanceUnit.INCH, 45, -52, AngleUnit.DEGREES, 180),
                 new Pose2D(DistanceUnit.INCH, 1, 1, AngleUnit.DEGREES, 2));
 
         StateMachine specimenMachine = new StateMachineBuilder()
-                .state(AutomatedTeleop.SpecimenScoreStates.INTAKE)
+                .state(SpecimenScoreStates.INTAKE)
                 .onEnter(() -> {
                     outtake.sampleScore();
                     outtake.setTargetPos(0);
@@ -117,22 +123,22 @@ public class SpecimenAutoSlow extends LinearOpMode {
                 })
                 .transition(() -> closedPressed)
                 .onExit(()->closedPressed=false)
-                .state(AutomatedTeleop.SpecimenScoreStates.CLOSE_CLAW)
+                .state(SpecimenScoreStates.CLOSE_CLAW)
                 .onEnter(() -> outtake.closeClaw())
                 .transitionTimed(0.3)
-                .state(AutomatedTeleop.SpecimenScoreStates.HOLD)
+                .state(SpecimenScoreStates.HOLD)
                 .onEnter(() -> outtake.specHold())
                 .transition(() -> (outtake.atTarget() && scoredPressed))
                 .onExit(()->scoredPressed=false)
-                .state(AutomatedTeleop.SpecimenScoreStates.SCORE)
+                .state(SpecimenScoreStates.SCORE)
                 .onEnter(() -> outtake.specScore())
                 .transitionTimed(0.1)
-                .state(AutomatedTeleop.SpecimenScoreStates.OPENCLAW)
+                .state(SpecimenScoreStates.OPENCLAW)
                 .onEnter(() -> outtake.openClaw())
                 .transitionTimed(0.1)
-                .state(AutomatedTeleop.SpecimenScoreStates.CLOSEBEFORERETRACT)
+                .state(SpecimenScoreStates.CLOSEBEFORERETRACT)
                 .onEnter(() -> outtake.closeClaw())
-                .transitionTimed(0.3, AutomatedTeleop.SpecimenScoreStates.INTAKE)
+                .transitionTimed(0.3, SpecimenScoreStates.INTAKE)
                 .build();
 
 
@@ -147,10 +153,10 @@ public class SpecimenAutoSlow extends LinearOpMode {
                 .onEnter(()->{
                     drive.setTarget(depositPosPreload2);
                 })
-                .transitionTimed(1.25)
+                .transitionTimed(1)
                 .state(autoStates.scorePreload)
                 .onEnter(()->scoredPressed=true)
-                .transition(()->specimenMachine.getState()== AutomatedTeleop.SpecimenScoreStates.OPENCLAW)
+                .transition(()->specimenMachine.getState()== SpecimenScoreStates.OPENCLAW)
 
                 .state(autoStates.intakePreExtend1)
                 .onEnter(()->drive.setTarget(intakePreExtend1))
@@ -209,7 +215,7 @@ public class SpecimenAutoSlow extends LinearOpMode {
                 .transitionTimed(0.1)
                 .state(autoStates.intakePos1)
                 .onEnter(()->drive.setTarget(specimenGrab))
-                .transitionTimed(1.5)
+                .transitionTimed(1.4)
                 .state(autoStates.intakePos1f2)
                 .onEnter(()->drive.setTarget(specimenGrabForward))
                 .transitionTimed(0.4)
@@ -225,14 +231,14 @@ public class SpecimenAutoSlow extends LinearOpMode {
                 .transitionTimed(0.8)
                 .state(autoStates.score1)
                 .onEnter(()->scoredPressed=true)
-                .transition(()->specimenMachine.getState()== AutomatedTeleop.SpecimenScoreStates.OPENCLAW)
-                .transitionTimed(1)
+                .transition(()->specimenMachine.getState()== SpecimenScoreStates.OPENCLAW)
+                .transitionTimed(0.8)
                 .state(autoStates.preintake2)
                 .onEnter(()->drive.setTarget(preintake))
                 .transitionTimed(0.2)
                 .state(autoStates.intakePos2)
                 .onEnter(()->drive.setTarget(specimenGrab2))
-                .transitionTimed(1.7)
+                .transitionTimed(1.4)
                 .state(autoStates.intakePos2f2)
                 .onEnter(()->drive.setTarget(specimenGrabForward2))
                 .transitionTimed(0.4)
@@ -248,15 +254,15 @@ public class SpecimenAutoSlow extends LinearOpMode {
                 .transitionTimed(0.8)
                 .state(autoStates.score2)
                 .onEnter(()->scoredPressed=true)
-                .transition(()->specimenMachine.getState()== AutomatedTeleop.SpecimenScoreStates.OPENCLAW)
+                .transition(()->specimenMachine.getState()== SpecimenScoreStates.OPENCLAW)
 
-                .transitionTimed(1)
+                .transitionTimed(0.8)
                 .state(autoStates.preintake3)
                 .onEnter(()->drive.setTarget(preintake))
                 .transitionTimed(0.2)
                 .state(autoStates.intakePos3)
                 .onEnter(()->drive.setTarget(specimenGrab3))
-                .transitionTimed(1.7)
+                .transitionTimed(1.4)
                 .state(autoStates.intakePos3f2)
                 .onEnter(()->drive.setTarget(specimenGrabForward3))
                 .transitionTimed(0.4)
@@ -270,14 +276,11 @@ public class SpecimenAutoSlow extends LinearOpMode {
                 .state(autoStates.depositPos3f2)
                 .onEnter(()->drive.setTarget(depositPos23))
                 .transitionTimed(0.8)
-                .state(autoStates.strafe)
-                .onEnter(()->drive.setTarget(depositPos22Strafe))
-                .transitionTimed(0.6)
                 .state(autoStates.score3)
                 .onEnter(()->scoredPressed=true)
-                .transition(()->specimenMachine.getState()== AutomatedTeleop.SpecimenScoreStates.OPENCLAW)
+                .transition(()->specimenMachine.getState()== SpecimenScoreStates.OPENCLAW)
 
-                .transitionTimed(1)
+                .transitionTimed(0.7)
                 .state(autoStates.preintake4)
                 .onEnter(()->drive.setTarget(preintake))
                 .transitionTimed(0.2)
@@ -299,9 +302,9 @@ public class SpecimenAutoSlow extends LinearOpMode {
                 .transitionTimed(1.4)
                 .state(autoStates.score4)
                 .onEnter(()->scoredPressed=true)
-                .transition(()->specimenMachine.getState()== AutomatedTeleop.SpecimenScoreStates.OPENCLAW)
+                .transition(()->specimenMachine.getState()== SpecimenScoreStates.OPENCLAW)
 
-                .transitionTimed(1)
+                .transitionTimed(0.8)
                 .state(autoStates.park)
                 .onEnter(()->drive.setTarget(park))
                 .build();
@@ -330,7 +333,7 @@ public class SpecimenAutoSlow extends LinearOpMode {
         drive.setPosition(startPoint.getPosition());
         autoMachine.start();
         specimenMachine.start();
-        specimenMachine.setState(AutomatedTeleop.SpecimenScoreStates.CLOSE_CLAW);
+        specimenMachine.setState(SpecimenScoreStates.CLOSE_CLAW);
         outtake.specHold();
         long prevLoop = System.nanoTime();
         while (opModeIsActive()) {

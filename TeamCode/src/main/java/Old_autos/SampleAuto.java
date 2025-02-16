@@ -1,8 +1,11 @@
+package Old_autos;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.sfdev.assembly.state.StateMachine;
 import com.sfdev.assembly.state.StateMachineBuilder;
@@ -20,6 +23,7 @@ import subsystems.pathing.WayPoint;
 
 @Autonomous
 @Config
+@Disabled
 public class SampleAuto extends LinearOpMode {
     Drivetrain drive;
     Intake intake;
@@ -37,7 +41,11 @@ public class SampleAuto extends LinearOpMode {
         PRESUB, SUB, EXTENDSUB, INTAKESUB, RETRACTSUB, EXTENDAGAIN, INTAKEAGAIN, INTAKESUBSTRAFE, EJECT, PREBUCKETSUB, PREBUCKET5, BUCKET5, SCORE5,
         PREPARK, LIFTOUTTAKE, PARK, TOUCHBAR
     }
+    public enum SampleStates {
+        IDLE, EXTEND, SENSORWAIT, SENSE, RETRACT, OPENCOVER, WAIT, CLOSE, LIFT, PARTIALFLIP, SCORE, AUTOWAIT, OPEN, LOWERLIFT, EJECTFLIP, EJECTLIDOPEN
+    }
     Intake.SampleColor currentSense= Intake.SampleColor.NONE;
+
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -82,42 +90,42 @@ public class SampleAuto extends LinearOpMode {
 
 
         StateMachine sampleMachine = new StateMachineBuilder()
-                .state(AutomatedTeleop.SampleStates.IDLE)
+                .state(SampleStates.IDLE)
                 .onEnter(() -> {
                     intake.transferPos();
                     intake.setIntakePower(0);
                 })
                 .transition(() -> yPressed)
                 .onExit(()->yPressed=false)
-                .state(AutomatedTeleop.SampleStates.EXTEND)
+                .state(SampleStates.EXTEND)
                 .onEnter(()->{
                     intake.intakePos(1000);
                 })
                 .transition(()->intake.isSampleIntaked())
-                .state(AutomatedTeleop.SampleStates.SENSORWAIT)
+                .state(SampleStates.SENSORWAIT)
                 .onEnter(()->intake.intakePos())
                 .transitionTimed(0.05)
-                .state(AutomatedTeleop.SampleStates.SENSE)
+                .state(SampleStates.SENSE)
                 .transition(() -> {
                     currentSense=intake.getColor();
                     return currentSense == Intake.SampleColor.YELLOW || currentSense== allianceColor;
-                }, AutomatedTeleop.SampleStates.RETRACT)
-                .transition(()->currentSense == Intake.SampleColor.NONE, AutomatedTeleop.SampleStates.EXTEND)
-                .transition(() -> currentSense != Intake.SampleColor.YELLOW && currentSense != allianceColor, AutomatedTeleop.SampleStates.EJECTFLIP)
+                }, SampleStates.RETRACT)
+                .transition(()->currentSense == Intake.SampleColor.NONE, SampleStates.EXTEND)
+                .transition(() -> currentSense != Intake.SampleColor.YELLOW && currentSense != allianceColor, SampleStates.EJECTFLIP)
 
-                .state(AutomatedTeleop.SampleStates.EJECTFLIP, true)
+                .state(SampleStates.EJECTFLIP, true)
                 .onEnter(() -> {
                     intake.eject();
                 })
-                .transitionTimed(0.2, AutomatedTeleop.SampleStates.EJECTLIDOPEN)
+                .transitionTimed(0.2, SampleStates.EJECTLIDOPEN)
 
-                .state(AutomatedTeleop.SampleStates.EJECTLIDOPEN, true)
+                .state(SampleStates.EJECTLIDOPEN, true)
                 .onEnter(() -> {
                     intake.setCover(false);
                 })
-                .transitionTimed(0.4, AutomatedTeleop.SampleStates.EXTEND)
+                .transitionTimed(0.4, SampleStates.EXTEND)
 
-                .state(AutomatedTeleop.SampleStates.RETRACT)
+                .state(SampleStates.RETRACT)
                 .onEnter(()->{
                     intake.transferPos();
                     intake.setIntakePower(0.3);
@@ -126,7 +134,7 @@ public class SampleAuto extends LinearOpMode {
                     outtake.openClaw();
                 })
                 .transitionTimed(0.05)
-                .state(AutomatedTeleop.SampleStates.OPENCOVER)
+                .state(SampleStates.OPENCOVER)
                 .onEnter(() -> {
                     intake.setCover(false);
                     intake.setIntakePower(0.05);
@@ -134,60 +142,60 @@ public class SampleAuto extends LinearOpMode {
                 })
                 .transition(()-> intake.isRetracted())
 
-                .state(AutomatedTeleop.SampleStates.WAIT)
+                .state(SampleStates.WAIT)
                 .onEnter(() -> {
                     intake.setIntakePower(0.4);
                     outtake.setRail(0.29);
                 })
                 .transitionTimed(0.4)
 
-                .state(AutomatedTeleop.SampleStates.CLOSE)
+                .state(SampleStates.CLOSE)
                 .onEnter(() -> {
                     outtake.closeClaw();
                     intake.setIntakePower(0.2);
                 })
                 .transitionTimed(0.2)
 
-                .state(AutomatedTeleop.SampleStates.LIFT)
+                .state(SampleStates.LIFT)
                 .onEnter(() -> {
                     outtake.setTargetPos(970);
                     intake.setIntakePower(-1);
                 })
                 .transitionTimed(0.3)
 
-                .state(AutomatedTeleop.SampleStates.PARTIALFLIP)
+                .state(SampleStates.PARTIALFLIP)
                 .onEnter(()->outtake.partialSampleFlip())
                 .transition(()->outtake.getCachedPos()>950)
 
-                .state(AutomatedTeleop.SampleStates.SCORE)
+                .state(SampleStates.SCORE)
                 .onEnter(()->outtake.sampleScore())
                 .transition(() -> lbPressed)
                 .onExit(()->lbPressed=false)
 
-                .state(AutomatedTeleop.SampleStates.AUTOWAIT)
+                .state(SampleStates.AUTOWAIT)
                 .transitionTimed(0.2)
 
-                .state(AutomatedTeleop.SampleStates.OPEN)
+                .state(SampleStates.OPEN)
                 .onEnter(() -> outtake.openClaw())
                 .transitionTimed(0.5)
                 .onExit(() -> {
                     outtake.setTargetPos(0);
                     outtake.transferPos();
                 })
-                .state(AutomatedTeleop.SampleStates.LOWERLIFT)
+                .state(SampleStates.LOWERLIFT)
                 .loop(()->{
                     if (outtake.getFlipAnalog()>1.937 && outtake.isRetracted()){
                         outtake.openClaw();
                     }
                 })
-                .transition(() -> outtake.getFlipAnalog()>1.937, AutomatedTeleop.SampleStates.IDLE)
+                .transition(() -> outtake.getFlipAnalog()>1.937, SampleStates.IDLE)
                 .onExit(()->outtake.openClaw())
                 .build();
 
         StateMachine autoMachine = new StateMachineBuilder()
                 .state(autoStates.PREBUCKET1)
                 .onEnter(() -> drive.setTarget(bucketPos2))
-                .transition(()->drive.atTarget() && sampleMachine.getState()== AutomatedTeleop.SampleStates.SCORE)
+                .transition(()->drive.atTarget() && sampleMachine.getState()== SampleStates.SCORE)
                 .state(autoStates.SCORE1)
                 .onEnter(() -> lbPressed = true)
                 .transitionTimed(0.7)
@@ -198,7 +206,7 @@ public class SampleAuto extends LinearOpMode {
                 .transition(() -> drive.atTarget())
                 .state(autoStates.EXTEND1)
                 .onEnter(() -> yPressed = true)
-                .transition(() -> sampleMachine.getState() == AutomatedTeleop.SampleStates.RETRACT)
+                .transition(() -> sampleMachine.getState() == SampleStates.RETRACT)
                 .state(autoStates.PREBUCKET2)
                 .onEnter(() -> drive.setTarget(bucketPos2))
                 .transition(() -> drive.atTarget() && outtake.getCachedPos() > 900)
@@ -212,7 +220,7 @@ public class SampleAuto extends LinearOpMode {
                 .transition(()->drive.atTarget())
                 .state(autoStates.EXTEND2)
                 .onEnter(() -> yPressed = true)
-                .transition(() -> sampleMachine.getState() == AutomatedTeleop.SampleStates.RETRACT)
+                .transition(() -> sampleMachine.getState() == SampleStates.RETRACT)
                 .state(autoStates.PREBUCKET3)
                 .onEnter(() -> drive.setTarget(bucketPos2))
                 .transition(() -> drive.atTarget() && outtake.getCachedPos() > 900)
@@ -226,7 +234,7 @@ public class SampleAuto extends LinearOpMode {
                 .transition(() -> drive.atTarget())
                 .state(autoStates.EXTEND3)
                 .onEnter(() -> yPressed = true)
-                .transition(() -> sampleMachine.getState() == AutomatedTeleop.SampleStates.RETRACT)
+                .transition(() -> sampleMachine.getState() == SampleStates.RETRACT)
                 .state(autoStates.PREBUCKET4)
                 .onEnter(() -> {
                     drive.setTarget(bucketPos3);
@@ -305,7 +313,7 @@ public class SampleAuto extends LinearOpMode {
                 .transitionTimed(0.7, autoStates.EXTENDAGAIN)
                 .state(autoStates.PREBUCKETSUB)
                 .onEnter(() -> {
-                    sampleMachine.setState(AutomatedTeleop.SampleStates.EXTEND);
+                    sampleMachine.setState(SampleStates.EXTEND);
                     intake.setCover(true);
                     intake.setIntakePower(-1);
                     drive.setTarget(presub);
@@ -356,7 +364,7 @@ public class SampleAuto extends LinearOpMode {
         drive.setPosition(startPoint.getPosition());
         sampleMachine.start();
         autoMachine.start();
-        sampleMachine.setState(AutomatedTeleop.SampleStates.LIFT);
+        sampleMachine.setState(SampleStates.WAIT);
         long prevLoop = System.nanoTime();
         while (opModeIsActive()) {
             if (!(controlhub==null)) {

@@ -29,7 +29,7 @@ public class Intake {
     private boolean retracted = true;
 
     public enum SampleColor {RED, BLUE, YELLOW, NONE}
-    public static double distThreshold = 3;
+    public static double distThreshold = 3.7;
 
     public static double secondSampleDistThresh = 50;
 
@@ -49,6 +49,8 @@ public class Intake {
         intakecolor = hwMap.get(RevColorSensorV3.class, "color");
         lrf = new LaserRangefinder(hwMap.get(RevColorSensorV3.class, "laser"));
         lrf.i2c.setBusSpeed(LynxI2cDeviceSynch.BusSpeed.FAST_400K);
+
+        intakeMotor.setCurrentLimit(6);
     }
     public void setExtendoPower(double power){
         extendoMotor.set(-power);
@@ -106,7 +108,7 @@ public class Intake {
     }
     public void transferPos(){
         controller.setSetPoint(0);
-        setIntakeFlip(0.45);
+        setIntakeFlip(0.44);
         setCover(false);
         //setIntakePower(0.3);
     }
@@ -118,6 +120,9 @@ public class Intake {
         setIntakeFlip(0.65);
         setCover(true);
         setIntakePower(1);
+    }
+    public void intakeEject(){
+        setIntakeFlip(0.57);
     }
     public void eject(){
         setIntakeFlip(0.3);
@@ -148,6 +153,7 @@ public class Intake {
                 System.out.println(Arrays.toString(tweakedValues)+" Blue");
                 return SampleColor.BLUE;
             }
+            System.out.println("Failed all checks but somethign is there");
         }else{
             return SampleColor.NONE;
         }
@@ -166,9 +172,7 @@ public class Intake {
         return distance;
     }
     public boolean isJammed(){
-        double c=intakeMotor.getCurrent();
-        System.out.println(c);
-        return c>5;
+        return intakeMotor.isOverCurrent();
     }
 
 }
