@@ -103,7 +103,7 @@ public class AutomatedTeleop extends LinearOpMode {
                     outtake.transferPos();
                     outtake.openClaw();
                 })
-                .transitionTimed(0.01)
+                .transitionTimed(0.015)
                 .state(SampleStates.OPENCOVER)
                 .onEnter(() -> {
                     intake.setCover(false);
@@ -111,6 +111,7 @@ public class AutomatedTeleop extends LinearOpMode {
                     outtake.openClaw();
                 })
                 .transition(()-> intake.isRetracted())
+                .transition(()->gamepad1.x, SampleStates.IDLE)
 
                 .state(SampleStates.WAIT)
                 .onEnter(() -> {
@@ -271,13 +272,7 @@ public class AutomatedTeleop extends LinearOpMode {
             }else{
                 drive.setWeightedPowers(-gamepad1.left_stick_y/5, -gamepad1.left_stick_x/5, -gamepad1.right_stick_x/5, 0);
             }
-            if (gamepad1.x) {
-                if (sampleMachine.getState() == SampleStates.EXTEND) {
-                    sampleMachine.setState(SampleStates.IDLE);
-                    intake.transferPos();
-                    intake.setIntakePower(0);
-                }
-            }
+
             if (gamepad1.touchpad && sampleMachine.getState()== SampleStates.IDLE && specimenScorer.getState()== SpecimenScoreStates.IDLE){
                 intake.setIntakePower(0.5);
                 intake.setExtendoPower(-0.3);

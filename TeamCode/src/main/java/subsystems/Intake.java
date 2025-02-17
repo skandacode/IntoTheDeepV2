@@ -108,7 +108,7 @@ public class Intake {
     }
     public void transferPos(){
         controller.setSetPoint(0);
-        setIntakeFlip(0.44);
+        setIntakeFlip(0.43);
         setCover(false);
         //setIntakePower(0.3);
     }
@@ -117,7 +117,7 @@ public class Intake {
         intakePos();
     }
     public void intakePos(){
-        setIntakeFlip(0.65);
+        setIntakeFlip(0.62);
         setCover(true);
         setIntakePower(1);
     }
@@ -172,7 +172,7 @@ public class Intake {
         return distance;
     }
     public boolean isJammed(){
-        return intakeMotor.isOverCurrent();
+        return false; //intakeMotor.isOverCurrent();
     }
 
 }

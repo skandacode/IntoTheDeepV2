@@ -98,13 +98,6 @@ public class SampleAutoPedro6 extends LinearOpMode {
                     intake.intakePos(maxExtend);
                     extendPressed=false;
                 })
-                .loop(()->{
-                    if (intake.isJammed()){
-                        intake.setIntakePower(-1);
-                    }else{
-                        intake.setIntakePower(1);
-                    }
-                })
                 .transition(()->intake.isSampleIntaked())
                 .state(SampleStates.SENSORWAIT)
                 .onEnter(()->intake.intakePos())
@@ -451,7 +444,7 @@ public class SampleAutoPedro6 extends LinearOpMode {
                 allianceColor = Intake.SampleColor.RED;
                 gamepad1.setLedColor(1, 0, 0, 1000);
             }
-
+            telemetry.addData("Alliance Color", allianceColor.toString());
             telemetry.update();
         }
         waitForStart();

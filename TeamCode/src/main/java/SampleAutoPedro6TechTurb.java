@@ -5,18 +5,14 @@ import com.pedropathing.follower.FollowerConstants;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierCurve;
 import com.pedropathing.pathgen.BezierLine;
-import com.pedropathing.pathgen.Path;
 import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Constants;
-import com.pedropathing.util.Timer;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.sfdev.assembly.state.StateMachine;
 import com.sfdev.assembly.state.StateMachineBuilder;
-
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 import java.util.List;
 
@@ -27,7 +23,7 @@ import subsystems.Intake;
 import subsystems.Outtake;
 
 @Autonomous
-public class SampleAutoPedro extends LinearOpMode {
+public class SampleAutoPedro6TechTurb extends LinearOpMode {
 
     private Follower follower;
     Hang hang;
@@ -36,13 +32,21 @@ public class SampleAutoPedro extends LinearOpMode {
 
     /** Start Pose of our robot */
     private final Pose subPose = new Pose(-14, -9, Math.toRadians(0));
+    private final Pose substrafe = new Pose(-14, 0, Math.toRadians(0));
+    private final Pose subPose2 = new Pose(-14, -6, Math.toRadians(0));
+    private final Pose substrafe2 = new Pose(-14, 3, Math.toRadians(0));
+    private final Pose subPose3 = new Pose(-14, -3, Math.toRadians(0));
+    private final Pose substrafe3 = new Pose(-14, 5, Math.toRadians(0));
     private final Pose presubPose = new Pose(-51, -9, Math.toRadians(0));
     /** Scoring Pose of our robot. It is facing the submersible at a -45 degree (315 degree) angle. */
-    private final Pose scorePose = new Pose(-50, -54, Math.toRadians(38));
+    private final Pose scorePose = new Pose(-53.5, -50, Math.toRadians(60));
     private final Pose startPose = new Pose(-36, -61.5, Math.toRadians(90));
     private final Pose sample1 = new Pose(-44, -49, Math.toRadians(90));
-    private final Pose sample2 = new Pose(-53, -49, Math.toRadians(90));
-    private final Pose sample3 = new Pose(-50, -45, Math.toRadians(122));
+    private final Pose sample2 = new Pose(-54, -49, Math.toRadians(90));
+    private final Pose sample3 = new Pose(-50, -45, Math.toRadians(123.5));
+    private final Pose sample4 = new Pose(-20, -57, Math.toRadians(0));
+    private final Pose scorePoseSub = new Pose(-53.5, -47.5, Math.toRadians(70));
+
 
     public enum SampleStates {
         IDLE, EXTEND, SENSORWAIT, SENSE, RETRACT, OPENCOVER, WAIT, CLOSE, LIFT, PARTIALFLIP, SCORE, AUTOWAIT, OPEN, LOWERLIFT, EJECTFLIP, EJECTLIDOPEN
@@ -54,11 +58,14 @@ public class SampleAutoPedro extends LinearOpMode {
     public static boolean extendPressed=false;
     public static boolean scorePressed=false;
     public static boolean known=true;
+    public static int count=0;
 
     enum AutoStates{PRELOAD, WAIT, OPENCLAW1,
         TOSAMPLE1, INTAKE1, SCORESAMPLE1,WAIT2,OPENCLAW2,
         TOSAMPLE2, INTAKE2,SCORESAMPLE2, WAIT3,OPENCLAW3,
         TOSAMPLE3, INTAKE3,SCORESAMPLE3,WAIT4,OPENCLAW4,
+        TOSAMPLE4, INTAKE4,SCORESAMPLE4,WAIT5,OPENCLAW5,
+        TOSUB1, EXTENDSUB1, INTAKESUB1, RETRACTSUB1, REEXTEND1, REINTAKE1, STRAFE1, TOSCORESUB1, WAITSUB1, OPENCLAWSUB1,
         DONE}
     @Override
     public void runOpMode() throws InterruptedException {
@@ -143,8 +150,9 @@ public class SampleAutoPedro extends LinearOpMode {
                 .onEnter(() -> {
                     intake.setIntakePower(0.4);
                     outtake.setRail(0.5);
+                    outtake.setFlip(0.69);
                 })
-                .transitionTimed(0.3)
+                .transitionTimed(waitTime(known))
 
                 .state(SampleStates.CLOSE)
                 .onEnter(() -> {
@@ -169,7 +177,7 @@ public class SampleAutoPedro extends LinearOpMode {
                 .transition(() -> scorePressed)
 
                 .state(SampleStates.AUTOWAIT)
-                .transitionTimed(0.4)
+                .transitionTimed(0.2)
 
                 .state(SampleStates.OPEN)
                 .onEnter(() -> {
@@ -194,33 +202,92 @@ public class SampleAutoPedro extends LinearOpMode {
         PathChain scorePreload = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(startPose), new Point(scorePose)))
                 .setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading())
-                .setZeroPowerAccelerationMultiplier(2.5)
+                .setZeroPowerAccelerationMultiplier(1.5)
                 .build();
         PathChain scoretoSamp1 = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(scorePose), new Point(sample1)))
                 .setLinearHeadingInterpolation(scorePose.getHeading(), sample1.getHeading())
-                .setZeroPowerAccelerationMultiplier(4)
+                .setZeroPowerAccelerationMultiplier(1.5)
                 .build();
         PathChain samp1toScore = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(sample1), new Point(scorePose)))
                 .setLinearHeadingInterpolation(sample1.getHeading(), scorePose.getHeading())
+                .setZeroPowerAccelerationMultiplier(1.5)
                 .build();
         PathChain scoretoSamp2 = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(scorePose), new Point(sample2)))
                 .setLinearHeadingInterpolation(scorePose.getHeading(), sample2.getHeading())
+                .setZeroPowerAccelerationMultiplier(1.5)
                 .build();
         PathChain samp2toScore = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(sample2), new Point(scorePose)))
                 .setLinearHeadingInterpolation(sample2.getHeading(), scorePose.getHeading())
-
+                .setZeroPowerAccelerationMultiplier(1.5)
                 .build();
         PathChain scoretoSamp3 = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(scorePose), new Point(sample3)))
                 .setLinearHeadingInterpolation(scorePose.getHeading(), sample3.getHeading())
+                .setZeroPowerAccelerationMultiplier(1.5)
                 .build();
         PathChain samp3toScore = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(sample3), new Point(scorePose)))
                 .setLinearHeadingInterpolation(sample3.getHeading(), scorePose.getHeading())
+                .setZeroPowerAccelerationMultiplier(1.5)
+                .build();
+        PathChain scoretoSamp4 = follower.pathBuilder()
+                .addPath(new BezierLine(new Point(scorePose), new Point(sample4)))
+                .setLinearHeadingInterpolation(scorePose.getHeading(), sample4.getHeading())
+                .setZeroPowerAccelerationMultiplier(2.2)
+                .build();
+        PathChain samp4toScore = follower.pathBuilder()
+                .addPath(new BezierLine(new Point(sample4), new Point(scorePose)))
+                .setLinearHeadingInterpolation(sample4.getHeading(), scorePose.getHeading())
+                .setZeroPowerAccelerationMultiplier(1.5)
+                .build();
+        PathChain scoretosub = follower.pathBuilder()
+                .addPath(new BezierCurve(new Point(scorePose), new Point(presubPose),new Point(subPose)))
+                .setLinearHeadingInterpolation(scorePose.getHeading(), subPose.getHeading())
+                .setZeroPowerAccelerationMultiplier(4.5)
+                .build();
+        PathChain subtoscore = follower.pathBuilder()
+                .addPath(new BezierCurve(new Point(subPose), new Point(presubPose),new Point(scorePoseSub)))
+                .setLinearHeadingInterpolation(subPose.getHeading(), scorePoseSub.getHeading())
+                .setZeroPowerAccelerationMultiplier(4.5)
+                .build();
+        PathChain subtostrafe = follower.pathBuilder()
+                .addPath(new BezierLine(new Point(subPose), new Point(substrafe)))
+                .setLinearHeadingInterpolation(subPose.getHeading(), substrafe.getHeading())
+                .setZeroPowerAccelerationMultiplier(4.5)
+                .build();
+        PathChain scoretosub2 = follower.pathBuilder()
+                .addPath(new BezierCurve(new Point(scorePose), new Point(presubPose),new Point(subPose2)))
+                .setLinearHeadingInterpolation(scorePose.getHeading(), subPose2.getHeading())
+                .setZeroPowerAccelerationMultiplier(4.5)
+                .build();
+        PathChain sub2toscore = follower.pathBuilder()
+                .addPath(new BezierCurve(new Point(subPose2), new Point(presubPose),new Point(scorePose)))
+                .setLinearHeadingInterpolation(subPose2.getHeading(), scorePose.getHeading())
+                .setZeroPowerAccelerationMultiplier(4.5)
+                .build();
+        PathChain sub2tostrafe2 = follower.pathBuilder()
+                .addPath(new BezierLine(new Point(subPose2), new Point(substrafe2)))
+                .setLinearHeadingInterpolation(subPose2.getHeading(), substrafe2.getHeading())
+                .setZeroPowerAccelerationMultiplier(4.5)
+                .build();
+        PathChain scoretosub3 = follower.pathBuilder()
+                .addPath(new BezierCurve(new Point(scorePose), new Point(presubPose),new Point(subPose3)))
+                .setLinearHeadingInterpolation(scorePose.getHeading(), subPose3.getHeading())
+                .setZeroPowerAccelerationMultiplier(4.5)
+                .build();
+        PathChain sub3toscore = follower.pathBuilder()
+                .addPath(new BezierCurve(new Point(subPose3), new Point(presubPose),new Point(scorePose)))
+                .setLinearHeadingInterpolation(subPose3.getHeading(), scorePose.getHeading())
+                .setZeroPowerAccelerationMultiplier(4.5)
+                .build();
+        PathChain sub3tostrafe3 = follower.pathBuilder()
+                .addPath(new BezierLine(new Point(subPose3), new Point(substrafe3)))
+                .setLinearHeadingInterpolation(subPose3.getHeading(), substrafe3.getHeading())
+                .setZeroPowerAccelerationMultiplier(4.5)
                 .build();
 
 
@@ -232,23 +299,24 @@ public class SampleAutoPedro extends LinearOpMode {
                     follower.followPath(scorePreload, true);
                     sampleMachine.setState(SampleStates.LIFT);
                 })
-                .transition(()->follower.atParametricEnd())
+                .transitionTimed(0.6)
                 .state(AutoStates.WAIT)
                 .transitionTimed(0.2)
                 .state(AutoStates.OPENCLAW1)
                 .onEnter(()->scorePressed=true)
-                .transition(()->sampleMachine.getState()==SampleStates.LOWERLIFT)
+                .transition(()->sampleMachine.getState()== SampleStates.LOWERLIFT)
 
                 .state(AutoStates.TOSAMPLE1)
                 .onEnter(()->{
                     follower.followPath(scoretoSamp1, true);
                 })
-                .transitionTimed(0.3)
+                .transitionTimed(0.4)
                 .state(AutoStates.INTAKE1)
                 .onEnter(()->{
                     extendPressed=true;
                 })
-                .transition(()->sampleMachine.getState()==SampleStates.RETRACT)
+                .transition(()->sampleMachine.getState()== SampleStates.RETRACT)
+                .transitionTimed(1, AutoStates.INTAKE1, ()->intake.setIntakePower(-1))
 
                 .state(AutoStates.SCORESAMPLE1)
                 .onEnter(()->follower.followPath(samp1toScore, true))
@@ -257,7 +325,7 @@ public class SampleAutoPedro extends LinearOpMode {
                 .transitionTimed(0.05)
                 .state(AutoStates.OPENCLAW2)
                 .onEnter(()->scorePressed=true)
-                .transition(()->sampleMachine.getState()==SampleStates.LOWERLIFT)
+                .transition(()->sampleMachine.getState()== SampleStates.LOWERLIFT)
 
                 .state(AutoStates.TOSAMPLE2)
                 .onEnter(()->{
@@ -268,7 +336,8 @@ public class SampleAutoPedro extends LinearOpMode {
                 .onEnter(()->{
                     extendPressed=true;
                 })
-                .transition(()->sampleMachine.getState()==SampleStates.RETRACT)
+                .transition(()->sampleMachine.getState()== SampleStates.RETRACT)
+                .transitionTimed(1, AutoStates.INTAKE2, ()->intake.setIntakePower(-1))
 
                 .state(AutoStates.SCORESAMPLE2)
                 .onEnter(()->follower.followPath(samp2toScore, true))
@@ -277,7 +346,7 @@ public class SampleAutoPedro extends LinearOpMode {
                 .transitionTimed(0.05)
                 .state(AutoStates.OPENCLAW3)
                 .onEnter(()->scorePressed=true)
-                .transition(()->sampleMachine.getState()==SampleStates.LOWERLIFT)
+                .transition(()->sampleMachine.getState()== SampleStates.LOWERLIFT)
 
                 .state(AutoStates.TOSAMPLE3)
                 .onEnter(()->{
@@ -288,7 +357,8 @@ public class SampleAutoPedro extends LinearOpMode {
                 .onEnter(()->{
                     extendPressed=true;
                 })
-                .transition(()->sampleMachine.getState()==SampleStates.RETRACT)
+                .transition(()->sampleMachine.getState()== SampleStates.RETRACT)
+                .transitionTimed(1, AutoStates.INTAKE3, ()->intake.setIntakePower(-1))
 
                 .state(AutoStates.SCORESAMPLE3)
                 .onEnter(()->follower.followPath(samp3toScore, true))
@@ -297,14 +367,123 @@ public class SampleAutoPedro extends LinearOpMode {
                 .transitionTimed(0.05)
                 .state(AutoStates.OPENCLAW4)
                 .onEnter(()->scorePressed=true)
-                .transition(()->sampleMachine.getState()==SampleStates.LOWERLIFT)
+                .transition(()->sampleMachine.getState()== SampleStates.LOWERLIFT)
+                .state(AutoStates.TOSAMPLE4)
+                .onEnter(()->{
+                    follower.followPath(scoretoSamp4, true);
+                })
+                .transitionTimed(1)
+                .state(AutoStates.INTAKE4)
+                .onEnter(()->{
+                    extendPressed=true;
+                })
+                .transition(()->sampleMachine.getState()== SampleStates.RETRACT)
 
-                .state(AutoStates.DONE)
-                .onEnter(()->telemetry.addLine("Done"))
+                .state(AutoStates.SCORESAMPLE4)
+                .onEnter(()->follower.followPath(samp4toScore, true))
+                .transition(()->follower.atParametricEnd())
+                .state(AutoStates.WAIT5)
+                .transitionTimed(0.05)
+                .state(AutoStates.OPENCLAW5)
+                .onEnter(()->scorePressed=true)
+                .transition(()->sampleMachine.getState()== SampleStates.LOWERLIFT)
+
+
+                .state(AutoStates.TOSUB1)
+                .onEnter(()->{
+                    if (count==0){
+                        follower.followPath(scoretosub);
+                    }else if (count==1){
+                        follower.followPath(scoretosub2);
+                    }else{
+                        follower.followPath(scoretosub3);
+                    }
+                    known=false;
+                })
+                .transitionTimed(0.95)
+
+                .state(AutoStates.EXTENDSUB1)
+                .onEnter(()->intake.setTargetPos(maxExtend))
+                .transitionTimed(0.5)
+
+                .state(AutoStates.INTAKESUB1)
+                .onEnter(()->extendPressed=true)
+                .transition(()->sampleMachine.getState()== SampleStates.RETRACT, AutoStates.TOSCORESUB1)
+                .transitionTimed(0.9)
+
+                .state(AutoStates.RETRACTSUB1)
+                .onEnter(()->{
+                    if (sampleMachine.getState()== SampleStates.EXTEND){
+                        sampleMachine.setState(SampleStates.IDLE);
+                    }
+                    intake.setTargetPos(200);
+                    intake.transferPos();
+                    intake.setCover(true);
+                })
+                .transitionTimed(0.3)
+                .transition(()->sampleMachine.getState()== SampleStates.RETRACT, AutoStates.TOSCORESUB1)
+
+                .state(AutoStates.REEXTEND1)
+                .onEnter(()->intake.setTargetPos(500))
+                .transitionTimed(0.1)
+
+                .state(AutoStates.REINTAKE1)
+                .onEnter(()->extendPressed=true)
+                .transitionTimed(1)
+                .transition(()->sampleMachine.getState()== SampleStates.RETRACT, AutoStates.TOSCORESUB1)
+
+                .state(AutoStates.STRAFE1)
+                .onEnter(()->{
+                    if (count==0){
+                        follower.followPath(subtostrafe);
+                    } else if (count==1) {
+                        follower.followPath(sub2tostrafe2);
+                    }else{
+                        follower.followPath(sub3tostrafe3);
+                    }
+                    count++;
+                })
+                .transition(()->sampleMachine.getState()== SampleStates.RETRACT, AutoStates.TOSCORESUB1)
+                .transitionTimed(2, AutoStates.RETRACTSUB1)
+
+                .state(AutoStates.TOSCORESUB1)
+                .onEnter(()->{
+                    if (count==0){
+                        follower.followPath(subtoscore);
+                    } else if (count==1) {
+                        follower.followPath(sub2toscore);
+                    }else{
+                        follower.followPath(sub3toscore);
+                    }
+                    count++;
+                })
+                .transition(()->follower.atParametricEnd())
+
+                .state(AutoStates.WAITSUB1)
+                .transitionTimed(0.1)
+
+                .state(AutoStates.OPENCLAWSUB1)
+                .onEnter(()->scorePressed=true)
+                .transition(()->sampleMachine.getState()== SampleStates.LOWERLIFT, AutoStates.TOSUB1)
+
+               // .state(AutoStates.DONE)
+                //.onEnter(()->telemetry.addLine("Done"))
                 .build();
         telemetry.addData("zero power accel multiplier", FollowerConstants.zeroPowerAccelerationMultiplier);
         telemetry.update();
         outtake.closeClaw();
+        while (opModeInInit()) {
+            if (gamepad1.a) {
+                allianceColor = Intake.SampleColor.BLUE;
+                gamepad1.setLedColor(0, 0, 1, 1000);
+            }
+            if (gamepad1.b) {
+                allianceColor = Intake.SampleColor.RED;
+                gamepad1.setLedColor(1, 0, 0, 1000);
+            }
+            telemetry.addData("Alliance Color", allianceColor.toString());
+            telemetry.update();
+        }
         waitForStart();
         autoMachine.start();
         sampleMachine.start();
@@ -323,12 +502,19 @@ public class SampleAutoPedro extends LinearOpMode {
             follower.telemetryDebug(telemetry);
             intake.update();
             outtake.update();
-
+            System.out.println(follower.getPose().toString());
             telemetry.addData("Path State", autoMachine.getState());
             telemetry.addData("Sample State", sampleMachine.getState());
 
             telemetry.addData("Position", follower.getPose().toString());
             telemetry.update();
+        }
+    }
+    private double waitTime(boolean k){
+        if (k){
+            return 0.2;
+        }else{
+            return 0.4;
         }
     }
 }
