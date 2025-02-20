@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDFController;
 import com.qualcomm.hardware.lynx.LynxI2cDeviceSynch;
 import com.qualcomm.hardware.rev.RevColorSensorV3;
+import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
@@ -21,17 +22,20 @@ public class Intake {
     private CachedMotorEx backrightdt;
     private RevColorSensorV3 intakecolor;
 
-    LaserRangefinder lrf;
+    private LaserRangefinder lrf;
+    private AnalogInput flipAnalog;
 
-    private PIDFController controller = new PIDFController(0.01, 0, 0, 0);
+    public static double kP = 0.01;
+    public static double kD = 0.0007;
+    public static double kF=0.09;
+
+    private PIDFController controller = new PIDFController(kP, 0, kD, 0);
 
     private int currExtendoPos;
     private boolean retracted = true;
 
     public enum SampleColor {RED, BLUE, YELLOW, NONE}
-    public static double distThreshold = 3.7;
-
-    public static double secondSampleDistThresh = 50;
+    public static double distThreshold = 3.45;
 
     public double intakePower=0;
 
@@ -50,7 +54,9 @@ public class Intake {
         lrf = new LaserRangefinder(hwMap.get(RevColorSensorV3.class, "laser"));
         lrf.i2c.setBusSpeed(LynxI2cDeviceSynch.BusSpeed.FAST_400K);
 
-        intakeMotor.setCurrentLimit(6);
+        flipAnalog = hwMap.analogInput.get("intake_flip_analog");
+
+        intakeMotor.setCurrentLimit(8.5);
     }
     public void setExtendoPower(double power){
         extendoMotor.set(-power);
@@ -95,8 +101,14 @@ public class Intake {
                 }
             }
         }
-        else if (Math.abs(currExtendoPos-controller.getSetPoint())<10){
+        else if (Math.abs(currExtendoPos-controller.getSetPoint())<5){
             power=0;
+        }else{
+            if (currExtendoPos<controller.getSetPoint()){
+                power+=kF;
+            }else{
+                power-=kF;
+            }
         }
         setExtendoPower(power);
     }
@@ -117,7 +129,7 @@ public class Intake {
         intakePos();
     }
     public void intakePos(){
-        setIntakeFlip(0.62);
+        setIntakeFlip(0.63);
         setCover(true);
         setIntakePower(1);
     }
@@ -125,7 +137,9 @@ public class Intake {
         setIntakeFlip(0.57);
     }
     public void eject(){
+
         setIntakeFlip(0.3);
+        setIntakePower(0.5);
     }
     public boolean isRetracted(){
         return limitSwitch.isPressed();
@@ -172,7 +186,9 @@ public class Intake {
         return distance;
     }
     public boolean isJammed(){
-        return false; //intakeMotor.isOverCurrent();
+        return intakeMotor.isOverCurrent();
     }
-
+    public double getFlipAnalog(){
+        return flipAnalog.getVoltage();
+    }
 }

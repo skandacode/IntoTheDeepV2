@@ -23,7 +23,7 @@ import subsystems.Intake;
 import subsystems.Outtake;
 
 @Autonomous
-public class SampleAutoPedro6TechTurb extends LinearOpMode {
+public class SampleAutoPedroOldIntakeTechTurb extends LinearOpMode {
 
     private Follower follower;
     Hang hang;
@@ -45,7 +45,7 @@ public class SampleAutoPedro6TechTurb extends LinearOpMode {
     private final Pose sample2 = new Pose(-54, -49, Math.toRadians(90));
     private final Pose sample3 = new Pose(-50, -45, Math.toRadians(123.5));
     private final Pose sample4 = new Pose(-20, -57, Math.toRadians(0));
-    private final Pose scorePoseSub = new Pose(-53.5, -47.5, Math.toRadians(70));
+    private final Pose scorePoseSub = new Pose(-55, -47.5, Math.toRadians(70));
 
 
     public enum SampleStates {
@@ -70,6 +70,9 @@ public class SampleAutoPedro6TechTurb extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
+        extendPressed=false;
+        scorePressed=false;
+        known=true;
         LynxModule controlhub = null;
         for (LynxModule hub : allHubs) {
             hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
@@ -149,8 +152,7 @@ public class SampleAutoPedro6TechTurb extends LinearOpMode {
                 .state(SampleStates.WAIT)
                 .onEnter(() -> {
                     intake.setIntakePower(0.4);
-                    outtake.setRail(0.5);
-                    outtake.setFlip(0.69);
+                    outtake.waitPos();
                 })
                 .transitionTimed(waitTime(known))
 

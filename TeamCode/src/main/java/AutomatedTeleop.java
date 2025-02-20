@@ -25,7 +25,9 @@ public class AutomatedTeleop extends LinearOpMode {
         IDLE, EXTEND, SENSORWAIT, SENSE, RETRACT, OPENCOVER, WAIT, CLOSE, LIFT, PARTIALFLIP, SCORE, AUTOWAIT, OPEN, LOWERLIFT, EJECTFLIP, EJECTLIDOPEN
     }
     public enum SpecimenScoreStates {IDLE, C, INTAKEPOS, INTAKE, CLOSE_CLAW, HOLD, SCORE, OPENCLAW, CLOSEBEFORERETRACT, RESET, RETRACT}
-
+    enum hangStates{
+        LIFT, EXTENDRAIL, LOWER, ENGAGE, PULLDOWN
+    }
     public static Intake.SampleColor allianceColor= Intake.SampleColor.BLUE;
     Intake.SampleColor currentSense= Intake.SampleColor.NONE;
     public static int hangPos=550;
@@ -103,7 +105,7 @@ public class AutomatedTeleop extends LinearOpMode {
                     outtake.transferPos();
                     outtake.openClaw();
                 })
-                .transitionTimed(0.015)
+                .transitionTimed(0.02)
                 .state(SampleStates.OPENCOVER)
                 .onEnter(() -> {
                     intake.setCover(false);
@@ -116,8 +118,7 @@ public class AutomatedTeleop extends LinearOpMode {
                 .state(SampleStates.WAIT)
                 .onEnter(() -> {
                     intake.setIntakePower(0.4);
-                    outtake.setRail(0.5);
-                    outtake.setFlip(0.72);
+                    outtake.waitPos();
                 })
                 .transitionTimed(0.3)
 
@@ -317,12 +318,69 @@ public class AutomatedTeleop extends LinearOpMode {
         if (opModeIsActive()){
             sampleMachine.stop();
             specimenScorer.stop();
-            intake.transferPos();
-            intake.setIntakePower(0);
-            outtake.closeClaw();
-            outtake.setTargetPos(930);
-            ElapsedTime timer = new ElapsedTime();
-            boolean pulledDown=false;
+            StateMachine hangMachine = new StateMachineBuilder()
+                    .state(hangStates.LIFT)
+                    .onEnter(()->{
+                        intake.transferPos();
+                        intake.setIntakePower(0);
+                        outtake.closeClaw();
+                        outtake.setTargetPos(950);
+                    })
+                    .loop(()->{
+                        if (!gamepad1.right_bumper){
+                            drive.setWeightedPowers(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, 0);
+                        }else{
+                            drive.setWeightedPowers(-gamepad1.left_stick_y/5, -gamepad1.left_stick_x/5, -gamepad1.right_stick_x/5, 0);
+                        }
+                        outtake.update();
+                    })
+                    .transitionTimed(0.5)
+
+                    .state(hangStates.EXTENDRAIL)
+                    .onEnter(()->{
+                        outtake.setRail(1);
+                    })
+                    .loop(()->{
+                        if (!gamepad1.right_bumper){
+                            drive.setWeightedPowers(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, 0);
+                        }else{
+                            drive.setWeightedPowers(-gamepad1.left_stick_y/5, -gamepad1.left_stick_x/5, -gamepad1.right_stick_x/5, 0);
+                        }
+                        outtake.update();
+                    })
+                    .transition(()-> gamepad1.right_stick_button)
+
+                    .state(hangStates.LOWER)
+                    .onEnter(()->{
+                        outtake.setTargetPos(hangPos);
+                    })
+                    .loop(()->{
+                        outtake.update();
+                    })
+                    .transitionTimed(0.5)
+
+                    .state(hangStates.ENGAGE)
+                    .onEnter(()->{
+                        drive.setPtoEngaged(true);
+                    })
+                    .loop(()->{
+                        outtake.update();
+                    })
+                    .transitionTimed(0.2)
+
+                    .state(hangStates.PULLDOWN)
+                    .onEnter(()->outtake.setMotors(0))
+                    .loop(()->{
+                        if (outtake.getOuttakePosition()>hangPos){
+                            drive.setWeightedPowers(0, 0, 0, -1);
+                        }else{
+                            drive.setWeightedPowers(0, 0, 0, -0.2);
+                        }
+                        System.out.println(outtake.getOuttakePosition());
+                    })
+                    .build();
+
+            hangMachine.start();
             while (opModeIsActive()){
                 if (!(controlhub==null)) {
                     controlhub.clearBulkCache();
@@ -331,27 +389,7 @@ public class AutomatedTeleop extends LinearOpMode {
                         hub.clearBulkCache();
                     }
                 }
-                if (timer.milliseconds()>500){
-                    outtake.setRail(1);
-                }
-                pulledDown=pulledDown || gamepad1.right_stick_button;
-                if (pulledDown){
-                    drive.setPtoEngaged(true);
-                    if (outtake.getCachedPos()>hangPos){
-                        drive.setWeightedPowers(0, 0, 0, -0.7);
-                    }else{
-                        drive.setWeightedPowers(0, 0, 0, -0.2);
-                    }
-                    outtake.setMotors(0);
-                }else{
-                    if (!gamepad1.right_bumper){
-                        drive.setWeightedPowers(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, 0);
-                    }else{
-                        drive.setWeightedPowers(-gamepad1.left_stick_y/5, -gamepad1.left_stick_x/5, -gamepad1.right_stick_x/5, 0);
-                    }
-                    outtake.update();
-                }
-
+                hangMachine.update();
                 intake.update();
                 telemetry.addData("Outtake Pos", outtake.getCachedPos());
 

@@ -13,6 +13,7 @@ public class IntakeTestingClass extends LinearOpMode {
     Intake intake;
 
     public static int extendoPos=0;
+    public static double flipPos=0.43;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -20,10 +21,12 @@ public class IntakeTestingClass extends LinearOpMode {
         intake = new Intake(hardwareMap);
         waitForStart();
         while (opModeIsActive()){
-            intake.setExtendoPower(extendoPos);
+            intake.setTargetPos(extendoPos);
+            intake.setIntakeFlip(flipPos);
             intake.update();
             telemetry.addData("intake extendo pos", intake.getExtendoMotorPosition());
             telemetry.addData("intake limit", intake.isRetracted());
+            telemetry.addData("intake analog", intake.getFlipAnalog());
             telemetry.update();
         }
     }

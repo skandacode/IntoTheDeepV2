@@ -2,6 +2,7 @@ package subsystems;
 
 
 import com.arcrobotics.ftclib.controller.PIDFController;
+import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.TouchSensor;
@@ -23,10 +24,14 @@ public class Outtake {
 
     private int currMotorPos;
     private boolean retracted = true;
+    public double currPower=0;
 
     public Outtake(HardwareMap hwMap){
         outtakeMotor1 = new CachedMotorEx(hwMap, "outtakeMotor1");
         outtakeMotor2 = new CachedMotorEx(hwMap, "outtakeMotor2");
+        outtakeMotor2.setRunMode(Motor.RunMode.RawPower);
+        outtakeMotor1.setRunMode(Motor.RunMode.RawPower);
+
         rail = new CachedServo(hwMap.servo.get("rail"));
         claw = new CachedServo(hwMap.servo.get("claw"));
         wrist = new CachedServo(hwMap.servo.get("wrist"));
@@ -52,7 +57,7 @@ public class Outtake {
             if (!retracted){
                 power=-1;
             }else{
-                power=0;
+                power=-0.1;
                 outtakeMotor1.resetEncoder();
             }
         }
@@ -69,12 +74,13 @@ public class Outtake {
         setMotors(power);
     }
     public void setMotors(double power){
+        currPower=power;
         outtakeMotor1.set(-power);
         outtakeMotor2.set(power);
     }
     //functions that set servos to positions
     public void setRail(double pos){
-        rail.setPosition(pos);
+        rail.setPosition(pos+0.03);
     }
     public void setClaw(double pos){
         claw.setPosition(pos);
@@ -98,13 +104,17 @@ public class Outtake {
     public void transferPos(){
         closeClaw();
         setRail(0.44);
-        setFlip(0.70);
+        setFlip(0.65);
         setWrist(0.09);
         setTargetPos(0);
     }
+    public void waitPos(){
+        setRail(0.5);
+        setFlip(0.72);
+    }
     public void partialSampleFlip(){
         closeClaw();
-        setRail(0.23);
+        setRail(0.35);
         setFlip(0.4);
         setWrist(0.55);
         setTargetPos(1000);

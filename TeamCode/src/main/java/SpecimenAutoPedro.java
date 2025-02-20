@@ -135,7 +135,7 @@ public class SpecimenAutoPedro extends LinearOpMode {
                 .state(SampleStates.WAIT)
                 .onEnter(() -> {
                     intake.setIntakePower(0.4);
-                    outtake.setRail(0.5);
+                    outtake.waitPos();
                 })
                 .transitionTimed(0.3)
 
