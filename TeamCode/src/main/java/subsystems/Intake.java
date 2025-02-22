@@ -22,7 +22,6 @@ public class Intake {
     private CachedMotorEx backrightdt;
     private RevColorSensorV3 intakecolor;
 
-    private LaserRangefinder lrf;
     private AnalogInput flipAnalog;
 
     public static double kP = 0.01;
@@ -51,8 +50,6 @@ public class Intake {
         cover = new CachedServo(hwMap.servo.get("cover"));
         limitSwitch = hwMap.touchSensor.get("intakeEnd");
         intakecolor = hwMap.get(RevColorSensorV3.class, "color");
-        lrf = new LaserRangefinder(hwMap.get(RevColorSensorV3.class, "laser"));
-        lrf.i2c.setBusSpeed(LynxI2cDeviceSynch.BusSpeed.FAST_400K);
 
         flipAnalog = hwMap.analogInput.get("intake_flip_analog");
 
@@ -179,11 +176,6 @@ public class Intake {
     }
     public double getTarget(){
         return controller.getSetPoint();
-    }
-    public double getLaserDistance(){
-        double distance = lrf.getDistance(DistanceUnit.MM);
-        filtered=filtered*(1-k)+distance*k;
-        return distance;
     }
     public boolean isJammed(){
         return intakeMotor.isOverCurrent();

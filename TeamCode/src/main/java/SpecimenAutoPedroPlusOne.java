@@ -38,10 +38,10 @@ public class SpecimenAutoPedroPlusOne extends LinearOpMode {
     private final Pose prescorePose = new Pose(-9, -45, Math.toRadians(90));
     private final Pose preIntake1 = new Pose(18, -46, Math.toRadians(40));
     private final Pose preloadScorePose = new Pose(-15, -27.5, Math.toRadians(90));
-    private final Pose scorePose1 = new Pose(-12.5, -27.5, Math.toRadians(90));
+    private final Pose scorePose1 = new Pose(-12.5, -27.9, Math.toRadians(90));
     private final Pose scorePose2 = new Pose(-10, -27.5, Math.toRadians(90));
-    private final Pose scorePose3 = new Pose(-8, -27.5, Math.toRadians(90));
-    private final Pose scorePose4 = new Pose(-6, -27.5, Math.toRadians(90));
+    private final Pose scorePose3 = new Pose(-7, -27.6, Math.toRadians(90));
+    private final Pose scorePose4 = new Pose(-9, -27.5, Math.toRadians(90));
 
     private final Pose startPose = new Pose(-2, -61.5, Math.toRadians(90));
     private final Pose sample1 = new Pose(20, -37, Math.toRadians(38));
@@ -49,7 +49,7 @@ public class SpecimenAutoPedroPlusOne extends LinearOpMode {
     private final Pose sample3 = new Pose(35.5, -36, Math.toRadians(27));
     private final Pose sampleReverse = new Pose(26, -42, Math.toRadians(-45));
     private final Pose park = new Pose(35, -55, Math.toRadians(0));
-    private final Pose bucket = new Pose(-61, -61, Math.toRadians(45));
+    private final Pose bucket = new Pose(-60, -61, Math.toRadians(45));
 
     public enum SampleStates {
         IDLE, EXTEND, RETRACT, OPENCOVER, WAIT, CLOSE, LIFT, PARTIALFLIP, SCORE, AUTOWAIT, OPEN, LOWERLIFT, EJECTFLIP, EJECTLIDOPEN
@@ -73,7 +73,7 @@ public class SpecimenAutoPedroPlusOne extends LinearOpMode {
         prespecPos2, specPos2, closeClaw2, depositPos2, score2,
         prespecPos3, specPos3, closeClaw3, depositPos3, score3,
         prespecPos4, specPos4, closeClaw4, depositPos4, score4,
-        prespecPos5, specPos5, closeClaw5, bucket, openClaw, park, DONE}
+        prespecPos5, specPos5, closeClaw5, bucket, dropLift, openClaw, park, DONE}
     @Override
     public void runOpMode() throws InterruptedException {
         List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
@@ -212,10 +212,10 @@ public class SpecimenAutoPedroPlusOne extends LinearOpMode {
                 })
                 .transitionTimed(0.2)
                 .state(SpecimenScoreStates.HOLD)
-                .onEnter(() -> outtake.specHold())
+                .loop(() -> outtake.specHold())
                 .transition(() -> (outtake.atTarget() && specimenScoredPressed))
                 .state(SpecimenScoreStates.SCORE)
-                .onEnter(() -> {
+                .loop(() -> {
                     outtake.specScore();
                     specimenScoredPressed =false;
                 })
@@ -544,7 +544,11 @@ public class SpecimenAutoPedroPlusOne extends LinearOpMode {
                     follower.followPath(grabtobucket, true);
                     outtake.setTargetPos(1300);
                 })
-                .transitionTimed(2.5)
+                .transitionTimed(2.4)
+
+                .state(AutoStates.dropLift)
+                .onEnter(()->outtake.setTargetPos(1240))
+                .transitionTimed(0.2)
                 .state(AutoStates.openClaw)
                 .onEnter(()-> {
                     outtake.openClaw();
@@ -608,7 +612,7 @@ public class SpecimenAutoPedroPlusOne extends LinearOpMode {
 
             System.out.println(follower.getPose().toString());
             Pose currPose=follower.getPose();
-            if (Math.abs(Math.toDegrees(prevPose.getHeading())-Math.toDegrees(currPose.getHeading()))>20){
+            if (normalize(Math.toDegrees(prevPose.getHeading()),Math.toDegrees(currPose.getHeading()))>20){
                 System.out.println("PROBABLE JUMP");
             }
             prevPose=currPose;
@@ -620,6 +624,14 @@ public class SpecimenAutoPedroPlusOne extends LinearOpMode {
             telemetry.addData("Position", follower.getPose().toString());
 
             telemetry.update();
+        }
+    }
+    private double normalize(double a, double b){
+        double c=Math.abs(a-b);
+        if (c>180){
+            return c-180;
+        }else{
+            return c;
         }
     }
 }

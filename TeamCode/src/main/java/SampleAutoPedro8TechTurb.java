@@ -14,6 +14,9 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.sfdev.assembly.state.StateMachine;
 import com.sfdev.assembly.state.StateMachineBuilder;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.List;
 
 import pedroPathing.constants.FConstants;
@@ -25,45 +28,52 @@ import subsystems.Outtake;
 @Autonomous
 public class SampleAutoPedro8TechTurb extends LinearOpMode {
 
+    private static final Logger log = LoggerFactory.getLogger(SampleAutoPedro8Maybe.class);
     private Follower follower;
     Hang hang;
     Intake intake;
     Outtake outtake;
     StateMachine autoMachine;
     /** Start Pose of our robot */
-    private final Pose subPose = new Pose(-14, -9, Math.toRadians(0));
-    private final Pose substrafe = new Pose(-15.5, 0, Math.toRadians(15));
-    private final Pose subPose2 = new Pose(-14, -6, Math.toRadians(0));
-    private final Pose substrafe2 = new Pose(-15.5, 3, Math.toRadians(15));
-    private final Pose subPose3 = new Pose(-14, -3, Math.toRadians(0));
-    private final Pose substrafe3 = new Pose(-18, 5, Math.toRadians(15));
+
+    private final Pose subPose = new Pose(-15, -9, Math.toRadians(0));
+    private final Pose beforeSubPose = new Pose(-20, -9, Math.toRadians(0));
+    private final Pose substrafe = new Pose(-16, 0, Math.toRadians(5));
+    private final Pose subPose2 = new Pose(-15, -7, Math.toRadians(0));
+    private final Pose beforeSubPose2 = new Pose(-20, -7, Math.toRadians(0));
+    private final Pose substrafe2 = new Pose(-16, 2, Math.toRadians(5));
+    private final Pose subPose3 = new Pose(-15, -5, Math.toRadians(0));
+    private final Pose beforeSubPose3 = new Pose(-20, -5, Math.toRadians(0));
+    private final Pose substrafe3 = new Pose(-18, 5, Math.toRadians(5));
     private final Pose presubPose = new Pose(-51, -9, Math.toRadians(0));
     /** Scoring Pose of our robot. It is facing the submersible at a -45 degree (315 degree) angle. */
-    private final Pose scorePose = new Pose(-58.5, -48, Math.toRadians(80));
-    private final Pose scorePosepreload = new Pose(-53, -51, Math.toRadians(67
-    ));
-    private final Pose scorePosesub = new Pose(-57, -48, Math.toRadians(80));
+    private final Pose scorePose = new Pose(-58.5, -48.5, Math.toRadians(80));
+    private final Pose scorePosepreload = new Pose(-54, -52, Math.toRadians(67));
+    private final Pose scorePosesub = new Pose(-57, -49.5, Math.toRadians(80));
     private final Pose startPose = new Pose(-36, -61.5, Math.toRadians(90));
     private final Pose sample1 = new Pose(-52, -50, Math.toRadians(70));
     private final Pose sample2 = new Pose(-58.5, -49, Math.toRadians(80));
     private final Pose sample3 = new Pose(-55, -48, Math.toRadians(110));
+    private final Pose sample4 = new Pose(-20, -57, Math.toRadians(0));
+
 
     public enum SampleStates {
-        IDLE, EXTEND, SENSORWAIT, SENSE, RETRACT, OPENCOVER, WAIT, CLOSE, LIFT, PARTIALFLIP, SCORE, AUTOWAIT, OPEN, LOWERLIFT, EJECTFLIP, EJECTLIDOPEN
+        IDLE, EXTEND, SENSORWAIT, SENSE, RETRACT, PULSEEJECT, OPENCOVER, WAIT, CLOSE, LIFT, PARTIALFLIP, SCORE, AUTOWAIT, OPEN, LOWERLIFT, EJECTFLIP, EJECTLIDOPEN
     }
     public static Intake.SampleColor allianceColor= Intake.SampleColor.BLUE;
     Intake.SampleColor currentSense= Intake.SampleColor.NONE;
-    public static int maxExtend=400;
+    public static int maxExtend=420;
 
-    public static boolean extendPressed=false;
-    public static boolean scorePressed=false;
-    public static boolean known=true;
-    public static int count=0;
+    private boolean extendPressed=false;
+    private boolean scorePressed=false;
+    private boolean known=true;
+    private int count=0;
 
     enum AutoStates{PRELOAD, WAIT, OPENCLAW1,
         TOSAMPLE1, INTAKE1, SCORESAMPLE1,WAIT2,OPENCLAW2,
         TOSAMPLE2, INTAKE2,SCORESAMPLE2, WAIT3,OPENCLAW3,
         TOSAMPLE3, INTAKE3,SCORESAMPLE3,WAIT4,OPENCLAW4,
+        TOSAMPLE4, INTAKE4,SCORESAMPLE4,WAIT5,OPENCLAW5,
         TOSUB1, EXTENDSUB1, INTAKESUB1, CHOOSE_STATE, RETRACTSUB1, PULSEREVERSE, STRAFE1, TOSCORESUB1, WAITSUB1, OPENCLAWSUB1,
         DONE}
     @Override
@@ -139,14 +149,21 @@ public class SampleAutoPedro8TechTurb extends LinearOpMode {
                 .state(SampleStates.RETRACT)
                 .onEnter(()->{
                     intake.transferPos();
-                    if (!known){
-                        intake.setIntakePower(-1);
-                    }
+
                     intake.setCover(true);
                     outtake.transferPos();
                     outtake.openClaw();
                 })
-                .transitionTimed(0.006)
+                .transitionTimed(0.01)
+
+                .state(SampleStates.PULSEEJECT)
+                .onEnter(()->{
+                    if (!known){
+                        intake.setIntakePower(-1);
+                    }
+                })
+                .transitionTimed(0.02)
+
                 .state(SampleStates.OPENCOVER)
                 .onEnter(() -> {
                     intake.setCover(false);
@@ -158,14 +175,12 @@ public class SampleAutoPedro8TechTurb extends LinearOpMode {
                 .state(SampleStates.WAIT)
                 .onEnter(() -> {
                     intake.setIntakePower(0.4);
-                    outtake.waitPos();
                 })
                 .transitionTimed(waitTime(known))
 
                 .state(SampleStates.CLOSE)
                 .onEnter(() -> {
                     outtake.closeClaw();
-                    intake.setIntakePower(0.4);
                 })
                 .transitionTimed(0.3)
 
@@ -173,7 +188,7 @@ public class SampleAutoPedro8TechTurb extends LinearOpMode {
                 .onEnter(() -> {
                     outtake.setTargetPos(970);
                     if (known) {
-                        intake.intakePos(maxExtend - 130);
+                        intake.intakePos(maxExtend - 80);
                         intake.setIntakePower(0);
                     }
                 })
@@ -186,11 +201,16 @@ public class SampleAutoPedro8TechTurb extends LinearOpMode {
                 .transition(()->outtake.getCachedPos()>900)
 
                 .state(SampleStates.SCORE)
-                .onEnter(()->outtake.sampleScore())
+                .onEnter(()->{
+                    outtake.sampleScore();
+                    outtake.setRail(0.35);
+                })
 
                 .transition(() -> scorePressed)
 
                 .state(SampleStates.AUTOWAIT)
+
+                .onEnter(()->outtake.setTargetPos((int) (outtake.getSetPoint()-70)))
 
                 .transitionTimed(0.2)
 
@@ -199,7 +219,7 @@ public class SampleAutoPedro8TechTurb extends LinearOpMode {
                     outtake.openClaw();
                     scorePressed=false;
                 })
-                .transitionTimed(0.3)
+                .transitionTimed(0.19)
                 .onExit(() -> {
                     outtake.setTargetPos(0);
                     outtake.transferPos();
@@ -247,6 +267,16 @@ public class SampleAutoPedro8TechTurb extends LinearOpMode {
         PathChain samp3toScore = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(sample3), new Point(scorePose)))
                 .setLinearHeadingInterpolation(sample3.getHeading(), scorePose.getHeading())
+                .setZeroPowerAccelerationMultiplier(1.5)
+                .build();
+        PathChain scoretoSamp4 = follower.pathBuilder()
+                .addPath(new BezierLine(new Point(scorePose), new Point(sample4)))
+                .setLinearHeadingInterpolation(scorePose.getHeading(), sample4.getHeading())
+                .setZeroPowerAccelerationMultiplier(1.5)
+                .build();
+        PathChain samp4toScore = follower.pathBuilder()
+                .addPath(new BezierLine(new Point(sample4), new Point(scorePose)))
+                .setLinearHeadingInterpolation(sample4.getHeading(), scorePose.getHeading())
                 .setZeroPowerAccelerationMultiplier(1.5)
                 .build();
         PathChain scoretosub = follower.pathBuilder()
@@ -306,11 +336,11 @@ public class SampleAutoPedro8TechTurb extends LinearOpMode {
                 })
                 .transitionTimed(0.7)
                 .state(AutoStates.WAIT)
-                .transitionTimed(0.2)
+                .transitionTimed(0.35)
                 .state(AutoStates.OPENCLAW1)
                 .onEnter(()->{
                     scorePressed=true;
-                    outtake.setTargetPos((int) (outtake.getSetPoint()-30));
+                    outtake.setTargetPos((int) (outtake.getSetPoint()-50));
                 })
                 .transition(()->sampleMachine.getState()== SampleStates.LOWERLIFT)
 
@@ -375,12 +405,40 @@ public class SampleAutoPedro8TechTurb extends LinearOpMode {
                 .state(AutoStates.SCORESAMPLE3)
                 .onEnter(()->{
                     follower.followPath(samp3toScore, true);
-                    known=false;
                 })
                 .transition(()->follower.atParametricEnd())
                 .state(AutoStates.WAIT4)
                 .transitionTimed(0.05)
                 .state(AutoStates.OPENCLAW4)
+                .onEnter(()->{
+                    scorePressed=true;
+                })
+                .transition(()->sampleMachine.getState()== SampleStates.LOWERLIFT)
+
+                .state(AutoStates.TOSAMPLE4)
+                .onEnter(()->{
+                    follower.followPath(scoretoSamp4, true);
+                })
+                .transitionTimed(1)
+                .state(AutoStates.INTAKE4)
+                .onEnter(()->{
+                    extendPressed=true;
+                })
+                .transition(()->sampleMachine.getState()== SampleStates.RETRACT)
+                .transitionTimed(1)
+                .state(AutoStates.SCORESAMPLE4)
+                .onEnter(()->{
+                    follower.followPath(samp4toScore, true);
+                })
+                .loop(()->{
+                    if (sampleMachine.getState()==SampleStates.CLOSE){
+                        known=false;
+                    }
+                })
+                .transition(()->follower.atParametricEnd())
+                .state(AutoStates.WAIT5)
+                .transitionTimed(0.05)
+                .state(AutoStates.OPENCLAW5)
                 .onEnter(()->{
                     scorePressed=true;
                     known=false;
@@ -397,11 +455,11 @@ public class SampleAutoPedro8TechTurb extends LinearOpMode {
                         follower.followPath(scoretosub3);
                     }
                 })
-                .transitionTimed(0.95)
+                .transitionTimed(0.1)
 
                 .state(AutoStates.EXTENDSUB1)
-                .onEnter(()->intake.setTargetPos(maxExtend))
-                .transitionTimed(0.5)
+                .loop(()->intake.setTargetPos(maxExtend))
+                .transitionTimed(1.3)
 
                 .state(AutoStates.INTAKESUB1)
                 .onEnter(()->extendPressed=true)
@@ -410,9 +468,14 @@ public class SampleAutoPedro8TechTurb extends LinearOpMode {
                 .transition(()->intake.isJammed(), AutoStates.PULSEREVERSE)
 
                 .state(AutoStates.CHOOSE_STATE)
+                .onEnter(()->{
+                    if (count>2){
+                        intake.setTargetPos(maxExtend+150);
+                    }
+                })
                 .transition(()->intake.getFlipAnalog()<1.87, AutoStates.RETRACTSUB1)
                 .transition(()->sampleMachine.getState()== SampleStates.RETRACT, AutoStates.TOSCORESUB1)
-                .transitionTimed(0.1, AutoStates.STRAFE1)
+                .transitionTimed(0.01, AutoStates.STRAFE1)
 
                 .state(AutoStates.RETRACTSUB1)
                 .onEnter(()->{
@@ -441,6 +504,7 @@ public class SampleAutoPedro8TechTurb extends LinearOpMode {
                     count++;
                 })
                 .transition(()->sampleMachine.getState()== SampleStates.RETRACT, AutoStates.TOSCORESUB1)
+                .transitionTimed(1.2, AutoStates.INTAKESUB1)
 
                 .state(AutoStates.TOSCORESUB1)
                 .onEnter(()->{
@@ -452,21 +516,14 @@ public class SampleAutoPedro8TechTurb extends LinearOpMode {
                         follower.followPath(sub3toscore);
                     }
                     count++;
+                    extendPressed=false;
                 })
                 .transition(()->follower.atParametricEnd())
-
-                .state(AutoStates.WAITSUB1)
-                .transitionTimed(0.1)
 
                 .state(AutoStates.OPENCLAWSUB1)
                 .onEnter(()->scorePressed=true)
                 .transition(()->sampleMachine.getState()== SampleStates.LOWERLIFT, AutoStates.TOSUB1)
-
-               // .state(AutoStates.DONE)
-                //.onEnter(()->telemetry.addLine("Done"))
                 .build();
-        telemetry.addData("zero power accel multiplier", FollowerConstants.zeroPowerAccelerationMultiplier);
-        telemetry.update();
         outtake.closeClaw();
         outtake.setMotors(-0.1);
         outtake.setTargetPos(0);
@@ -499,6 +556,8 @@ public class SampleAutoPedro8TechTurb extends LinearOpMode {
         waitForStart();
         autoMachine.start();
         sampleMachine.start();
+        long prevLoop = System.nanoTime();
+        Pose prevPose=follower.getPose();
         while (opModeIsActive()){
             if (!(controlhub==null)) {
                 controlhub.clearBulkCache();
@@ -518,15 +577,32 @@ public class SampleAutoPedro8TechTurb extends LinearOpMode {
             telemetry.addData("Sample State", sampleMachine.getState());
 
             telemetry.addData("Position", follower.getPose().toString());
+            Pose currPose=follower.getPose();
+            if (normalize(Math.toDegrees(prevPose.getHeading()),Math.toDegrees(currPose.getHeading()))>20){
+                System.out.println("PROBABLE JUMP");
+            }
+            prevPose=currPose;
+            long currLoop = System.nanoTime();
+            telemetry.addData("Ms per loop", (currLoop - prevLoop) / 1000000);
+            prevLoop = currLoop;
+
             follower.telemetryDebug(telemetry);
 
         }
     }
     private double waitTime(boolean k){
         if (k){
-            return 0.2;
+            return 0.1;
         }else{
-            return 0.4;
+            return 0.3;
+        }
+    }
+    private double normalize(double a, double b){
+        double c=Math.abs(a-b);
+        if (c>180){
+            return c-180;
+        }else{
+            return c;
         }
     }
 }

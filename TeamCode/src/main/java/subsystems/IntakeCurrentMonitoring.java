@@ -20,8 +20,6 @@ public class IntakeCurrentMonitoring extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         intake=new Intake(hardwareMap);
         telemetry=new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
-        LaserRangefinder lrf = new LaserRangefinder(hardwareMap.get(RevColorSensorV3.class, "laser"));
-        lrf.i2c.setBusSpeed(LynxI2cDeviceSynch.BusSpeed.FAST_400K);
         waitForStart();
         intake.intakePos();
         while (opModeIsActive()){
@@ -29,8 +27,6 @@ public class IntakeCurrentMonitoring extends LinearOpMode {
             telemetry.addData("intake current", intake.intakeMotor.getCurrent());
             telemetry.addData("intake jammed", intake.isJammed());
 
-            double distance = lrf.getDistance(DistanceUnit.MM);
-            telemetry.addData("Distance", distance);
             telemetry.update();
         }
     }

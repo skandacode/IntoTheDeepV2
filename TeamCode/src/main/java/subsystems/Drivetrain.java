@@ -25,18 +25,10 @@ public class Drivetrain {
     SimpleMotorFeedforward strafeFeedforward=new SimpleMotorFeedforward(0.2, 1);
     SimpleMotorFeedforward headingFeedforward=new SimpleMotorFeedforward(0.11, 1);
 
-    PIDFController translationalControllerY=new PIDFController(0.07, 0, 0.007, 0);
-    PIDFController translationalControllerX=new PIDFController(
-            translationalControllerY.getP(),
-            translationalControllerY.getI(),
-            translationalControllerY.getD(),
-            translationalControllerY.getF());
-    PIDFController headingController=new PIDFController(0.8, 0, 0.03, 0);
 
     Telemetry telemetry;
     FtcDashboard dashboard;
 
-    public SparkFunOTOS odometry;
 
     public Pose2D position;
 
@@ -59,17 +51,6 @@ public class Drivetrain {
         leftBack.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
         rightBack.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
 
-        odometry = hwMap.get(SparkFunOTOS.class, "otos");
-        odometry.calibrateImu();
-        odometry.setLinearScalar(1.008);
-        odometry.setAngularScalar(0.9896091044037605);
-        odometry.setLinearUnit(DistanceUnit.INCH);
-        odometry.setAngularUnit(AngleUnit.DEGREES);
-        SparkFunOTOS.Pose2D offset = new SparkFunOTOS.Pose2D(-7, -0.5, 90);
-        odometry.setOffset(offset);
-        odometry.resetTracking();
-
-        odometry.setPosition(new SparkFunOTOS.Pose2D());
 
         this.dashboard=dashboard;
         this.telemetry=telemetry;
@@ -128,16 +109,10 @@ public class Drivetrain {
         setWeightedPowers(x, y, turnPower);
     }
     public void setTarget(WayPoint target){
-        translationalControllerX.setSetPoint(target.getPosition().getX(DistanceUnit.INCH));
-        translationalControllerY.setSetPoint(target.getPosition().getY(DistanceUnit.INCH));
-        headingController.setSetPoint(target.getPosition().getHeading(AngleUnit.RADIANS));
 
-        translationalControllerX.setTolerance(target.getTolerance().getX(DistanceUnit.INCH));
-        translationalControllerY.setTolerance(target.getTolerance().getY(DistanceUnit.INCH));
-        headingController.setTolerance(target.getTolerance().getHeading(AngleUnit.RADIANS));
     }
     public void update() {
-        SparkFunOTOS.Pose2D rawposition= odometry.getPosition();
+        SparkFunOTOS.Pose2D rawposition= new SparkFunOTOS.Pose2D();
         position=new Pose2D(DistanceUnit.INCH, rawposition.x, rawposition.y, AngleUnit.DEGREES, rawposition.h);
 
         telemetry.addData("position", position.getX(DistanceUnit.INCH)+" "+position.getY(DistanceUnit.INCH)+" "+position.getHeading(AngleUnit.DEGREES));
@@ -151,44 +126,18 @@ public class Drivetrain {
         dashboard.sendTelemetryPacket(packet);
     }
     public SparkFunOTOS.Pose2D getVelocity(){
-        return odometry.getVelocity();
+        return new SparkFunOTOS.Pose2D();
     }
     public void updatePIDS(){
-        double heading=position.getHeading(AngleUnit.RADIANS);
-        while (Math.abs(heading-headingController.getSetPoint())>Math.PI){
-            if (heading<headingController.getSetPoint()){
-                heading=heading+2*Math.PI;
-            }else{
-                heading=heading-2*Math.PI;
-            }
-        }
-        double x_velo=translationalControllerX.calculate(position.getX(DistanceUnit.INCH));
-        double y_velo=translationalControllerY.calculate(position.getY(DistanceUnit.INCH));
-        double heading_velo=headingController.calculate(heading);
-        telemetry.addData("velocity x", x_velo);
-        telemetry.addData("velocity y", y_velo);
-        telemetry.addData("velocity heading", heading_velo);
 
-        if (Math.abs(position.getY(DistanceUnit.INCH)-translationalControllerY.getSetPoint())<0.5){
-            y_velo=0;
-        }
-        if (Math.abs(position.getX(DistanceUnit.INCH)-translationalControllerX.getSetPoint())<0.5){
-            x_velo=0;
-        }
-        if (Math.abs(position.getHeading(AngleUnit.DEGREES)-headingController.getSetPoint())<0.5){
-            heading_velo=0;
-        }
-        driveFieldCentric(x_velo, y_velo,heading_velo, heading);
     }
     public boolean atTarget(){
-        return translationalControllerX.atSetPoint() && translationalControllerY.atSetPoint() && headingController.atSetPoint();
+        return true;
     }
     public void setPosition(Pose2D targetPosition){
 
-        odometry.setPosition(new SparkFunOTOS.Pose2D(targetPosition.getX(DistanceUnit.INCH),
-                targetPosition.getY(DistanceUnit.INCH), targetPosition.getHeading(AngleUnit.DEGREES)));
     }
     public void calibrateIMU(){
-        odometry.calibrateImu();
+
     }
 }

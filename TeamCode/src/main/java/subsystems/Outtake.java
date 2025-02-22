@@ -80,7 +80,7 @@ public class Outtake {
     }
     //functions that set servos to positions
     public void setRail(double pos){
-        rail.setPosition(pos+0.03);
+        rail.setPosition(pos+0.01);
     }
     public void setClaw(double pos){
         claw.setPosition(pos);
@@ -103,14 +103,13 @@ public class Outtake {
     }
     public void transferPos(){
         closeClaw();
-        setRail(0.44);
-        setFlip(0.65);
-        setWrist(0.09);
+        setRail(0.445);
+        setFlip(0.7);
+        setWrist(0.1);
         setTargetPos(0);
     }
     public void waitPos(){
-        setRail(0.5);
-        setFlip(0.72);
+
     }
     public void partialSampleFlip(){
         closeClaw();

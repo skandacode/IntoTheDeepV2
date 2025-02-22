@@ -10,6 +10,7 @@ import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Constants;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.sfdev.assembly.state.StateMachine;
 import com.sfdev.assembly.state.StateMachineBuilder;
@@ -21,7 +22,7 @@ import pedroPathing.constants.LConstants;
 import subsystems.Hang;
 import subsystems.Intake;
 import subsystems.Outtake;
-
+@Disabled
 @Autonomous
 public class SampleAutoPedroOldIntakeTechTurb extends LinearOpMode {
 

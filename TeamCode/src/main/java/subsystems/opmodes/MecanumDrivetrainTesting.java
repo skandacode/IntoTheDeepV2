@@ -63,9 +63,7 @@ public class MecanumDrivetrainTesting extends LinearOpMode {
             }else{
                 drive.setWeightedPowers(frontPower, strafePower, turnPower);
             }
-            if (gamepad1.touchpad){
-                drive.odometry.calibrateImu();
-            }
+
             telemetry.update();
         }
     }
