@@ -38,10 +38,10 @@ public class SpecimenAutoPedroPlusOne extends LinearOpMode {
     private final Pose prescorePose = new Pose(-9, -45, Math.toRadians(90));
     private final Pose preIntake1 = new Pose(18, -46, Math.toRadians(40));
     private final Pose preloadScorePose = new Pose(-15, -27.5, Math.toRadians(90));
-    private final Pose scorePose1 = new Pose(-12.5, -27.9, Math.toRadians(90));
-    private final Pose scorePose2 = new Pose(-10, -27.5, Math.toRadians(90));
-    private final Pose scorePose3 = new Pose(-7, -27.6, Math.toRadians(90));
-    private final Pose scorePose4 = new Pose(-9, -27.5, Math.toRadians(90));
+    private final Pose scorePose1 = new Pose(-12.5, -27.6, Math.toRadians(90));
+    private final Pose scorePose2 = new Pose(-10, -27.6, Math.toRadians(90));
+    private final Pose scorePose3 = new Pose(-7, -27.5, Math.toRadians(90));
+    private final Pose scorePose4 = new Pose(-9, -27.6, Math.toRadians(90));
 
     private final Pose startPose = new Pose(-2, -61.5, Math.toRadians(90));
     private final Pose sample1 = new Pose(20, -37, Math.toRadians(38));

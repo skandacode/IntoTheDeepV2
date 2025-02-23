@@ -46,13 +46,13 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
     private final Pose substrafe3 = new Pose(-18, 5, Math.toRadians(5));
     private final Pose presubPose = new Pose(-51, -9, Math.toRadians(0));
     /** Scoring Pose of our robot. It is facing the submersible at a -45 degree (315 degree) angle. */
-    private final Pose scorePose = new Pose(-58.5, -48.5, Math.toRadians(80));
-    private final Pose scorePosepreload = new Pose(-54, -52, Math.toRadians(67));
-    private final Pose scorePosesub = new Pose(-56.7, -49.2, Math.toRadians(80));
+    private final Pose scorePose = new Pose(-58, -48.9, Math.toRadians(80));
+    private final Pose scorePosepreload = new Pose(-54, -52.4, Math.toRadians(67));
+    private final Pose scorePosesub = new Pose(-56.5, -49.5, Math.toRadians(80));
     private final Pose startPose = new Pose(-36, -61.5, Math.toRadians(90));
     private final Pose sample1 = new Pose(-52, -50, Math.toRadians(70));
     private final Pose sample2 = new Pose(-58.5, -49, Math.toRadians(80));
-    private final Pose sample3 = new Pose(-55, -48, Math.toRadians(110));
+    private final Pose sample3 = new Pose(-55, -48, Math.toRadians(113));
 
     public enum SampleStates {
         IDLE, EXTEND, SENSORWAIT, SENSE, RETRACT, PULSEEJECT, OPENCOVER, WAIT, CLOSE, LIFT, PARTIALFLIP, SCORE, AUTOWAIT, OPEN, LOWERLIFT, EJECTFLIP, EJECTLIDOPEN
@@ -322,7 +322,7 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
                 })
                 .transitionTimed(0.7)
                 .state(AutoStates.WAIT)
-                .transitionTimed(0.35)
+                .transitionTimed(0.1)
                 .state(AutoStates.OPENCLAW1)
                 .onEnter(()->{
                     scorePressed=true;
@@ -344,6 +344,7 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
                 .state(AutoStates.SCORESAMPLE1)
                 .onEnter(()->follower.followPath(samp1toScore, true))
                 .transition(()->follower.atParametricEnd())
+                .transitionTimed(1.3)
                 .state(AutoStates.WAIT2)
                 .transitionTimed(0.05)
                 .state(AutoStates.OPENCLAW2)
@@ -363,11 +364,15 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
                     extendPressed=true;
                 })
                 .transition(()->sampleMachine.getState()== SampleStates.RETRACT)
-                .transitionTimed(1, AutoStates.INTAKE2, ()->intake.setIntakePower(-1))
+                .transitionTimed(1, AutoStates.INTAKE2, ()->{
+                    intake.setIntakePower(-1);
+                    extendPressed=false;
+                })
 
                 .state(AutoStates.SCORESAMPLE2)
                 .onEnter(()->follower.followPath(samp2toScore, true))
                 .transition(()->follower.atParametricEnd())
+                .transitionTimed(1.3)
                 .state(AutoStates.WAIT3)
                 .transitionTimed(0.05)
                 .state(AutoStates.OPENCLAW3)
@@ -386,7 +391,10 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
                     extendPressed=true;
                 })
                 .transition(()->sampleMachine.getState()== SampleStates.RETRACT)
-                .transitionTimed(1, AutoStates.INTAKE3, ()->intake.setIntakePower(-1))
+                .transitionTimed(1, AutoStates.INTAKE3, ()->{
+                    intake.setIntakePower(-1);
+                    extendPressed=false;
+                })
                 .state(AutoStates.SCORESAMPLE3)
                 .onEnter(()->{
                     follower.followPath(samp3toScore, true);
@@ -397,6 +405,7 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
                     }
                 })
                 .transition(()->follower.atParametricEnd())
+                .transitionTimed(1.3)
                 .state(AutoStates.WAIT4)
                 .transitionTimed(0.05)
                 .state(AutoStates.OPENCLAW4)
@@ -480,6 +489,7 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
                     extendPressed=false;
                 })
                 .transition(()->follower.atParametricEnd())
+                .transitionTimed(2.4)
 
                 .state(AutoStates.OPENCLAWSUB1)
                 .onEnter(()->scorePressed=true)
