@@ -34,7 +34,7 @@ public class Intake {
     private boolean retracted = true;
 
     public enum SampleColor {RED, BLUE, YELLOW, NONE}
-    public static double distThreshold = 3.45;
+    public static double distThreshold = 4.1;
 
     public double intakePower=0;
 
