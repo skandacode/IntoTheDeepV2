@@ -123,7 +123,7 @@ public class AutomatedTeleop extends LinearOpMode {
 
                 .state(SampleStates.CLOSE)
                 .onEnter(() -> {
-                    outtake.closeClawOverfill();
+                    outtake.closeClaw();
                     intake.setIntakePower(0.4);
                 })
                 .transitionTimed(0.3)
@@ -142,7 +142,7 @@ public class AutomatedTeleop extends LinearOpMode {
 
                 .state(SampleStates.PARTIALFLIP)
                 .onEnter(()->{
-                    outtake.partialSampleFlipOverfill();
+                    outtake.partialSampleFlip();
                     if (lowBucket){
                         outtake.setTargetPos(lowBucketPos);
                     }
@@ -152,7 +152,7 @@ public class AutomatedTeleop extends LinearOpMode {
 
                 .state(SampleStates.SCORE)
                 .onEnter(()->{
-                    outtake.sampleScoreOverfill();
+                    outtake.sampleScore();
                     if (lowBucket){
                         outtake.setTargetPos(lowBucketPos);
                     }
@@ -323,7 +323,6 @@ public class AutomatedTeleop extends LinearOpMode {
                         intake.transferPos();
                         intake.setIntakePower(0);
                         outtake.closeClaw();
-                        outtake.setFlip(0.5);
                         outtake.setTargetPos(950);
                     })
                     .loop(()->{

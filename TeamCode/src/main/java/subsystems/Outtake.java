@@ -125,20 +125,6 @@ public class Outtake {
         setWrist(0.5);
         setTargetPos(1250);
     }
-    public void partialSampleFlipOverfill(){
-        closeClawOverfill();
-        setRail(0.35);
-        setFlip(0.4);
-        setWrist(0.55);
-        setTargetPos(1000);
-    }
-    public void sampleScoreOverfill(){
-        closeClawOverfill();
-        setRail(0.23);
-        setFlip(0.03);
-        setWrist(0.5);
-        setTargetPos(1250);
-    }
 
     public void specHold(){
         closeClaw();
@@ -170,10 +156,6 @@ public class Outtake {
     }
     public void closeClaw(){
         claw.setPosition(0.88);
-        //System.out.println("Closed claw");
-    }
-    public void closeClawOverfill(){
-        claw.setPosition(0.835);
         //System.out.println("Closed claw");
     }
     public double getSetPoint() {
