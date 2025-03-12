@@ -41,7 +41,7 @@ public class SpecimenAutoPedroSix extends LinearOpMode {
     private final Pose scorePose1 = new Pose(-12.5, -27.3, Math.toRadians(90));
     private final Pose scorePose2 = new Pose(-11, -27.3, Math.toRadians(90));
     private final Pose scorePose3 = new Pose(-8, -27.2, Math.toRadians(90));
-    private final Pose scorePose4 = new Pose(-6, -27.2, Math.toRadians(90));
+    private final Pose scorePose4 = new Pose(-6, -26, Math.toRadians(90));
     private final Pose scorePose5 = new Pose(-6, -27.3, Math.toRadians(90));
     private final Pose startPose = new Pose(-2, -61.5, Math.toRadians(90));
     private final Pose sample1 = new Pose(24, -33, Math.toRadians(38));
@@ -277,6 +277,7 @@ public class SpecimenAutoPedroSix extends LinearOpMode {
                 .state(AutoStates.retract)
                 .onEnter(()->{
                     intake.intakePos(extendAmount-100);
+                    intake.setIntakePower(1);
                 })
                 .transitionTimed(0.3)
                 .state(AutoStates.scorePreload)
@@ -285,7 +286,8 @@ public class SpecimenAutoPedroSix extends LinearOpMode {
                     intake.intakePos(extendAmount);
                     intake.setIntakePower(1);
                 })
-                .transition(()->specimenScorer.getState()== SpecimenScoreStates.OPENCLAW)
+                .transition(()->intake.isSampleIntaked())
+                .transitionTimed(1.5)
                 .state(AutoStates.retract1)
                 .onEnter(()->{
                     intake.setIntakeFlip(0.43);
@@ -294,7 +296,7 @@ public class SpecimenAutoPedroSix extends LinearOpMode {
                 .transitionTimed(0.4)
                 .state(AutoStates.intakeReversePos)
                 .onEnter(()->follower.followPath(preloadScoretoreverse, true))
-                .transitionTimed(1.1)
+                .transitionTimed(1.2)
                 .state(AutoStates.intakeReverse)
                 .onEnter(()->{
                     intake.intakePos(400);
@@ -317,7 +319,7 @@ public class SpecimenAutoPedroSix extends LinearOpMode {
                 .onEnter(()->{
                     intake.intakePos(500);
                 })
-                .transitionTimed(0.9)
+                .transitionTimed(0.7)
                 .transition(()->intake.isSampleIntaked(), AutoStates.intakeReversePos1)
 
                 .state(AutoStates.intakeReversePos1)
@@ -325,7 +327,7 @@ public class SpecimenAutoPedroSix extends LinearOpMode {
                     intake.intakePos(300);
                     follower.followPath(intake1toreverse, true);
                 })
-                .transitionTimed(0.5)
+                .transitionTimed(0.3)
                 .state(AutoStates.intakeReverse1)
                 .onEnter(()->{
                     intake.intakePos(300);
