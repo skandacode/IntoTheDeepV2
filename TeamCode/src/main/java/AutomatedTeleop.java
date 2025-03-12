@@ -142,18 +142,17 @@ public class AutomatedTeleop extends LinearOpMode {
 
                 .state(SampleStates.PARTIALFLIP)
                 .onEnter(()->{
-                    outtake.partialSampleFlip();
+                    outtake.partialSampleFlipOverfill();
                     if (lowBucket){
                         outtake.setTargetPos(lowBucketPos);
                     }
                 })
-
                 .transition(()->gamepad1.left_trigger>0.3)
                 .transition(()->(outtake.getCachedPos()>900 && !lowBucket) || (outtake.getCachedPos()>lowBucketPos-70 && lowBucket))
 
                 .state(SampleStates.SCORE)
                 .onEnter(()->{
-                    outtake.sampleScore();
+                    outtake.sampleScoreOverfill();
                     if (lowBucket){
                         outtake.setTargetPos(lowBucketPos);
                     }
