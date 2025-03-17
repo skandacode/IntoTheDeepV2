@@ -183,7 +183,7 @@ public class SampleAutoPedroPreExtend extends LinearOpMode {
                 .transition(()->outtake.getCachedPos()>900)
 
                 .state(SampleStates.SCORE)
-                .onEnter(()->outtake.sampleScore())
+                .onEnter(()->outtake.specGrab())
 
                 .transition(() -> scorePressed)
 
@@ -302,7 +302,7 @@ public class SampleAutoPedroPreExtend extends LinearOpMode {
                 .transition(()->outtake.getCachedPos()>900)
 
                 .state(SampleStates.SCORE)
-                .onEnter(()->outtake.sampleScore())
+                .onEnter(()->outtake.specGrab())
 
                 .transition(() -> scorePressed)
 

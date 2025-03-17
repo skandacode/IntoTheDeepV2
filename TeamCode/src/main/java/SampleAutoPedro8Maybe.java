@@ -111,7 +111,7 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
                     extendPressed=false;
                 })
                 .loop(()->{
-                    if (outtake.getFlipAnalog()>1.937 && outtake.isRetracted()){
+                    if (outtake.getFlipAnalog()>Outtake.axonAnalogFlipThresh && outtake.isRetracted()){
                         outtake.openClaw();
                     }
                 })
@@ -198,7 +198,7 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
 
                 .state(SampleStates.SCORE)
                 .onEnter(()->{
-                    outtake.sampleScore();
+                    outtake.specGrab();
                     outtake.setRail(0.35);
                 })
 
@@ -221,13 +221,8 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
                     outtake.transferPos();
                 })
                 .state(SampleStates.LOWERLIFT)
-                .loop(()->{
-                    if (outtake.getFlipAnalog()>1.937 && outtake.isRetracted()){
-                        outtake.openClaw();
-                    }
-                })
-                .transition(()->extendPressed && outtake.getFlipAnalog()>1.937, SampleStates.EXTEND)
-                .transition(() -> outtake.isRetracted() && outtake.getFlipAnalog()>1.937, SampleStates.IDLE)
+                .transition(()->extendPressed && outtake.getFlipAnalog()>Outtake.axonAnalogFlipThresh, SampleStates.EXTEND)
+                .transition(() -> outtake.isRetracted() && outtake.getFlipAnalog()>Outtake.axonAnalogFlipThresh, SampleStates.IDLE)
                 .onExit(()->outtake.openClaw())
                 .build();
         PathChain scorePreload = follower.pathBuilder()

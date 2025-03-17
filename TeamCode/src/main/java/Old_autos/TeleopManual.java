@@ -71,7 +71,7 @@ public class TeleopManual extends LinearOpMode{
                 outtake.openClaw();
             }
             if (gamepad1.b){
-                outtake.sampleScore();
+                outtake.specGrab();
             }
             if (gamepad1.dpad_up){
                 outtake.specHold();

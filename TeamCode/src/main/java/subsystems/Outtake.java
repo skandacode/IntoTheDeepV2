@@ -1,12 +1,14 @@
 package subsystems;
 
 
+import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDFController;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
+@Config
 public class Outtake {
     private CachedMotorEx outtakeMotor1;
     private CachedMotorEx outtakeMotor2;
@@ -25,6 +27,8 @@ public class Outtake {
     private int currMotorPos;
     private boolean retracted = true;
     public double currPower=0;
+
+    public static double axonAnalogFlipThresh = 1.932;
 
     public Outtake(HardwareMap hwMap){
         outtakeMotor1 = new CachedMotorEx(hwMap, "outtakeMotor1");
@@ -108,9 +112,7 @@ public class Outtake {
         setWrist(0.1);
         setTargetPos(0);
     }
-    public void waitPos(){
 
-    }
     public void partialSampleFlip(){
         closeClaw();
         setRail(0.35);
@@ -118,17 +120,34 @@ public class Outtake {
         setWrist(0.55);
         setTargetPos(1000);
     }
-    public void sampleScore(){
+    public void specGrab(){
         closeClaw();
-        setRail(0.23);
+        setRail(0.3);
         setFlip(0.03);
         setWrist(0.5);
-        setTargetPos(1250);
+        setTargetPos(1280);
+    }
+    public void sampleScore(){
+        closeClaw();
+        setRail(0.3);
+        setFlip(0.1);
+        setWrist(0.65);
+        setTargetPos(1280);
+    }
+    public void sampleFlat(){
+        setRail(0.1);
+        setWrist(0.95);
+        setFlip(0.15);
+    }
+    public void sampleRegular(){
+        setWrist(0.65);
+        setRail(0.3);
+        setFlip(0.1);
     }
 
     public void specHold(){
         closeClaw();
-        setRail(0.52);
+        setRail(0.55);
         setFlip(0.71);
         setWrist(0.55);
         setTargetPos(600);

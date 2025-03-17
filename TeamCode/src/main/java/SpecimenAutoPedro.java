@@ -135,7 +135,6 @@ public class SpecimenAutoPedro extends LinearOpMode {
                 .state(SampleStates.WAIT)
                 .onEnter(() -> {
                     intake.setIntakePower(0.4);
-                    outtake.waitPos();
                 })
                 .transitionTimed(0.3)
 
@@ -158,7 +157,7 @@ public class SpecimenAutoPedro extends LinearOpMode {
                 .transition(()->outtake.getCachedPos()>900)
 
                 .state(SampleStates.SCORE)
-                .onEnter(()->outtake.sampleScore())
+                .onEnter(()->outtake.specGrab())
                 .transition(() -> sampleScorePressed)
 
                 .state(SampleStates.AUTOWAIT)
@@ -176,12 +175,12 @@ public class SpecimenAutoPedro extends LinearOpMode {
                 })
                 .state(SampleStates.LOWERLIFT)
                 .loop(()->{
-                    if (outtake.getFlipAnalog()>1.937 && outtake.isRetracted()){
+                    if (outtake.getFlipAnalog()>Outtake.axonAnalogFlipThresh && outtake.isRetracted()){
                         outtake.openClaw();
                     }
                 })
-                .transition(()->extendPressed && outtake.getFlipAnalog()>1.937, SampleStates.IDLE)
-                .transition(() -> outtake.isRetracted() && outtake.getFlipAnalog()>1.937, SampleStates.IDLE)
+                .transition(()->extendPressed && outtake.getFlipAnalog()>Outtake.axonAnalogFlipThresh, SampleStates.IDLE)
+                .transition(() -> outtake.isRetracted() && outtake.getFlipAnalog()>Outtake.axonAnalogFlipThresh, SampleStates.IDLE)
                 .onExit(()->outtake.openClaw())
                 .build();
 
@@ -197,7 +196,7 @@ public class SpecimenAutoPedro extends LinearOpMode {
 
                 .state(SpecimenScoreStates.INTAKEPOS)
                 .onEnter(() -> {
-                    outtake.sampleScore();
+                    outtake.specGrab();
                     outtake.setTargetPos(200);
                 })
                 .transitionTimed(0.6)
@@ -228,7 +227,7 @@ public class SpecimenAutoPedro extends LinearOpMode {
                 .state(SpecimenScoreStates.CLOSEBEFORERETRACT)
                 .onEnter(() -> outtake.closeClaw())
                 .transition(()->continueSpecScored, SpecimenScoreStates.INTAKE, ()->{
-                    outtake.sampleScore();
+                    outtake.specGrab();
                     outtake.setTargetPos(0);
                 })
                 .transitionTimed(0.3)
@@ -244,7 +243,7 @@ public class SpecimenAutoPedro extends LinearOpMode {
                     outtake.transferPos();
                     outtake.setTargetPos(0);
                 })
-                .transition(() -> (outtake.isRetracted() || gamepad1.dpad_up) && outtake.getFlipAnalog()>1.937, SpecimenScoreStates.IDLE)
+                .transition(() -> (outtake.isRetracted() || gamepad1.dpad_up) && outtake.getFlipAnalog()>Outtake.axonAnalogFlipThresh, SpecimenScoreStates.IDLE)
                 .onExit(()->outtake.openClaw())
                 .build();
 

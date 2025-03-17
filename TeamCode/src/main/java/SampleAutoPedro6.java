@@ -145,7 +145,6 @@ public class SampleAutoPedro6 extends LinearOpMode {
                 .state(SampleStates.WAIT)
                 .onEnter(() -> {
                     intake.setIntakePower(0.4);
-                    outtake.waitPos();
                 })
                 .transitionTimed(waitTime(known))
 
@@ -168,7 +167,7 @@ public class SampleAutoPedro6 extends LinearOpMode {
                 .transition(()->outtake.getCachedPos()>900)
 
                 .state(SampleStates.SCORE)
-                .onEnter(()->outtake.sampleScore())
+                .onEnter(()->outtake.specGrab())
                 .transition(() -> scorePressed)
 
                 .state(SampleStates.AUTOWAIT)
@@ -186,12 +185,12 @@ public class SampleAutoPedro6 extends LinearOpMode {
                 })
                 .state(SampleStates.LOWERLIFT)
                 .loop(()->{
-                    if (outtake.getFlipAnalog()>1.937 && outtake.isRetracted()){
+                    if (outtake.getFlipAnalog()>Outtake.axonAnalogFlipThresh && outtake.isRetracted()){
                         outtake.openClaw();
                     }
                 })
-                .transition(()->extendPressed && outtake.getFlipAnalog()>1.937, SampleStates.IDLE)
-                .transition(() -> outtake.isRetracted() && outtake.getFlipAnalog()>1.937, SampleStates.IDLE)
+                .transition(()->extendPressed && outtake.getFlipAnalog()>Outtake.axonAnalogFlipThresh, SampleStates.IDLE)
+                .transition(() -> outtake.isRetracted() && outtake.getFlipAnalog()>Outtake.axonAnalogFlipThresh, SampleStates.IDLE)
                 .onExit(()->outtake.openClaw())
                 .build();
         PathChain scorePreload = follower.pathBuilder()

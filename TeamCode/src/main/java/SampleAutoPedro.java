@@ -3,20 +3,15 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.follower.FollowerConstants;
 import com.pedropathing.localization.Pose;
-import com.pedropathing.pathgen.BezierCurve;
 import com.pedropathing.pathgen.BezierLine;
-import com.pedropathing.pathgen.Path;
 import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Constants;
-import com.pedropathing.util.Timer;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.sfdev.assembly.state.StateMachine;
 import com.sfdev.assembly.state.StateMachineBuilder;
-
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 import java.util.List;
 
@@ -142,7 +137,6 @@ public class SampleAutoPedro extends LinearOpMode {
                 .state(SampleStates.WAIT)
                 .onEnter(() -> {
                     intake.setIntakePower(0.4);
-                    outtake.waitPos();
                 })
                 .transitionTimed(0.3)
 
@@ -165,7 +159,7 @@ public class SampleAutoPedro extends LinearOpMode {
                 .transition(()->outtake.getCachedPos()>900)
 
                 .state(SampleStates.SCORE)
-                .onEnter(()->outtake.sampleScore())
+                .onEnter(()->outtake.specGrab())
                 .transition(() -> scorePressed)
 
                 .state(SampleStates.AUTOWAIT)

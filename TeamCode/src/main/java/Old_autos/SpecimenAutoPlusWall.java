@@ -121,7 +121,7 @@ public class SpecimenAutoPlusWall extends LinearOpMode {
         StateMachine specimenMachine = new StateMachineBuilder()
                 .state(SpecimenScoreStates.INTAKE)
                 .onEnter(() -> {
-                    outtake.sampleScore();
+                    outtake.specGrab();
                     outtake.setTargetPos(0);
                     outtake.openClawWide();
                 })

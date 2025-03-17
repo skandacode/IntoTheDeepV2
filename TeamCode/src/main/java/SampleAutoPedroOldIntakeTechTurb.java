@@ -153,7 +153,6 @@ public class SampleAutoPedroOldIntakeTechTurb extends LinearOpMode {
                 .state(SampleStates.WAIT)
                 .onEnter(() -> {
                     intake.setIntakePower(0.4);
-                    outtake.waitPos();
                 })
                 .transitionTimed(waitTime(known))
 
@@ -176,7 +175,7 @@ public class SampleAutoPedroOldIntakeTechTurb extends LinearOpMode {
                 .transition(()->outtake.getCachedPos()>900)
 
                 .state(SampleStates.SCORE)
-                .onEnter(()->outtake.sampleScore())
+                .onEnter(()->outtake.specGrab())
                 .transition(() -> scorePressed)
 
                 .state(SampleStates.AUTOWAIT)

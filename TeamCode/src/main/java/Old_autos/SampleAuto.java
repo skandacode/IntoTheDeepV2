@@ -168,7 +168,7 @@ public class SampleAuto extends LinearOpMode {
                 .transition(()->outtake.getCachedPos()>950)
 
                 .state(SampleStates.SCORE)
-                .onEnter(()->outtake.sampleScore())
+                .onEnter(()->outtake.specGrab())
                 .transition(() -> lbPressed)
                 .onExit(()->lbPressed=false)
 

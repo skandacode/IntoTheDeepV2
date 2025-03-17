@@ -4,11 +4,9 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.util.ElapsedTime;
 import com.sfdev.assembly.state.StateMachine;
 import com.sfdev.assembly.state.StateMachineBuilder;
 
-import java.util.Arrays;
 import java.util.List;
 
 import subsystems.Drivetrain;
@@ -31,7 +29,7 @@ public class AutomatedTeleop extends LinearOpMode {
     public static Intake.SampleColor allianceColor= Intake.SampleColor.BLUE;
     Intake.SampleColor currentSense= Intake.SampleColor.NONE;
     public static int hangPos=550;
-    public static int maxExtend=470;
+    public static int maxExtend=480;
     public static boolean lowBucket=false;
     public static int lowBucketPos=690;
 
@@ -76,7 +74,7 @@ public class AutomatedTeleop extends LinearOpMode {
                 .transition(()->gamepad1.left_trigger<0.1, SampleStates.IDLE)
                 .state(SampleStates.SENSORWAIT)
                 .onEnter(()->intake.intakePos())
-                .transitionTimed(0.05)
+                .transitionTimed(0.01)
                 .state(SampleStates.SENSE)
                 .transition(() -> {
                     currentSense=intake.getColor();
@@ -95,7 +93,7 @@ public class AutomatedTeleop extends LinearOpMode {
                 .onEnter(() -> {
                     intake.setCover(false);
                 })
-                .transitionTimed(0.4, SampleStates.EXTEND)
+                .transitionTimed(0.5, SampleStates.EXTEND)
 
                 .state(SampleStates.RETRACT)
                 .onEnter(()->{
@@ -133,7 +131,7 @@ public class AutomatedTeleop extends LinearOpMode {
                     if (lowBucket){
                         outtake.setTargetPos(lowBucketPos);
                     }else{
-                        outtake.setTargetPos(970);
+                        outtake.setTargetPos(1280);
                     }
                     intake.setIntakePower(-0.5);
                 })
@@ -161,6 +159,12 @@ public class AutomatedTeleop extends LinearOpMode {
                     if (gamepad1.left_trigger > 0.3) {
                         outtake.setTargetPos(50);
                     }
+                    if (gamepad1.dpad_right) {
+                        outtake.sampleFlat();
+                    }
+                    if (gamepad1.dpad_left) {
+                        outtake.sampleRegular();
+                    }
                 })
                 .transition(() -> gamepad1.left_bumper)
                 .state(SampleStates.OPEN)
@@ -172,18 +176,13 @@ public class AutomatedTeleop extends LinearOpMode {
                     outtake.transferPos();
                 })
                 .state(SampleStates.LOWERLIFT)
-                .loop(()->{
-                    if (outtake.getFlipAnalog()>1.937 && outtake.isRetracted()){
-                        outtake.openClaw();
-                    }
-                })
-                .transition(()->gamepad1.left_trigger>0.3 && outtake.getFlipAnalog()>1.937, SampleStates.IDLE)
-                .transition(() -> outtake.isRetracted() && outtake.getFlipAnalog()>1.937, SampleStates.IDLE)
+                //.transition(()->outtake.getFlipAnalog()>Outtake.axonAnalogFlipThresh, SampleStates.IDLE)
+                .transitionTimed(0.5, SampleStates.IDLE)
                 .onExit(()->outtake.openClaw())
                 .build();
         StateMachine specimenScorer = new StateMachineBuilder()
                 .state(SpecimenScoreStates.IDLE)
-                .transition(() -> gamepad1.dpad_up)
+                .transition(() -> gamepad1.dpad_up && outtake.getSetPoint()==0)
                 .state(SpecimenScoreStates.C)
                 .onEnter(()->{
                     outtake.closeClaw();
@@ -193,7 +192,7 @@ public class AutomatedTeleop extends LinearOpMode {
 
                 .state(SpecimenScoreStates.INTAKEPOS)
                 .onEnter(() -> {
-                    outtake.sampleScore();
+                    outtake.specGrab();
                     outtake.setTargetPos(200);
                 })
                 .transitionTimed(0.6)
@@ -218,7 +217,7 @@ public class AutomatedTeleop extends LinearOpMode {
                 .state(SpecimenScoreStates.CLOSEBEFORERETRACT)
                 .onEnter(() -> outtake.closeClaw())
                 .transition(()->gamepad1.left_bumper, SpecimenScoreStates.INTAKE, ()->{
-                    outtake.sampleScore();
+                    outtake.specGrab();
                     outtake.setTargetPos(0);
                 })
                 .transitionTimed(0.3)
@@ -234,7 +233,7 @@ public class AutomatedTeleop extends LinearOpMode {
                     outtake.transferPos();
                     outtake.setTargetPos(0);
                 })
-                .transition(() -> (outtake.isRetracted() || gamepad1.dpad_up) && outtake.getFlipAnalog()>1.937, SpecimenScoreStates.IDLE)
+                .transition(() -> (outtake.isRetracted() || gamepad1.dpad_up) && outtake.getFlipAnalog()>Outtake.axonAnalogFlipThresh, SpecimenScoreStates.IDLE)
                 .onExit(()->outtake.openClaw())
                 .build();
         while (opModeInInit()){
@@ -300,6 +299,7 @@ public class AutomatedTeleop extends LinearOpMode {
             telemetry.addData("Intake target pos", intake.getTarget());
             telemetry.addData("Outtake target pos", outtake.getSetPoint());
             telemetry.addData("intake end direct", intake.limitSwitch.isPressed());
+            telemetry.addData("Outtake analog", outtake.getFlipAnalog());
             if (gamepad2.a){
                 lowBucket=true;
                 gamepad1.rumble(1000);

@@ -1,7 +1,6 @@
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.pedropathing.follower.Follower;
-import com.pedropathing.follower.FollowerConstants;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierCurve;
 import com.pedropathing.pathgen.BezierLine;
@@ -115,7 +114,7 @@ public class SampleAutoPedro8TechTurb extends LinearOpMode {
                     extendPressed=false;
                 })
                 .loop(()->{
-                    if (outtake.getFlipAnalog()>1.937 && outtake.isRetracted()){
+                    if (outtake.getFlipAnalog()>Outtake.axonAnalogFlipThresh && outtake.isRetracted()){
                         outtake.openClaw();
                     }
                 })
@@ -202,7 +201,7 @@ public class SampleAutoPedro8TechTurb extends LinearOpMode {
 
                 .state(SampleStates.SCORE)
                 .onEnter(()->{
-                    outtake.sampleScore();
+                    outtake.specGrab();
                     outtake.setRail(0.35);
                 })
 
@@ -226,12 +225,12 @@ public class SampleAutoPedro8TechTurb extends LinearOpMode {
                 })
                 .state(SampleStates.LOWERLIFT)
                 .loop(()->{
-                    if (outtake.getFlipAnalog()>1.937 && outtake.isRetracted()){
+                    if (outtake.getFlipAnalog()>Outtake.axonAnalogFlipThresh && outtake.isRetracted()){
                         outtake.openClaw();
                     }
                 })
-                .transition(()->extendPressed && outtake.getFlipAnalog()>1.937, SampleStates.EXTEND)
-                .transition(() -> outtake.isRetracted() && outtake.getFlipAnalog()>1.937, SampleStates.IDLE)
+                .transition(()->extendPressed && outtake.getFlipAnalog()>Outtake.axonAnalogFlipThresh, SampleStates.EXTEND)
+                .transition(() -> outtake.isRetracted() && outtake.getFlipAnalog()>Outtake.axonAnalogFlipThresh, SampleStates.IDLE)
                 .onExit(()->outtake.openClaw())
                 .build();
         PathChain scorePreload = follower.pathBuilder()
