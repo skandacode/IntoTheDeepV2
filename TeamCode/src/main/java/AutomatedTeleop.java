@@ -103,7 +103,7 @@ public class AutomatedTeleop extends LinearOpMode {
                     outtake.transferPos();
                     outtake.openClaw();
                 })
-                .transitionTimed(0.02)
+                .transitionTimed(0.025)
                 .state(SampleStates.OPENCOVER)
                 .onEnter(() -> {
                     intake.setCover(false);
@@ -115,16 +115,16 @@ public class AutomatedTeleop extends LinearOpMode {
 
                 .state(SampleStates.WAIT)
                 .onEnter(() -> {
-                    intake.setIntakePower(0.4);
+                    intake.setIntakePower(1);
                 })
-                .transitionTimed(0.3)
+                .transitionTimed(0.2)
 
                 .state(SampleStates.CLOSE)
                 .onEnter(() -> {
-                    outtake.closeClaw();
-                    intake.setIntakePower(0.4);
+                    outtake.partialCloseClaw();
+                    intake.setIntakePower(1);
                 })
-                .transitionTimed(0.3)
+                .transitionTimed(0.2)
 
                 .state(SampleStates.LIFT)
                 .onEnter(() -> {
@@ -137,6 +137,7 @@ public class AutomatedTeleop extends LinearOpMode {
                 })
                 .transition(()->gamepad1.left_trigger>0.3)//drop to human player
                 .transitionTimed(0.3)
+                .onExit(()->outtake.closeClaw())
 
                 .state(SampleStates.PARTIALFLIP)
                 .onEnter(()->{

@@ -23,7 +23,7 @@ import subsystems.Intake;
 import subsystems.Outtake;
 
 @Autonomous
-public class SpecimenAutoPedroPlusOnePark extends LinearOpMode {
+public class SpecAuto6 extends LinearOpMode {
 
     private Follower follower;
     Hang hang;

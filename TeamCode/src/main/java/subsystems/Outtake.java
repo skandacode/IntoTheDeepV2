@@ -174,9 +174,14 @@ public class Outtake {
         //System.out.println("Opened wide claw");
     }
     public void closeClaw(){
-        claw.setPosition(0.88);
+        claw.setPosition(0.885);
         //System.out.println("Closed claw");
     }
+    public void partialCloseClaw(){
+        claw.setPosition(0.83);
+        //System.out.println("Closed claw");
+    }
+
     public double getSetPoint() {
         return controller.getSetPoint();
     }
