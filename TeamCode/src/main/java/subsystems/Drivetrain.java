@@ -25,14 +25,7 @@ public class Drivetrain {
     SimpleMotorFeedforward strafeFeedforward=new SimpleMotorFeedforward(0.2, 1);
     SimpleMotorFeedforward headingFeedforward=new SimpleMotorFeedforward(0.11, 1);
 
-
-    Telemetry telemetry;
-    FtcDashboard dashboard;
-
-
-    public Pose2D position;
-
-    private boolean ptoEngaged=false;
+    public Hang hang;
 
     CachedServo leftpto, rightpto;
 
@@ -51,9 +44,7 @@ public class Drivetrain {
         leftBack.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
         rightBack.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
 
-
-        this.dashboard=dashboard;
-        this.telemetry=telemetry;
+        hang=new Hang(hwMap);
     }
     public void setRawPowers(double frontleft, double frontright, double backleft, double backright){
         double maximum=Math.max(frontleft, frontright);
@@ -91,53 +82,13 @@ public class Drivetrain {
         setWeightedPowers(front, strafe, heading, 0);
     }
     public void setPtoEngaged(boolean engaged){
-        ptoEngaged=engaged;
-        if (ptoEngaged){
-            leftpto.setPosition(0.4);
-            rightpto.setPosition(0.5);
-        }else{
-            leftpto.setPosition(0.7);
-            rightpto.setPosition(0.1);
-        }
+        hang.setPtoEngaged(engaged);
     }
     public boolean isPtoEngaged(){
-        return ptoEngaged;
+        return hang.getPtoEngaged();
     }
-    public void driveFieldCentric(double XPower, double YPower, double turnPower, double currHeading){
-        double x = XPower * Math.cos(currHeading) + YPower * Math.sin(currHeading);
-        double y = YPower * Math.cos(currHeading) - XPower * Math.sin(currHeading);
-        setWeightedPowers(x, y, turnPower);
-    }
-    public void setTarget(WayPoint target){
 
-    }
-    public void update() {
-        SparkFunOTOS.Pose2D rawposition= new SparkFunOTOS.Pose2D();
-        position=new Pose2D(DistanceUnit.INCH, rawposition.x, rawposition.y, AngleUnit.DEGREES, rawposition.h);
-
-        telemetry.addData("position", position.getX(DistanceUnit.INCH)+" "+position.getY(DistanceUnit.INCH)+" "+position.getHeading(AngleUnit.DEGREES));
-        TelemetryPacket packet = new TelemetryPacket();
-        packet.fieldOverlay().setFill("blue")
-                .strokeCircle(position.getX(DistanceUnit.INCH), position.getY(DistanceUnit.INCH), 5)
-                .strokeLine(position.getX(DistanceUnit.INCH), position.getY(DistanceUnit.INCH),
-                        (Math.cos(position.getHeading(AngleUnit.RADIANS))*5)+ position.getX(DistanceUnit.INCH),
-                        (Math.sin(position.getHeading(AngleUnit.RADIANS))*5)+ position.getY(DistanceUnit.INCH));
-
-        dashboard.sendTelemetryPacket(packet);
-    }
-    public SparkFunOTOS.Pose2D getVelocity(){
-        return new SparkFunOTOS.Pose2D();
-    }
-    public void updatePIDS(){
-
-    }
-    public boolean atTarget(){
-        return true;
-    }
-    public void setPosition(Pose2D targetPosition){
-
-    }
-    public void calibrateIMU(){
-
+    public void setLatchPos(Hang.LatchPositions pos){
+        hang.setLatchPos(pos);
     }
 }

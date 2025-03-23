@@ -107,12 +107,14 @@ public class Outtake {
     }
     public void transferPos(){
         closeClaw();
-        setRail(0.445);
-        setFlip(0.7);
-        setWrist(0.1);
+        setRail(0.25);
+        setFlip(0.76);
+        setWrist(0.17);
         setTargetPos(0);
     }
-
+    public void setForTransfer(){
+        setFlip(0.76);
+    }
     public void partialSampleFlip(){
         closeClaw();
         setRail(0.35);
@@ -122,14 +124,14 @@ public class Outtake {
     }
     public void specGrab(){
         closeClaw();
-        setRail(0.3);
+        setRail(0.15);
         setFlip(0.03);
         setWrist(0.5);
         setTargetPos(1280);
     }
     public void sampleScore(){
         closeClaw();
-        setRail(0.3);
+        setRail(0.15);
         setFlip(0.1);
         setWrist(0.65);
         setTargetPos(1280);
@@ -146,19 +148,19 @@ public class Outtake {
     }
 
     public void specHold(){
-        closeClaw();
-        setRail(0.55);
-        setFlip(0.71);
-        setWrist(0.55);
-        setTargetPos(600);
+        setClaw(0.865);
+        setRail(1);
+        setFlip(0.7);
+        setWrist(0.3);
+        setTargetPos(730);
 
     }
     public void specScore(){
-        closeClaw();
-        setRail(0.56);
-        setFlip(0.6);
-        setWrist(0.6);
-        setTargetPos(700);
+        setClaw(0.865);
+        setRail(1);
+        setFlip(0.7);
+        setWrist(0.3);
+        setTargetPos(730);
 
     }
     public int getCachedPos(){
@@ -178,7 +180,7 @@ public class Outtake {
         //System.out.println("Closed claw");
     }
     public void partialCloseClaw(){
-        claw.setPosition(0.83);
+        claw.setPosition(0.84);
         //System.out.println("Closed claw");
     }
 
