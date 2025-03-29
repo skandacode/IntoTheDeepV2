@@ -108,33 +108,32 @@ public class Outtake {
     public void transferPos(){
         closeClaw();
         setRail(0.25);
-        setFlip(0.76);
+        setFlip(0.72);
         setWrist(0.17);
         setTargetPos(0);
     }
     public void setForTransfer(){
-        setFlip(0.76);
+        setFlip(0.71);
     }
     public void partialSampleFlip(){
         closeClaw();
         setRail(0.35);
         setFlip(0.4);
         setWrist(0.55);
-        setTargetPos(1000);
+        setTargetPos(1250);
     }
     public void specGrab(){
         closeClaw();
-        setRail(0.15);
+        setRail(0.08);
         setFlip(0.03);
-        setWrist(0.5);
-        setTargetPos(1280);
+        setWrist(0.6);
     }
     public void sampleScore(){
         closeClaw();
         setRail(0.15);
         setFlip(0.1);
         setWrist(0.65);
-        setTargetPos(1280);
+        setTargetPos(1250);
     }
     public void sampleFlat(){
         setRail(0.1);
@@ -148,19 +147,19 @@ public class Outtake {
     }
 
     public void specHold(){
-        setClaw(0.865);
-        setRail(1);
-        setFlip(0.7);
-        setWrist(0.3);
-        setTargetPos(730);
+        setClaw(0.87);
+        setRail(0.35);
+        setFlip(0.65);
+        setWrist(0.4);
+        setTargetPos(625);
 
     }
     public void specScore(){
-        setClaw(0.865);
-        setRail(1);
-        setFlip(0.7);
-        setWrist(0.3);
-        setTargetPos(730);
+        setClaw(0.85);
+        setRail(0.4);
+        setFlip(0.5);
+        setWrist(0.4);
+        setTargetPos(650);
 
     }
     public int getCachedPos(){

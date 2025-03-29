@@ -39,15 +39,15 @@ public class Hang {
         if (pos == LatchPositions.FULLY_RETRACTED){
             leftLatch.setPosition(0.98);
             rightLatch.setPosition(0.02);
-            return;
+            System.out.println("Latch fully retracted");
         }
         if (pos == LatchPositions.EXTENDED){
-            leftLatch.setPosition(0.18);
-            rightLatch.setPosition(0.82);
+            leftLatch.setPosition(0.16);
+            rightLatch.setPosition(0.84);
         }
         if (pos == LatchPositions.PULLDOWN){
-            leftLatch.setPosition(0.72);
-            rightLatch.setPosition(0.28);
+            leftLatch.setPosition(0.7);
+            rightLatch.setPosition(0.26);
         }
     }
 }

@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 public class CachedServo {
     Servo servo;
-    double prevPos = 0;
+    double prevPos = -1;
 
     public CachedServo(Servo servo) {
         this.servo = servo;

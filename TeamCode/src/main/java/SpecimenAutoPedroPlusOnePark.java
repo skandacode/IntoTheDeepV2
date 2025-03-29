@@ -37,19 +37,20 @@ public class SpecimenAutoPedroPlusOnePark extends LinearOpMode {
     private final Pose preIntake3 = new Pose(22, -42, Math.toRadians(25));
     private final Pose prescorePose = new Pose(-9, -45, Math.toRadians(90));
     private final Pose preIntake1 = new Pose(18, -46, Math.toRadians(40));
-    private final Pose preloadScorePose = new Pose(-15, -27.5, Math.toRadians(90));
-    private final Pose scorePose1 = new Pose(-12, -27.6, Math.toRadians(90));
+    private final Pose preloadScorePose = new Pose(-3.5, -27.5, Math.toRadians(90));
+    private final Pose scorePose1 = new Pose(-6.5, -27.6, Math.toRadians(90));
+    private final Pose scorePose1s = new Pose(-9, -26.6, Math.toRadians(90));
     private final Pose scorePose2 = new Pose(-9, -27.4, Math.toRadians(90));
-    private final Pose scorePose3 = new Pose(-6, -26.5, Math.toRadians(90));
-    private final Pose scorePose4 = new Pose(-8, -26.5, Math.toRadians(90));
+    private final Pose scorePose3 = new Pose(-12.5, -26.5, Math.toRadians(90));
+    private final Pose scorePose4 = new Pose(-15, -26.5, Math.toRadians(90));
 
     private final Pose startPose = new Pose(-2, -61.5, Math.toRadians(90));
-    private final Pose sample1 = new Pose(20, -37, Math.toRadians(38));
+    private final Pose sample1 = new Pose(22, -36, Math.toRadians(45));
     private final Pose sample2 = new Pose(30, -39, Math.toRadians(33));
     private final Pose sample3 = new Pose(35.5, -36, Math.toRadians(27));
     private final Pose sampleReverse = new Pose(26, -42, Math.toRadians(-45));
     private final Pose park = new Pose(35, -55, Math.toRadians(0));
-    private final Pose bucket = new Pose(-60, -61, Math.toRadians(0));
+    private final Pose bucket = new Pose(-62, -59, Math.toRadians(0));
 
     public enum SampleStates {
         IDLE, EXTEND, RETRACT, OPENCOVER, WAIT, CLOSE, LIFT, PARTIALFLIP, SCORE, AUTOWAIT, OPEN, LOWERLIFT, EJECTFLIP, EJECTLIDOPEN
@@ -221,7 +222,7 @@ public class SpecimenAutoPedroPlusOnePark extends LinearOpMode {
                 .transitionTimed(0.3)
                 .state(SpecimenScoreStates.OPENCLAW)
                 .onEnter(() -> outtake.openClaw())
-                .transitionTimed(0.3)
+                .transitionTimed(0.45)
                 .state(SpecimenScoreStates.CLOSEBEFORERETRACT)
                 .onEnter(() -> outtake.closeClaw())
                 .transition(()->continueSpecScored, SpecimenScoreStates.INTAKE, ()->{
@@ -252,7 +253,7 @@ public class SpecimenAutoPedroPlusOnePark extends LinearOpMode {
         PathChain scorePreload = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(startPose), new Point(preloadScorePose)))
                 .setLinearHeadingInterpolation(startPose.getHeading(), preloadScorePose.getHeading())
-                .setZeroPowerAccelerationMultiplier(2.2)
+                .setZeroPowerAccelerationMultiplier(3.5)
                 .build();
         PathChain preloadScoretointake1 = follower.pathBuilder()
                 .addPath(new BezierCurve(new Point(preloadScorePose), new Point(preIntake1), new Point(preIntake1)))
@@ -297,22 +298,22 @@ public class SpecimenAutoPedroPlusOnePark extends LinearOpMode {
         PathChain grabtoscore = follower.pathBuilder()
                 .addPath(new BezierCurve(new Point(specGrab), new Point(prescorePose), new Point(scorePose1)))
                 .setLinearHeadingInterpolation(specGrab.getHeading(), scorePose1.getHeading())
-                .setZeroPowerAccelerationMultiplier(1.8)
+                .setZeroPowerAccelerationMultiplier(2.2)
                 .build();
         PathChain grabtoscore2 = follower.pathBuilder()
                 .addPath(new BezierCurve(new Point(specGrab), new Point(prescorePose), new Point(scorePose2)))
                 .setLinearHeadingInterpolation(specGrab.getHeading(), scorePose2.getHeading())
-                .setZeroPowerAccelerationMultiplier(1.8)
+                .setZeroPowerAccelerationMultiplier(2.2)
                 .build();
         PathChain grabtoscore3 = follower.pathBuilder()
                 .addPath(new BezierCurve(new Point(specGrab), new Point(prescorePose), new Point(scorePose3)))
                 .setLinearHeadingInterpolation(specGrab.getHeading(), scorePose3.getHeading())
-                .setZeroPowerAccelerationMultiplier(1.8)
+                .setZeroPowerAccelerationMultiplier(2.2)
                 .build();
         PathChain grabtoscore4 = follower.pathBuilder()
                 .addPath(new BezierCurve(new Point(specGrab), new Point(prescorePose), new Point(scorePose4)))
                 .setLinearHeadingInterpolation(specGrab.getHeading(), scorePose4.getHeading())
-                .setZeroPowerAccelerationMultiplier(1.8)
+                .setZeroPowerAccelerationMultiplier(2.2)
                 .build();
         PathChain grabtobucket = follower.pathBuilder()
                 .addPath(new BezierCurve(new Point(specGrab), new Point(bucket)))
@@ -331,6 +332,10 @@ public class SpecimenAutoPedroPlusOnePark extends LinearOpMode {
                 .addPath(new BezierLine(new Point(scorePose3), new Point(prespecGrab)))
                 .setLinearHeadingInterpolation(scorePose3.getHeading(), prespecGrab.getHeading())
                 .build();
+        PathChain score3strafe = follower.pathBuilder()
+                .addPath(new BezierLine(new Point(scorePose3), new Point(scorePose1s)))
+                .setLinearHeadingInterpolation(scorePose3.getHeading(), scorePose1s.getHeading())
+                .build();
         PathChain score4topregrab = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(scorePose4), new Point(prespecGrab)))
                 .setLinearHeadingInterpolation(scorePose4.getHeading(), prespecGrab.getHeading())
@@ -347,7 +352,7 @@ public class SpecimenAutoPedroPlusOnePark extends LinearOpMode {
                     follower.followPath(scorePreload, true);
                     outtake.setRail(0.64);
                 })
-                .transitionTimed(1.3)
+                .transitionTimed(1.2)
                 .state(AutoStates.scorePreload)
                 .onEnter(()->specimenScoredPressed=true)
                 .transition(()->specimenScorer.getState()== SpecimenScoreStates.OPENCLAW)
@@ -452,7 +457,7 @@ public class SpecimenAutoPedroPlusOnePark extends LinearOpMode {
                 .onEnter(()->{
                     follower.followPath(grabtoscore, true);
                 })
-                .transitionTimed(1.6)
+                .transitionTimed(1.5)
                 .state(AutoStates.score1)
                 .onEnter(()->specimenScoredPressed=true)
                 .transition(()->specimenScorer.getState()== SpecimenScoreStates.OPENCLAW)
@@ -466,7 +471,7 @@ public class SpecimenAutoPedroPlusOnePark extends LinearOpMode {
                     follower.followPath(pregrabtograb, true);
                 })
                 .transition(()->follower.atParametricEnd())
-                .transitionTimed(1.2)
+                .transitionTimed(1.1)
                 .state(AutoStates.closeClaw2)
                 .onEnter(()->closedPressed=true)
                 .transitionTimed(0.1)
@@ -482,13 +487,13 @@ public class SpecimenAutoPedroPlusOnePark extends LinearOpMode {
                 .onEnter(()->{
                     follower.followPath(score2topregrab, true);
                 })
-                .transitionTimed(0.8)
+                .transitionTimed(0.7)
                 .state(AutoStates.specPos3)
                 .onEnter(()->{
                     follower.followPath(pregrabtograb, true);
                 })
                 .transition(()->follower.atParametricEnd())
-                .transitionTimed(1.2)
+                .transitionTimed(1.1)
                 .state(AutoStates.closeClaw3)
                 .onEnter(()->closedPressed=true)
                 .transitionTimed(0.1)
@@ -496,7 +501,7 @@ public class SpecimenAutoPedroPlusOnePark extends LinearOpMode {
                 .onEnter(()->{
                     follower.followPath(grabtoscore3, true);
                 })
-                .transitionTimed(1.5)
+                .transitionTimed(1.8)
                 .state(AutoStates.score3)
                 .onEnter(()->specimenScoredPressed=true)
                 .transition(()->specimenScorer.getState()== SpecimenScoreStates.OPENCLAW)
@@ -504,13 +509,13 @@ public class SpecimenAutoPedroPlusOnePark extends LinearOpMode {
                 .onEnter(()->{
                     follower.followPath(score3topregrab, true);
                 })
-                .transitionTimed(1)
+                .transitionTimed(1.25)
                 .state(AutoStates.specPos4)
                 .onEnter(()->{
                     follower.followPath(pregrabtograb, true);
                 })
                 .transition(()->follower.atParametricEnd())
-                .transitionTimed(1.2)
+                .transitionTimed(0.3)
                 .state(AutoStates.closeClaw4)
                 .onEnter(()->closedPressed=true)
                 .transitionTimed(0.1)
@@ -518,7 +523,7 @@ public class SpecimenAutoPedroPlusOnePark extends LinearOpMode {
                 .onEnter(()->{
                     follower.followPath(grabtoscore4, true);
                 })
-                .transitionTimed(1.6)
+                .transitionTimed(1.7)
                 .state(AutoStates.score4)
                 .onEnter(()->specimenScoredPressed=true)
                 .transition(()->specimenScorer.getState()== SpecimenScoreStates.OPENCLAW)
@@ -526,13 +531,13 @@ public class SpecimenAutoPedroPlusOnePark extends LinearOpMode {
                 .onEnter(()->{
                     follower.followPath(score4topregrab, true);
                 })
-                .transitionTimed(1)
+                .transitionTimed(1.25)
                 .state(AutoStates.specPos5)
                 .onEnter(()->{
                     follower.followPath(pregrabtograb, true);
                 })
                 .transition(()->follower.atParametricEnd())
-                .transitionTimed(1.2)
+                .transitionTimed(0.3)
                 .state(AutoStates.closeClaw5)
                 .onEnter(()->outtake.closeClaw())
                 .transitionTimed(0.1)
@@ -566,6 +571,7 @@ public class SpecimenAutoPedroPlusOnePark extends LinearOpMode {
         outtake.closeClaw();
         intake.transferPos();
         outtake.setTargetPos(0);
+        hang.setLatchPos(Hang.LatchPositions.FULLY_RETRACTED);
         while (opModeInInit()) {
             if (!(controlhub==null)) {
                 controlhub.clearBulkCache();
@@ -575,6 +581,8 @@ public class SpecimenAutoPedroPlusOnePark extends LinearOpMode {
                     hub.clearBulkCache();
                 }
             }
+
+            hang.setLatchPos(Hang.LatchPositions.FULLY_RETRACTED);
             follower.updatePose();
             intake.update();
             outtake.update();

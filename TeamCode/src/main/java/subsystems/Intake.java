@@ -126,7 +126,7 @@ public class Intake {
         intakePos();
     }
     public void intakePos(){
-        setIntakeFlip(0.63);
+        setIntakeFlip(0.61);
         setCover(true);
         setIntakePower(1);
     }
@@ -151,7 +151,7 @@ public class Intake {
         if (isSampleIntaked()){
             int[] rgbValues = getRawSensorValues();
             System.out.println(Arrays.toString(rgbValues));
-            int[] tweakedValues = new int[] {rgbValues[0]-20, rgbValues[1]-35, rgbValues[2]-30};
+            int[] tweakedValues = new int[] {rgbValues[0]-20, rgbValues[1]-20, rgbValues[2]-30};
             if (tweakedValues[0]>tweakedValues[1] && tweakedValues[0]>tweakedValues[2]){
                 System.out.println(Arrays.toString(tweakedValues)+" Red");
                 return SampleColor.RED;

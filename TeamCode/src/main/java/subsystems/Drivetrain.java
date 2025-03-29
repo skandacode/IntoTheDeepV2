@@ -91,4 +91,7 @@ public class Drivetrain {
     public void setLatchPos(Hang.LatchPositions pos){
         hang.setLatchPos(pos);
     }
+    public double getCurrent(){
+        return leftFront.getCurrent()+leftBack.getCurrent()+rightFront.getCurrent()+rightBack.getCurrent();
+    }
 }
