@@ -454,6 +454,7 @@ public class SpecimenAutoPedroPlusOnePark extends LinearOpMode {
                 .state(AutoStates.specPos5)
                 .onEnter(()->{
                     follower.followPath(pregrabtograb, true);
+                    hang.setLatchPos(Hang.LatchPositions.EXTENDED);
                 })
                 .transition(()->follower.atParametricEnd())
                 .transitionTimed(0.3)
