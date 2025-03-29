@@ -98,87 +98,6 @@ public class SpecimenAutoPedroPlusOnePark extends LinearOpMode {
 
 
         follower.setStartingPose(startPose);
-        StateMachine sampleMachine = new StateMachineBuilder()
-                .state(SampleStates.IDLE)
-                .onEnter(() -> {
-                    intake.transferPos();
-                    intake.setIntakePower(0);
-                })
-                .transition(() -> extendPressed)
-                .state(SampleStates.EXTEND)
-                .onEnter(()->{
-                    intake.intakePos(maxExtend);
-                    extendPressed=false;
-                })
-                .transition(()->intake.isSampleIntaked())
-
-                .state(SampleStates.RETRACT)
-                .onEnter(()->{
-                    intake.transferPos();
-                    intake.setCover(true);
-                    outtake.transferPos();
-                    outtake.openClaw();
-                })
-                .transitionTimed(0.01)
-                .state(SampleStates.OPENCOVER)
-                .onEnter(() -> {
-                    intake.setCover(false);
-                    intake.setIntakePower(0.05);
-                    outtake.openClaw();
-                })
-                .transition(()-> intake.isRetracted())
-
-                .state(SampleStates.WAIT)
-                .onEnter(() -> {
-                    intake.setIntakePower(0.4);
-                })
-                .transitionTimed(0.3)
-
-                .state(SampleStates.CLOSE)
-                .onEnter(() -> {
-                    outtake.closeClaw();
-                    intake.setIntakePower(0.4);
-                })
-                .transitionTimed(0.3)
-
-                .state(SampleStates.LIFT)
-                .onEnter(() -> {
-                    outtake.setTargetPos(970);
-                    intake.setIntakePower(-0.5);
-                })
-                .transitionTimed(0.3)
-
-                .state(SampleStates.PARTIALFLIP)
-                .onEnter(()->outtake.partialSampleFlip())
-                .transition(()->outtake.getCachedPos()>900)
-
-                .state(SampleStates.SCORE)
-                .onEnter(()->outtake.specGrab())
-                .transition(() -> sampleScorePressed)
-
-                .state(SampleStates.AUTOWAIT)
-                .transitionTimed(0.4)
-
-                .state(SampleStates.OPEN)
-                .onEnter(() -> {
-                    outtake.openClaw();
-                    sampleScorePressed =false;
-                })
-                .transitionTimed(0.5)
-                .onExit(() -> {
-                    outtake.setTargetPos(0);
-                    outtake.transferPos();
-                })
-                .state(SampleStates.LOWERLIFT)
-                .loop(()->{
-                    if (outtake.getFlipAnalog()>Outtake.axonAnalogFlipThresh && outtake.isRetracted()){
-                        outtake.openClaw();
-                    }
-                })
-                .transition(()->extendPressed && outtake.getFlipAnalog()>Outtake.axonAnalogFlipThresh, SampleStates.IDLE)
-                .transition(() -> outtake.isRetracted() && outtake.getFlipAnalog()>Outtake.axonAnalogFlipThresh, SampleStates.IDLE)
-                .onExit(()->outtake.openClaw())
-                .build();
 
         StateMachine specimenScorer = new StateMachineBuilder()
                 .state(SpecimenScoreStates.IDLE)
@@ -350,7 +269,7 @@ public class SpecimenAutoPedroPlusOnePark extends LinearOpMode {
                 .state(AutoStates.depositPosPreload)
                 .onEnter(()->{
                     follower.followPath(scorePreload, true);
-                    outtake.setRail(0.64);
+                    //outtake.setRail(0.64);
                 })
                 .transitionTimed(1.2)
                 .state(AutoStates.scorePreload)
@@ -593,7 +512,6 @@ public class SpecimenAutoPedroPlusOnePark extends LinearOpMode {
         }
         waitForStart();
         autoMachine.start();
-        sampleMachine.start();
         specimenScorer.start();
         specimenScorer.setState(SpecimenScoreStates.HOLD);
         outtake.specHold();
@@ -609,7 +527,6 @@ public class SpecimenAutoPedroPlusOnePark extends LinearOpMode {
                 }
             }
             autoMachine.update();
-            sampleMachine.update();
             specimenScorer.update();
             follower.update();
             //follower.telemetryDebug(telemetry);
@@ -624,7 +541,7 @@ public class SpecimenAutoPedroPlusOnePark extends LinearOpMode {
             prevPose=currPose;
 
             telemetry.addData("Path State", autoMachine.getState());
-            telemetry.addData("Sample State", sampleMachine.getState());
+            telemetry.addData("Sample State", specimenScorer.getState());
             telemetry.addData("Outtake Pos", outtake.getCachedPos());
 
             telemetry.addData("Position", follower.getPose().toString());
