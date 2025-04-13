@@ -273,8 +273,7 @@ public class ExampleBucketAuto extends OpMode {
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
         telemetry=new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
-        Constants.setConstants(FConstants.class, LConstants.class);
-        follower = new Follower(hardwareMap);
+        follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
         hang=new Hang(hardwareMap);
         hang.setPtoEngaged(false);
         intake=new Intake(hardwareMap);

@@ -107,13 +107,13 @@ public class Outtake {
     }
     public void transferPos(){
         closeClaw();
-        setRail(0.25);
-        setFlip(0.72);
+        setRail(0.23);
+        setFlip(0.725);
         setWrist(0.17);
         setTargetPos(0);
     }
     public void setForTransfer(){
-        setFlip(0.71);
+        setFlip(0.7);
     }
     public void partialSampleFlip(){
         closeClaw();
@@ -124,34 +124,30 @@ public class Outtake {
     }
     public void specGrab(){
         closeClaw();
-        setRail(0.08);
+        setRail(0.1);
         setFlip(0.03);
         setWrist(0.6);
     }
     public void sampleScore(){
         closeClaw();
-        setRail(0.15);
-        setFlip(0.1);
-        setWrist(0.65);
-        setTargetPos(1250);
-    }
-    public void sampleFlat(){
         setRail(0.1);
-        setWrist(0.95);
-        setFlip(0.15);
+        setFlip(0.28);
+        setWrist(0.7);
+        setTargetPos(1070);
     }
-    public void sampleRegular(){
-        setWrist(0.65);
-        setRail(0.3);
-        setFlip(0.1);
+    public void sampleOverfill(){
+        closeClaw();
+        setRail(0.1);
+        setWrist(0.7);
+        setFlip(0.2);
+        setTargetPos(1150);
     }
-
     public void specHold(){
         setClaw(0.87);
         setRail(0.35);
         setFlip(0.65);
-        setWrist(0.4);
-        setTargetPos(625);
+        setWrist(0.5);
+        setTargetPos(575);
 
     }
     public void specScore(){

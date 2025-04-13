@@ -13,7 +13,8 @@ public class Hang {
     public enum LatchPositions{
         FULLY_RETRACTED,
         EXTENDED,
-        PULLDOWN
+        PULLDOWN,
+        TOUCHBAR
     }
 
     public Hang(HardwareMap hwMap){
@@ -48,6 +49,10 @@ public class Hang {
         if (pos == LatchPositions.PULLDOWN){
             leftLatch.setPosition(0.7);
             rightLatch.setPosition(0.26);
+        }
+        if (pos == LatchPositions.TOUCHBAR){
+            leftLatch.setPosition(0.43);
+            rightLatch.setPosition(0.57);
         }
     }
 }

@@ -1,3 +1,5 @@
+package oldAutos;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.pedropathing.follower.Follower;
@@ -9,6 +11,7 @@ import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Constants;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.sfdev.assembly.state.StateMachine;
 import com.sfdev.assembly.state.StateMachineBuilder;
@@ -22,6 +25,7 @@ import subsystems.Intake;
 import subsystems.Outtake;
 
 @Autonomous
+@Disabled
 public class SampleAutoPedro extends LinearOpMode {
 
     private Follower follower;
@@ -68,8 +72,7 @@ public class SampleAutoPedro extends LinearOpMode {
         }
 
         telemetry=new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
-        Constants.setConstants(FConstants.class, LConstants.class);
-        follower = new Follower(hardwareMap);
+        follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
         hang=new Hang(hardwareMap);
         hang.setPtoEngaged(false);
         intake=new Intake(hardwareMap);
@@ -299,6 +302,7 @@ public class SampleAutoPedro extends LinearOpMode {
         telemetry.addData("zero power accel multiplier", FollowerConstants.zeroPowerAccelerationMultiplier);
         telemetry.update();
         outtake.closeClaw();
+        intake.setIntakeFlip(0.3);
         waitForStart();
         autoMachine.start();
         sampleMachine.start();

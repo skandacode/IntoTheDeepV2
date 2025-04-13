@@ -41,6 +41,8 @@ public class Intake {
     public static double k=0.05;
     private double filtered=50;
 
+    public static double dropThresh = 1.852;
+
     public Intake(HardwareMap hwMap){
         extendoMotor = new CachedMotorEx(hwMap, "extendo");
         intakeMotor = new CachedMotorEx(hwMap, "intake");

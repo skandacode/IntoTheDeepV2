@@ -1,3 +1,5 @@
+package currentAutos;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.pedropathing.follower.Follower;
@@ -23,7 +25,7 @@ import subsystems.Intake;
 import subsystems.Outtake;
 
 @Autonomous
-public class SpecimenAutoPedroPlusOnePark extends LinearOpMode {
+public class SpecimenAuto6New extends LinearOpMode {
 
     private Follower follower;
     Hang hang;
@@ -43,12 +45,14 @@ public class SpecimenAutoPedroPlusOnePark extends LinearOpMode {
     private final Pose scorePose2 = new Pose(-9, -27.4, Math.toRadians(90));
     private final Pose scorePose3 = new Pose(-12.5, -26.5, Math.toRadians(90));
     private final Pose scorePose4 = new Pose(-15, -26.5, Math.toRadians(90));
+    private final Pose scorePose5 = new Pose(-11, -26.5, Math.toRadians(90));
 
     private final Pose startPose = new Pose(-2, -61.5, Math.toRadians(90));
     private final Pose sample1 = new Pose(22, -36, Math.toRadians(45));
     private final Pose sample2 = new Pose(30, -39, Math.toRadians(33));
     private final Pose sample3 = new Pose(35.5, -36, Math.toRadians(27));
     private final Pose sampleReverse = new Pose(26, -42, Math.toRadians(-45));
+    private final Pose sampleReversepre = new Pose(26, -46, Math.toRadians(-25));
     private final Pose park = new Pose(35, -55, Math.toRadians(0));
     private final Pose bucket = new Pose(-62, -59, Math.toRadians(0));
 
@@ -61,12 +65,13 @@ public class SpecimenAutoPedroPlusOnePark extends LinearOpMode {
     public static boolean extendPressed=false;
     public static boolean sampleScorePressed =false;
 
-
+    public static int posintake=200;
+    public static Intake.SampleColor allianceColor= Intake.SampleColor.BLUE;
     public static boolean closedPressed=false;
     public static boolean specimenScoredPressed =false;
     public static boolean continueSpecScored=true;
 
-    enum AutoStates{depositPosPreload, pauseToDepo, scorePreload,
+    enum AutoStates{depositPosPreload, intake, scorePreload, retract, reextend, retract2, reversePos, reverse, reverseintake,
         intakePreExtend1, intakeExtend1, intakeExtend1Pos, intakeReversePos1, intakeReverse1,
         intakePreExtend2, intakeExtend2, intakeExtend2Pos, intakeReversePos2, intakeReverse2,
         intakePreExtend3, intakeExtend3, intakeExtend3Pos, intakeReversePos3, intakeReverse3,
@@ -74,7 +79,7 @@ public class SpecimenAutoPedroPlusOnePark extends LinearOpMode {
         prespecPos2, specPos2, closeClaw2, depositPos2, score2,
         prespecPos3, specPos3, closeClaw3, depositPos3, score3,
         prespecPos4, specPos4, closeClaw4, depositPos4, score4,
-        prespecPos5, specPos5, closeClaw5, bucket, dropLift, openClaw, park, DONE}
+        prespecPos5, specPos5, closeClaw5, depositPos5, score5, park, DONE}
     @Override
     public void runOpMode() throws InterruptedException {
         List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
@@ -88,8 +93,7 @@ public class SpecimenAutoPedroPlusOnePark extends LinearOpMode {
         }
 
         telemetry=new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
-        Constants.setConstants(FConstants.class, LConstants.class);
-        follower = new Follower(hardwareMap);
+        follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
         hang=new Hang(hardwareMap);
         hang.setPtoEngaged(false);
         intake=new Intake(hardwareMap);
@@ -214,6 +218,10 @@ public class SpecimenAutoPedroPlusOnePark extends LinearOpMode {
                 .addPath(new BezierLine(new Point(prespecGrab), new Point(specGrab)))
                 .setLinearHeadingInterpolation(prespecGrab.getHeading(), specGrab.getHeading())
                 .build();
+        PathChain scoretoreverse = follower.pathBuilder()
+                .addPath(new BezierLine(new Point(prescorePose), new Point(sampleReversepre)))
+                .setLinearHeadingInterpolation(prescorePose.getHeading(), sampleReversepre.getHeading())
+                .build();
         PathChain grabtoscore = follower.pathBuilder()
                 .addPath(new BezierCurve(new Point(specGrab), new Point(prescorePose), new Point(scorePose1)))
                 .setLinearHeadingInterpolation(specGrab.getHeading(), scorePose1.getHeading())
@@ -232,6 +240,11 @@ public class SpecimenAutoPedroPlusOnePark extends LinearOpMode {
         PathChain grabtoscore4 = follower.pathBuilder()
                 .addPath(new BezierCurve(new Point(specGrab), new Point(prescorePose), new Point(scorePose4)))
                 .setLinearHeadingInterpolation(specGrab.getHeading(), scorePose4.getHeading())
+                .setZeroPowerAccelerationMultiplier(2.2)
+                .build();
+        PathChain grabtoscore5 = follower.pathBuilder()
+                .addPath(new BezierCurve(new Point(specGrab), new Point(prescorePose), new Point(scorePose5)))
+                .setLinearHeadingInterpolation(specGrab.getHeading(), scorePose5.getHeading())
                 .setZeroPowerAccelerationMultiplier(2.2)
                 .build();
         PathChain grabtobucket = follower.pathBuilder()
@@ -259,8 +272,8 @@ public class SpecimenAutoPedroPlusOnePark extends LinearOpMode {
                 .addPath(new BezierLine(new Point(scorePose4), new Point(prespecGrab)))
                 .setLinearHeadingInterpolation(scorePose4.getHeading(), prespecGrab.getHeading())
                 .build();
-        PathChain buckettopark = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(bucket), new Point(park)))
+        PathChain scoretopark = follower.pathBuilder()
+                .addPath(new BezierLine(new Point(scorePose5), new Point(park)))
                 .build();
 
 
@@ -269,14 +282,48 @@ public class SpecimenAutoPedroPlusOnePark extends LinearOpMode {
                 .state(AutoStates.depositPosPreload)
                 .onEnter(()->{
                     follower.followPath(scorePreload, true);
-                    //outtake.setRail(0.64);
+                    intake.setTargetPos(posintake+50);
                 })
                 .transitionTimed(1.2)
                 .state(AutoStates.scorePreload)
                 .onEnter(()->specimenScoredPressed=true)
-                .transition(()->specimenScorer.getState()== SpecimenScoreStates.OPENCLAW)
+                .transitionTimed(0.35)
+                .state(AutoStates.retract)
+                .onEnter(()->{
+                    intake.intakePos(posintake-100);
+                    intake.setIntakePower(-0.5);
+                })
+                .transitionTimed(0.3)
+                .state(AutoStates.reextend)
+                .onEnter(()->intake.intakePos(posintake+100))
+                .transitionTimed(0.7)
+                .state(AutoStates.retract2)
+                .onEnter(()->{
+                    intake.setIntakePower(-0.1);
+                    intake.transferPos();
+                    intake.setCover(true);
+                })
+                .transitionTimed(0.3)
+                .state(AutoStates.reversePos)
+                .onEnter(()->{
+                    follower.followPath(scoretoreverse, true);
+                    intake.setIntakePower(0.1);
+                })
+                .transitionTimed(0.7)
+                .state(AutoStates.reverse)
+                .onEnter(()->{
+                    intake.setTargetPos(300);
+                })
+                .transitionTimed(0.5)
+                .state(AutoStates.reverseintake)
+                .onEnter(()->{
+                    intake.setIntakePower(-0.7);
+                })
+                .transitionTimed(0.3)
                 .state(AutoStates.intakePreExtend1)
                 .onEnter(()->{
+                    intake.setTargetPos(0);
+                    intake.setIntakePower(0);
                     follower.followPath(preloadScoretointake1, true);
                 })
                 .transitionTimed(0.9)
@@ -459,28 +506,21 @@ public class SpecimenAutoPedroPlusOnePark extends LinearOpMode {
                 .transition(()->follower.atParametricEnd())
                 .transitionTimed(0.3)
                 .state(AutoStates.closeClaw5)
-                .onEnter(()->outtake.closeClaw())
+                .onEnter(()->closedPressed=true)
                 .transitionTimed(0.1)
-                .state(AutoStates.bucket)
+                .state(AutoStates.depositPos5)
                 .onEnter(()->{
-                    follower.followPath(grabtobucket, true);
-                    outtake.setTargetPos(1280);
+                    follower.followPath(grabtoscore5, true);
                 })
-                .transitionTimed(2.2)
-
-                .state(AutoStates.dropLift)
-                .onEnter(()->outtake.setTargetPos(1240))
-                .transitionTimed(0.2)
-                .state(AutoStates.openClaw)
-                .onEnter(()-> {
-                    outtake.openClaw();
-                    outtake.setTargetPos((int)(outtake.getSetPoint()-40));
-                })
-                .transitionTimed(0.4)
+                .transitionTimed(1.7)
+                .state(AutoStates.score5)
+                .onEnter(()->specimenScoredPressed=true)
+                .transition(()->specimenScorer.getState()== SpecimenScoreStates.OPENCLAW)
+                .transitionTimed(0.6)
                 .state(AutoStates.park)
                 .onEnter(()->{
                     outtake.transferPos();
-                    follower.followPath(buckettopark,true);
+                    follower.followPath(scoretopark,true);
                 })
                 .transitionTimed(2)
                 .state(AutoStates.DONE)
@@ -489,7 +529,7 @@ public class SpecimenAutoPedroPlusOnePark extends LinearOpMode {
         telemetry.addData("zero power accel multiplier", FollowerConstants.zeroPowerAccelerationMultiplier);
         telemetry.update();
         outtake.closeClaw();
-        intake.transferPos();
+        intake.setIntakeFlip(0.3);
         outtake.setTargetPos(0);
         hang.setLatchPos(Hang.LatchPositions.FULLY_RETRACTED);
         while (opModeInInit()) {
@@ -509,6 +549,25 @@ public class SpecimenAutoPedroPlusOnePark extends LinearOpMode {
             telemetry.addData("Outtake motor power", outtake.currPower);
 
             telemetry.addData("Pose", follower.getPose().toString());
+            telemetry.update();
+            if (gamepad1.a) {
+                allianceColor = Intake.SampleColor.BLUE;
+                gamepad1.setLedColor(0, 0, 1, 1000);
+            }
+            if (gamepad1.b) {
+                allianceColor = Intake.SampleColor.RED;
+                gamepad1.setLedColor(1, 0, 0, 1000);
+            }
+            if (gamepad1.dpad_up) {
+                posintake=posintake+50;
+                sleep(200);
+            }
+            if (gamepad1.dpad_down) {
+                posintake=posintake-50;
+                sleep(200);
+            }
+            telemetry.addData("Extend", posintake);
+            telemetry.addData("Alliance Color", allianceColor.toString());
             telemetry.update();
         }
         waitForStart();
@@ -533,7 +592,6 @@ public class SpecimenAutoPedroPlusOnePark extends LinearOpMode {
             //follower.telemetryDebug(telemetry);
             intake.update();
             outtake.update();
-
             System.out.println(follower.getPose().toString());
             Pose currPose=follower.getPose();
             if (normalize(Math.toDegrees(prevPose.getHeading()),Math.toDegrees(currPose.getHeading()))>20){

@@ -1,3 +1,5 @@
+package oldAutos;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.pedropathing.follower.Follower;
@@ -10,6 +12,7 @@ import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Constants;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.sfdev.assembly.state.StateMachine;
 import com.sfdev.assembly.state.StateMachineBuilder;
@@ -21,9 +24,9 @@ import pedroPathing.constants.LConstants;
 import subsystems.Hang;
 import subsystems.Intake;
 import subsystems.Outtake;
-
+@Disabled
 @Autonomous
-public class SampleAutoPedro6 extends LinearOpMode {
+public class SampleAutoPedroOldIntakeTechTurb extends LinearOpMode {
 
     private Follower follower;
     Hang hang;
@@ -39,11 +42,14 @@ public class SampleAutoPedro6 extends LinearOpMode {
     private final Pose substrafe3 = new Pose(-14, 5, Math.toRadians(0));
     private final Pose presubPose = new Pose(-51, -9, Math.toRadians(0));
     /** Scoring Pose of our robot. It is facing the submersible at a -45 degree (315 degree) angle. */
-    private final Pose scorePose = new Pose(-52.5, -51, Math.toRadians(60));
+    private final Pose scorePose = new Pose(-53.5, -50, Math.toRadians(60));
     private final Pose startPose = new Pose(-36, -61.5, Math.toRadians(90));
     private final Pose sample1 = new Pose(-44, -49, Math.toRadians(90));
     private final Pose sample2 = new Pose(-54, -49, Math.toRadians(90));
-    private final Pose sample3 = new Pose(-50, -45, Math.toRadians(122));
+    private final Pose sample3 = new Pose(-50, -45, Math.toRadians(123.5));
+    private final Pose sample4 = new Pose(-20, -57, Math.toRadians(0));
+    private final Pose scorePoseSub = new Pose(-55, -47.5, Math.toRadians(70));
+
 
     public enum SampleStates {
         IDLE, EXTEND, SENSORWAIT, SENSE, RETRACT, OPENCOVER, WAIT, CLOSE, LIFT, PARTIALFLIP, SCORE, AUTOWAIT, OPEN, LOWERLIFT, EJECTFLIP, EJECTLIDOPEN
@@ -61,11 +67,15 @@ public class SampleAutoPedro6 extends LinearOpMode {
         TOSAMPLE1, INTAKE1, SCORESAMPLE1,WAIT2,OPENCLAW2,
         TOSAMPLE2, INTAKE2,SCORESAMPLE2, WAIT3,OPENCLAW3,
         TOSAMPLE3, INTAKE3,SCORESAMPLE3,WAIT4,OPENCLAW4,
+        TOSAMPLE4, INTAKE4,SCORESAMPLE4,WAIT5,OPENCLAW5,
         TOSUB1, EXTENDSUB1, INTAKESUB1, RETRACTSUB1, REEXTEND1, REINTAKE1, STRAFE1, TOSCORESUB1, WAITSUB1, OPENCLAWSUB1,
         DONE}
     @Override
     public void runOpMode() throws InterruptedException {
         List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
+        extendPressed=false;
+        scorePressed=false;
+        known=true;
         LynxModule controlhub = null;
         for (LynxModule hub : allHubs) {
             hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
@@ -76,8 +86,7 @@ public class SampleAutoPedro6 extends LinearOpMode {
         }
 
         telemetry=new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
-        Constants.setConstants(FConstants.class, LConstants.class);
-        follower = new Follower(hardwareMap);
+        follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
         hang=new Hang(hardwareMap);
         hang.setPtoEngaged(false);
         intake=new Intake(hardwareMap);
@@ -185,12 +194,12 @@ public class SampleAutoPedro6 extends LinearOpMode {
                 })
                 .state(SampleStates.LOWERLIFT)
                 .loop(()->{
-                    if (outtake.getFlipAnalog()>Outtake.axonAnalogFlipThresh && outtake.isRetracted()){
+                    if (outtake.getFlipAnalog()>1.937 && outtake.isRetracted()){
                         outtake.openClaw();
                     }
                 })
-                .transition(()->extendPressed && outtake.getFlipAnalog()>Outtake.axonAnalogFlipThresh, SampleStates.IDLE)
-                .transition(() -> outtake.isRetracted() && outtake.getFlipAnalog()>Outtake.axonAnalogFlipThresh, SampleStates.IDLE)
+                .transition(()->extendPressed && outtake.getFlipAnalog()>1.937, SampleStates.IDLE)
+                .transition(() -> outtake.isRetracted() && outtake.getFlipAnalog()>1.937, SampleStates.IDLE)
                 .onExit(()->outtake.openClaw())
                 .build();
         PathChain scorePreload = follower.pathBuilder()
@@ -228,14 +237,24 @@ public class SampleAutoPedro6 extends LinearOpMode {
                 .setLinearHeadingInterpolation(sample3.getHeading(), scorePose.getHeading())
                 .setZeroPowerAccelerationMultiplier(1.5)
                 .build();
+        PathChain scoretoSamp4 = follower.pathBuilder()
+                .addPath(new BezierLine(new Point(scorePose), new Point(sample4)))
+                .setLinearHeadingInterpolation(scorePose.getHeading(), sample4.getHeading())
+                .setZeroPowerAccelerationMultiplier(2.2)
+                .build();
+        PathChain samp4toScore = follower.pathBuilder()
+                .addPath(new BezierLine(new Point(sample4), new Point(scorePose)))
+                .setLinearHeadingInterpolation(sample4.getHeading(), scorePose.getHeading())
+                .setZeroPowerAccelerationMultiplier(1.5)
+                .build();
         PathChain scoretosub = follower.pathBuilder()
                 .addPath(new BezierCurve(new Point(scorePose), new Point(presubPose),new Point(subPose)))
                 .setLinearHeadingInterpolation(scorePose.getHeading(), subPose.getHeading())
                 .setZeroPowerAccelerationMultiplier(4.5)
                 .build();
         PathChain subtoscore = follower.pathBuilder()
-                .addPath(new BezierCurve(new Point(subPose), new Point(presubPose),new Point(scorePose)))
-                .setLinearHeadingInterpolation(subPose.getHeading(), scorePose.getHeading())
+                .addPath(new BezierCurve(new Point(subPose), new Point(presubPose),new Point(scorePoseSub)))
+                .setLinearHeadingInterpolation(subPose.getHeading(), scorePoseSub.getHeading())
                 .setZeroPowerAccelerationMultiplier(4.5)
                 .build();
         PathChain subtostrafe = follower.pathBuilder()
@@ -283,7 +302,7 @@ public class SampleAutoPedro6 extends LinearOpMode {
                     follower.followPath(scorePreload, true);
                     sampleMachine.setState(SampleStates.LIFT);
                 })
-                .transitionTimed(1)
+                .transitionTimed(0.6)
                 .state(AutoStates.WAIT)
                 .transitionTimed(0.2)
                 .state(AutoStates.OPENCLAW1)
@@ -294,7 +313,7 @@ public class SampleAutoPedro6 extends LinearOpMode {
                 .onEnter(()->{
                     follower.followPath(scoretoSamp1, true);
                 })
-                .transitionTimed(0.3)
+                .transitionTimed(0.4)
                 .state(AutoStates.INTAKE1)
                 .onEnter(()->{
                     extendPressed=true;
@@ -352,6 +371,26 @@ public class SampleAutoPedro6 extends LinearOpMode {
                 .state(AutoStates.OPENCLAW4)
                 .onEnter(()->scorePressed=true)
                 .transition(()->sampleMachine.getState()== SampleStates.LOWERLIFT)
+                .state(AutoStates.TOSAMPLE4)
+                .onEnter(()->{
+                    follower.followPath(scoretoSamp4, true);
+                })
+                .transitionTimed(1)
+                .state(AutoStates.INTAKE4)
+                .onEnter(()->{
+                    extendPressed=true;
+                })
+                .transition(()->sampleMachine.getState()== SampleStates.RETRACT)
+
+                .state(AutoStates.SCORESAMPLE4)
+                .onEnter(()->follower.followPath(samp4toScore, true))
+                .transition(()->follower.atParametricEnd())
+                .state(AutoStates.WAIT5)
+                .transitionTimed(0.05)
+                .state(AutoStates.OPENCLAW5)
+                .onEnter(()->scorePressed=true)
+                .transition(()->sampleMachine.getState()== SampleStates.LOWERLIFT)
+
 
                 .state(AutoStates.TOSUB1)
                 .onEnter(()->{
@@ -372,18 +411,20 @@ public class SampleAutoPedro6 extends LinearOpMode {
 
                 .state(AutoStates.INTAKESUB1)
                 .onEnter(()->extendPressed=true)
-                .transition(()->sampleMachine.getState()==SampleStates.RETRACT, AutoStates.TOSCORESUB1)
+                .transition(()->sampleMachine.getState()== SampleStates.RETRACT, AutoStates.TOSCORESUB1)
                 .transitionTimed(0.9)
 
                 .state(AutoStates.RETRACTSUB1)
                 .onEnter(()->{
-                    if (sampleMachine.getState()==SampleStates.EXTEND){
+                    if (sampleMachine.getState()== SampleStates.EXTEND){
                         sampleMachine.setState(SampleStates.IDLE);
                     }
                     intake.setTargetPos(200);
+                    intake.transferPos();
+                    intake.setCover(true);
                 })
                 .transitionTimed(0.3)
-                .transition(()->sampleMachine.getState()==SampleStates.RETRACT, AutoStates.TOSCORESUB1)
+                .transition(()->sampleMachine.getState()== SampleStates.RETRACT, AutoStates.TOSCORESUB1)
 
                 .state(AutoStates.REEXTEND1)
                 .onEnter(()->intake.setTargetPos(500))
@@ -392,7 +433,7 @@ public class SampleAutoPedro6 extends LinearOpMode {
                 .state(AutoStates.REINTAKE1)
                 .onEnter(()->extendPressed=true)
                 .transitionTimed(1)
-                .transition(()->sampleMachine.getState()==SampleStates.RETRACT, AutoStates.TOSCORESUB1)
+                .transition(()->sampleMachine.getState()== SampleStates.RETRACT, AutoStates.TOSCORESUB1)
 
                 .state(AutoStates.STRAFE1)
                 .onEnter(()->{
@@ -405,7 +446,8 @@ public class SampleAutoPedro6 extends LinearOpMode {
                     }
                     count++;
                 })
-                .transition(()->sampleMachine.getState()==SampleStates.RETRACT, AutoStates.TOSCORESUB1)
+                .transition(()->sampleMachine.getState()== SampleStates.RETRACT, AutoStates.TOSCORESUB1)
+                .transitionTimed(2, AutoStates.RETRACTSUB1)
 
                 .state(AutoStates.TOSCORESUB1)
                 .onEnter(()->{

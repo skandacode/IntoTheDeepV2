@@ -4,11 +4,13 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.sfdev.assembly.state.StateMachine;
 import com.sfdev.assembly.state.StateMachineBuilder;
 
 import java.util.List;
 
+import currentAutos.SpecimenAuto6New;
 import subsystems.Drivetrain;
 import subsystems.Hang;
 import subsystems.Intake;
@@ -32,8 +34,11 @@ public class AutomatedTeleop extends LinearOpMode {
     public static int hangPos=85;
     public static int maxExtend=480;
     public static boolean lowBucket=false;
-    public static int lowBucketPos=690;
-    public static double currentThresh = 32;
+    public static int lowBucketPos=500;
+    public static double currentThresh = 31;
+
+    public static boolean overfillPos=false;
+
     double cachedCurrent = 0;
 
     @Override
@@ -61,7 +66,7 @@ public class AutomatedTeleop extends LinearOpMode {
                 .loop(()->{
                     intake.setTargetPos((int)(maxExtend*gamepad1.left_trigger));
                 })
-                .transition(() -> gamepad1.right_bumper && gamepad1.left_trigger>0.1 && intake.getCachedExtendoPos()>100)
+                .transition(() -> gamepad1.right_bumper && gamepad1.left_trigger>0.1 && intake.getCachedExtendoPos()>50)
                 .state(SampleStates.EXTEND)
                 .onEnter(()->intake.intakePos())
                 .loop(()->{
@@ -73,8 +78,9 @@ public class AutomatedTeleop extends LinearOpMode {
                     intake.setTargetPos((int)(maxExtend*gamepad1.left_trigger));
                 })
                 .transition(()->intake.isSampleIntaked())
-                .transition(()->!gamepad1.right_bumper, SampleStates.IDLE)
-                .transition(()->gamepad1.left_trigger<0.1, SampleStates.IDLE)
+                .transition(()->(gamepad1.left_trigger<0.1 || !gamepad1.right_bumper) && !intake.isSampleIntaked(), SampleStates.IDLE)
+                .transition(()->(gamepad1.left_trigger<0.1 || !gamepad1.right_bumper) && intake.isSampleIntaked(), SampleStates.SENSORWAIT, ()->System.out.println("arka released trigger before but moving on"))
+
                 .state(SampleStates.SENSORWAIT)
                 .onEnter(()->intake.intakePos())
                 .transitionTimed(0.01)
@@ -138,13 +144,12 @@ public class AutomatedTeleop extends LinearOpMode {
                     }
                     intake.setIntakePower(-0.5);
                 })
-                .transition(()->gamepad1.left_trigger>0.3)//drop to human player
                 .transitionTimed(0.35)
                 .onExit(()->outtake.closeClaw())
 
                 .state(SampleStates.FULLYCLOSE)
                 .onEnter(()->outtake.closeClaw())
-                .transition(()->gamepad1.left_trigger>0.3)//drop to human player
+                .transition(()->gamepad1.right_trigger>0.3)//drop to human player
                 .transitionTimed(0.05)
 
                 .state(SampleStates.PARTIALFLIP)
@@ -154,32 +159,44 @@ public class AutomatedTeleop extends LinearOpMode {
                         outtake.setTargetPos(lowBucketPos);
                     }
                 })
-                .transition(()->gamepad1.left_trigger>0.3)
-                .transition(()->(outtake.getCachedPos()>900 && !lowBucket) || (outtake.getCachedPos()>lowBucketPos-70 && lowBucket))
+                .transition(()->gamepad1.right_trigger>0.3)
+                .transition(()->(outtake.getCachedPos()>900 && !lowBucket) || (outtake.getCachedPos()>lowBucketPos-150 && lowBucket))
 
                 .state(SampleStates.SCORE)
-                .onEnter(()->{
-                    outtake.sampleScore();
-                    if (lowBucket){
-                        outtake.setTargetPos(lowBucketPos);
-                    }
-                })
                 .loop(() -> {
-                    if (gamepad1.left_trigger > 0.3) {
+                    if (gamepad1.right_trigger > 0.3) {
+                        outtake.sampleScore();
                         outtake.setTargetPos(50);
                     }
+                    else if (lowBucket){
+                        outtake.sampleScore();
+                        outtake.setTargetPos(lowBucketPos);
+                    }
+                    else if (overfillPos){
+                        outtake.sampleOverfill();
+
+                    }else{
+                        outtake.sampleScore();
+                    }
+
                 })
                 .transition(() -> gamepad1.left_bumper)
                 .state(SampleStates.OPEN)
-                .onEnter(() -> outtake.openClaw())
-                .transitionTimed(0.5)
+                .onEnter(() -> {
+                    outtake.openClaw();
+                    if (gamepad1.right_trigger>0.3){
+                        outtake.setTargetPos(200);
+                        intake.setTargetPos(200);
+                    }
+                })
+                .transitionTimed(0.3)
                 .transition(()->gamepad1.left_trigger>0.1 || (gamepad1.left_stick_y<-0.9 && !gamepad1.right_bumper))
                 .onExit(() -> {
                     outtake.setTargetPos(0);
                     outtake.transferPos();
                 })
                 .state(SampleStates.LOWERLIFT)
-                .transitionTimed(0.4, SampleStates.IDLE)
+                .transitionTimed(0.35, SampleStates.IDLE)
                 .onExit(()->outtake.openClaw())
                 .build();
         StateMachine specimenScorer = new StateMachineBuilder()
@@ -229,7 +246,7 @@ public class AutomatedTeleop extends LinearOpMode {
                     outtake.transferPos();
                     outtake.setTargetPos((int) curr);
                 })
-                .transitionTimed(0.3)
+                .transitionTimed(0.1)
                 .state(SpecimenScoreStates.RETRACT)
                 .onEnter(() -> {
                     outtake.transferPos();
@@ -253,7 +270,7 @@ public class AutomatedTeleop extends LinearOpMode {
         waitForStart();
         intake.setCover(false);
         drive.setPtoEngaged(false);
-        drive.setLatchPos(Hang.LatchPositions.EXTENDED);
+        drive.setLatchPos(Hang.LatchPositions.PULLDOWN);
         intake.transferPos();
         outtake.transferPos();
         outtake.openClaw();
@@ -279,6 +296,9 @@ public class AutomatedTeleop extends LinearOpMode {
                 intake.setIntakePower(0.5);
                 intake.setExtendoPower(-0.3);
                 sampleMachine.setState(SampleStates.WAIT);
+            }
+            if (gamepad2.right_trigger>0.8){
+                drive.setLatchPos(Hang.LatchPositions.EXTENDED);
             }
             sampleMachine.update();
             specimenScorer.update();
@@ -310,7 +330,16 @@ public class AutomatedTeleop extends LinearOpMode {
             if (gamepad2.b){
                 lowBucket=false;
             }
+            if (gamepad1.dpad_right){
+                overfillPos=true;
+            }
+            if (gamepad1.dpad_left){
+                overfillPos=false;
+            }
+
             telemetry.addData("Low Bucket", lowBucket);
+            telemetry.addData("Overfillpos", overfillPos);
+
             long currLoop = System.nanoTime();
             telemetry.addData("Ms per loop", (currLoop - prevLoop) / 1000000);
             prevLoop = currLoop;
@@ -356,7 +385,7 @@ public class AutomatedTeleop extends LinearOpMode {
                         drive.setPtoEngaged(true);
                     })
                     .loop(()->outtake.update())
-                    .transitionTimed(4)
+                    .transitionTimed(4.5)
 
                     .state(hangStates.PULLDOWN2)
                     .onEnter(()->outtake.setMotors(0))
@@ -365,7 +394,7 @@ public class AutomatedTeleop extends LinearOpMode {
 
                         System.out.println(outtake.getOuttakePosition());
                     })
-                    .transition(()->getCachedCurrent()>currentThresh)
+                    .transition(()->getCachedCurrent()>currentThresh || gamepad1.a)
                     .state(hangStates.COAST)
                     .onEnter(()->{
                         drive.setWeightedPowers(0, 0, 0, -0.25);

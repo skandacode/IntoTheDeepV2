@@ -1,3 +1,5 @@
+package oldAutos;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.pedropathing.follower.Follower;
@@ -10,6 +12,7 @@ import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Constants;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.sfdev.assembly.state.StateMachine;
 import com.sfdev.assembly.state.StateMachineBuilder;
@@ -23,7 +26,8 @@ import subsystems.Intake;
 import subsystems.Outtake;
 
 @Autonomous
-public class SpecimenAuto6New extends LinearOpMode {
+@Disabled
+public class SpecimenAutoPedro extends LinearOpMode {
 
     private Follower follower;
     Hang hang;
@@ -31,32 +35,28 @@ public class SpecimenAuto6New extends LinearOpMode {
     Outtake outtake;
 
     /** Start Pose of our robot */
-    private final Pose specGrab = new Pose(28, -55, Math.toRadians(90));
-    private final Pose prespecGrab = new Pose(28, -47, Math.toRadians(90));
-    private final Pose preIntake2 = new Pose(22, -42, Math.toRadians(33));
+    private final Pose specGrab = new Pose(30, -56, Math.toRadians(90));
+    private final Pose prespecGrab = new Pose(30, -47, Math.toRadians(90));
+    private final Pose preIntake2 = new Pose(22, -42, Math.toRadians(25));
     private final Pose preIntake3 = new Pose(22, -42, Math.toRadians(25));
     private final Pose prescorePose = new Pose(-9, -45, Math.toRadians(90));
-    private final Pose preIntake1 = new Pose(18, -46, Math.toRadians(40));
-    private final Pose preloadScorePose = new Pose(-3.5, -27.5, Math.toRadians(90));
-    private final Pose scorePose1 = new Pose(-6.5, -27.6, Math.toRadians(90));
-    private final Pose scorePose1s = new Pose(-8.5, -26.6, Math.toRadians(90));
-    private final Pose scorePose2 = new Pose(-8.5, -27.4, Math.toRadians(90));
-    private final Pose scorePose3 = new Pose(-11, -26.5, Math.toRadians(90));
-    private final Pose scorePose4 = new Pose(-13, -26.5, Math.toRadians(90));
-    private final Pose scorePose5 = new Pose(-15, -26.5, Math.toRadians(90));
+    private final Pose preIntake1 = new Pose(16, -48, Math.toRadians(20));
+    /** Scoring Pose of our robot. It is facing the submersible at a -45 degree (315 degree) angle. */
+    private final Pose scorePose = new Pose(-11, -29, Math.toRadians(90));
+    private final Pose scorePose2 = new Pose(-8, -29, Math.toRadians(90));
+    private final Pose scorePose3 = new Pose(-5, -29, Math.toRadians(90));
 
     private final Pose startPose = new Pose(-2, -61.5, Math.toRadians(90));
-    private final Pose sample1 = new Pose(22, -36, Math.toRadians(45));
-    private final Pose sample2 = new Pose(30, -39, Math.toRadians(33));
+    private final Pose sample1 = new Pose(20, -37, Math.toRadians(33));
+    private final Pose sample2 = new Pose(31, -36, Math.toRadians(33));
     private final Pose sample3 = new Pose(35.5, -36, Math.toRadians(27));
     private final Pose sampleReverse = new Pose(26, -42, Math.toRadians(-45));
     private final Pose park = new Pose(35, -55, Math.toRadians(0));
-    private final Pose bucket = new Pose(-62, -59, Math.toRadians(0));
 
     public enum SampleStates {
         IDLE, EXTEND, RETRACT, OPENCOVER, WAIT, CLOSE, LIFT, PARTIALFLIP, SCORE, AUTOWAIT, OPEN, LOWERLIFT, EJECTFLIP, EJECTLIDOPEN
     }
-    public enum SpecimenScoreStates {IDLE, C, INTAKEPOS, INTAKE, FULLYOPEN, CLOSE_CLAW, HOLD, SCORE, OPENCLAW, CLOSEBEFORERETRACT, RESET, RETRACT}
+    public enum SpecimenScoreStates {IDLE, C, INTAKEPOS, INTAKE, CLOSE_CLAW, HOLD, SCORE, OPENCLAW, CLOSEBEFORERETRACT, RESET, RETRACT}
 
     public static int maxExtend=400;
     public static boolean extendPressed=false;
@@ -67,7 +67,7 @@ public class SpecimenAuto6New extends LinearOpMode {
     public static boolean specimenScoredPressed =false;
     public static boolean continueSpecScored=true;
 
-    enum AutoStates{depositPosPreload, retractintake,  reextend, scorePreload,
+    enum AutoStates{depositPosPreload, pauseToDepo, scorePreload,
         intakePreExtend1, intakeExtend1, intakeExtend1Pos, intakeReversePos1, intakeReverse1,
         intakePreExtend2, intakeExtend2, intakeExtend2Pos, intakeReversePos2, intakeReverse2,
         intakePreExtend3, intakeExtend3, intakeExtend3Pos, intakeReversePos3, intakeReverse3,
@@ -75,7 +75,7 @@ public class SpecimenAuto6New extends LinearOpMode {
         prespecPos2, specPos2, closeClaw2, depositPos2, score2,
         prespecPos3, specPos3, closeClaw3, depositPos3, score3,
         prespecPos4, specPos4, closeClaw4, depositPos4, score4,
-        prespecPos5, specPos5, closeClaw5, bucket, dropLift, openClaw, park, DONE}
+        park,DONE}
     @Override
     public void runOpMode() throws InterruptedException {
         List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
@@ -89,8 +89,7 @@ public class SpecimenAuto6New extends LinearOpMode {
         }
 
         telemetry=new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
-        Constants.setConstants(FConstants.class, LConstants.class);
-        follower = new Follower(hardwareMap);
+        follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
         hang=new Hang(hardwareMap);
         hang.setPtoEngaged(false);
         intake=new Intake(hardwareMap);
@@ -110,6 +109,13 @@ public class SpecimenAuto6New extends LinearOpMode {
                 .onEnter(()->{
                     intake.intakePos(maxExtend);
                     extendPressed=false;
+                })
+                .loop(()->{
+                    if (intake.isJammed()){
+                        intake.setIntakePower(-1);
+                    }else{
+                        intake.setIntakePower(1);
+                    }
                 })
                 .transition(()->intake.isSampleIntaked())
 
@@ -200,11 +206,8 @@ public class SpecimenAuto6New extends LinearOpMode {
                 .state(SpecimenScoreStates.INTAKE)
                 .onEnter(() -> {
                     outtake.setTargetPos(0);
-                    outtake.openClaw();
+                    outtake.openClawWide();
                 })
-                .transitionTimed(0.6)
-                .state(SpecimenScoreStates.FULLYOPEN)
-                .onEnter(()->outtake.openClawWide())
                 .transition(() -> closedPressed)
                 .state(SpecimenScoreStates.CLOSE_CLAW)
                 .onEnter(() -> {
@@ -213,17 +216,17 @@ public class SpecimenAuto6New extends LinearOpMode {
                 })
                 .transitionTimed(0.2)
                 .state(SpecimenScoreStates.HOLD)
-                .loop(() -> outtake.specHold())
+                .onEnter(() -> outtake.specHold())
                 .transition(() -> (outtake.atTarget() && specimenScoredPressed))
                 .state(SpecimenScoreStates.SCORE)
-                .loop(() -> {
+                .onEnter(() -> {
                     outtake.specScore();
                     specimenScoredPressed =false;
                 })
                 .transitionTimed(0.3)
                 .state(SpecimenScoreStates.OPENCLAW)
-                .onEnter(() -> outtake.openClaw())
-                .transitionTimed(0.45)
+                .onEnter(() -> outtake.openClawWide())
+                .transitionTimed(0.3)
                 .state(SpecimenScoreStates.CLOSEBEFORERETRACT)
                 .onEnter(() -> outtake.closeClaw())
                 .transition(()->continueSpecScored, SpecimenScoreStates.INTAKE, ()->{
@@ -243,7 +246,7 @@ public class SpecimenAuto6New extends LinearOpMode {
                     outtake.transferPos();
                     outtake.setTargetPos(0);
                 })
-                .transition(() -> outtake.isRetracted() && outtake.getFlipAnalog()>Outtake.axonAnalogFlipThresh, SpecimenScoreStates.IDLE)
+                .transition(() -> (outtake.isRetracted() || gamepad1.dpad_up) && outtake.getFlipAnalog()>Outtake.axonAnalogFlipThresh, SpecimenScoreStates.IDLE)
                 .onExit(()->outtake.openClaw())
                 .build();
 
@@ -252,12 +255,11 @@ public class SpecimenAuto6New extends LinearOpMode {
 
 
         PathChain scorePreload = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(startPose), new Point(preloadScorePose)))
-                .setLinearHeadingInterpolation(startPose.getHeading(), preloadScorePose.getHeading())
-                .setZeroPowerAccelerationMultiplier(3.5)
+                .addPath(new BezierLine(new Point(startPose), new Point(scorePose)))
+                .setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading())
                 .build();
-        PathChain preloadScoretointake1 = follower.pathBuilder()
-                .addPath(new BezierCurve(new Point(preloadScorePose), new Point(preIntake1), new Point(preIntake1)))
+        PathChain scoretointake1 = follower.pathBuilder()
+                .addPath(new BezierCurve(new Point(scorePose), new Point(preIntake1), new Point(preIntake1)))
                 .setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(45))
                 .build();
         PathChain intake1toreverse = follower.pathBuilder()
@@ -297,33 +299,20 @@ public class SpecimenAuto6New extends LinearOpMode {
                 .setLinearHeadingInterpolation(prespecGrab.getHeading(), specGrab.getHeading())
                 .build();
         PathChain grabtoscore = follower.pathBuilder()
-                .addPath(new BezierCurve(new Point(specGrab), new Point(prescorePose), new Point(scorePose1)))
-                .setLinearHeadingInterpolation(specGrab.getHeading(), scorePose1.getHeading())
-                .setZeroPowerAccelerationMultiplier(2.2)
+                .addPath(new BezierCurve(new Point(specGrab), new Point(prescorePose), new Point(scorePose)))
+                .setLinearHeadingInterpolation(specGrab.getHeading(), scorePose.getHeading())
                 .build();
         PathChain grabtoscore2 = follower.pathBuilder()
                 .addPath(new BezierCurve(new Point(specGrab), new Point(prescorePose), new Point(scorePose2)))
                 .setLinearHeadingInterpolation(specGrab.getHeading(), scorePose2.getHeading())
-                .setZeroPowerAccelerationMultiplier(2.2)
                 .build();
         PathChain grabtoscore3 = follower.pathBuilder()
                 .addPath(new BezierCurve(new Point(specGrab), new Point(prescorePose), new Point(scorePose3)))
                 .setLinearHeadingInterpolation(specGrab.getHeading(), scorePose3.getHeading())
-                .setZeroPowerAccelerationMultiplier(2.2)
-                .build();
-        PathChain grabtoscore4 = follower.pathBuilder()
-                .addPath(new BezierCurve(new Point(specGrab), new Point(prescorePose), new Point(scorePose4)))
-                .setLinearHeadingInterpolation(specGrab.getHeading(), scorePose4.getHeading())
-                .setZeroPowerAccelerationMultiplier(2.2)
-                .build();
-        PathChain grabtobucket = follower.pathBuilder()
-                .addPath(new BezierCurve(new Point(specGrab), new Point(bucket)))
-                .setZeroPowerAccelerationMultiplier(5.7)
-                .setReversed(true)
                 .build();
         PathChain scoretopregrab = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(scorePose1), new Point(prespecGrab)))
-                .setLinearHeadingInterpolation(scorePose1.getHeading(), prespecGrab.getHeading())
+                .addPath(new BezierLine(new Point(scorePose), new Point(prespecGrab)))
+                .setLinearHeadingInterpolation(scorePose.getHeading(), prespecGrab.getHeading())
                 .build();
         PathChain score2topregrab = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(scorePose2), new Point(prespecGrab)))
@@ -333,16 +322,9 @@ public class SpecimenAuto6New extends LinearOpMode {
                 .addPath(new BezierLine(new Point(scorePose3), new Point(prespecGrab)))
                 .setLinearHeadingInterpolation(scorePose3.getHeading(), prespecGrab.getHeading())
                 .build();
-        PathChain score3strafe = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(scorePose3), new Point(scorePose1s)))
-                .setLinearHeadingInterpolation(scorePose3.getHeading(), scorePose1s.getHeading())
-                .build();
-        PathChain score4topregrab = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(scorePose4), new Point(prespecGrab)))
-                .setLinearHeadingInterpolation(scorePose4.getHeading(), prespecGrab.getHeading())
-                .build();
-        PathChain buckettopark = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(bucket), new Point(park)))
+        PathChain score2topark = follower.pathBuilder()
+                .addPath(new BezierLine(new Point(scorePose2), new Point(park)))
+                .setReversed(true)
                 .build();
 
 
@@ -351,45 +333,36 @@ public class SpecimenAuto6New extends LinearOpMode {
                 .state(AutoStates.depositPosPreload)
                 .onEnter(()->{
                     follower.followPath(scorePreload, true);
-                    outtake.setRail(0.64);
                 })
+                .transition(()->follower.atParametricEnd())
+                .state(AutoStates.pauseToDepo)
                 .transitionTimed(1.2)
                 .state(AutoStates.scorePreload)
                 .onEnter(()->specimenScoredPressed=true)
-                .transition(()->specimenScorer.getState()== SpecimenScoreStates.OPENCLAW)
+                .transition(()->specimenScorer.getState()==SpecimenScoreStates.OPENCLAW)
                 .state(AutoStates.intakePreExtend1)
                 .onEnter(()->{
-                    follower.followPath(preloadScoretointake1, true);
+                    follower.followPath(scoretointake1, true);
                 })
-                .transitionTimed(0.9)
+                .transitionTimed(1)
                 .state(AutoStates.intakeExtend1)
                 .onEnter(()->{
-                    intake.intakePos(200);
+                    intake.intakePos(350);
                     intake.setIntakePower(1);
                 })
-                .transitionTimed(0.2)
-                .transition(()->intake.isSampleIntaked(), AutoStates.intakeReversePos1)
+                .transitionTimed(0.3)
                 .state(AutoStates.intakeExtend1Pos)
-                .onEnter(()->{
-                    intake.intakePos(500);
-                })
-                .transitionTimed(0.6)
-                .transition(()->intake.isSampleIntaked(), AutoStates.intakeReversePos1)
-
+                .onEnter(()->follower.followPath(preIntaketointake1, true))
+                .transitionTimed(1)
                 .state(AutoStates.intakeReversePos1)
-                .onEnter(()->{
-                    intake.intakePos(300);
-                    follower.followPath(intake1toreverse, true);
-                })
-                .transitionTimed(0.6)
+                .onEnter(()->follower.followPath(intake1toreverse, true))
+                .transitionTimed(0.7)
                 .state(AutoStates.intakeReverse1)
                 .onEnter(()->{
-                    intake.intakePos(300);
-                    intake.intakeEject();
+                    intake.intakePos(400);
                     intake.setIntakePower(-1);
                 })
-                .loop(()->intake.setIntakePower(-1))
-                .transitionTimed(0.3)
+                .transitionTimed(0.6)
                 .state(AutoStates.intakePreExtend2)
                 .onEnter(()->{
                     follower.followPath(reversetopreIntake, true);
@@ -398,28 +371,27 @@ public class SpecimenAuto6New extends LinearOpMode {
                 .transitionTimed(0.35)
                 .state(AutoStates.intakeExtend2)
                 .onEnter(()->{
-                    intake.intakePos(375);
+                    intake.intakePos(400);
                     intake.setIntakePower(1);
                 })
-                .transitionTimed(0.05)
+                .transitionTimed(0.2)
                 .state(AutoStates.intakeExtend2Pos)
                 .onEnter(()->follower.followPath(preIntaketointake2, true))
-                .transitionTimed(0.7)
+                .transitionTimed(0.5)
                 .state(AutoStates.intakeReversePos2)
                 .onEnter(()->follower.followPath(intake2toreverse, true))
-                .transitionTimed(0.6)
+                .transitionTimed(0.8)
                 .state(AutoStates.intakeReverse2)
                 .onEnter(()->{
                     intake.intakePos(330);
-                    intake.setIntakePower(-0.7);
+                    intake.setIntakePower(-1);
                 })
-                .loop(()->intake.setIntakePower(-1))
-                .transitionTimed(0.25)
+                .transitionTimed(0.4)
                 .state(AutoStates.intakePreExtend3)
                 .onEnter(()->{
                     follower.followPath(reversetopreIntake, true);
                 })
-                .transitionTimed(0.1)
+                .transitionTimed(0.2)
                 .state(AutoStates.intakeExtend3)
                 .onEnter(()->{
                     intake.intakePos(430);
@@ -428,176 +400,119 @@ public class SpecimenAuto6New extends LinearOpMode {
                 .transitionTimed(0.2)
                 .state(AutoStates.intakeExtend3Pos)
                 .onEnter(()->follower.followPath(preIntaketointake3, true))
-                .transitionTimed(0.7)
+                .transitionTimed(1)
                 .state(AutoStates.intakeReversePos3)
                 .onEnter(()->follower.followPath(intake3toreverse, true))
                 .transitionTimed(0.7)
                 .state(AutoStates.intakeReverse3)
-                .onEnter(()->intake.setIntakePower(-0.7))
-                .loop(()->intake.setIntakePower(-0.7))
-                .transitionTimed(0.3)
+                .onEnter(()->intake.setIntakePower(-1))
+                .transitionTimed(0.4)
                 .state(AutoStates.prespecPos1)
                 .onEnter(()->{
                     follower.followPath(reversetopregrab, true);
                     intake.transferPos();
                     intake.setIntakePower(0);
                 })
-                .transitionTimed(0.7)
+                .transitionTimed(1)
                 .state(AutoStates.specPos1)
                 .onEnter(()->{
                     follower.followPath(pregrabtograb, true);
                 })
                 .transition(()->follower.atParametricEnd())
-                .transitionTimed(1.2)
                 .state(AutoStates.closeClaw1)
                 .onEnter(()->{
                     closedPressed=true;
                 })
-                .transitionTimed(0.1)
+                .transitionTimed(0.2)
                 .state(AutoStates.depositPos1)
                 .onEnter(()->{
                     follower.followPath(grabtoscore, true);
                 })
-                .transitionTimed(1.5)
+                .transitionTimed(1.9)
                 .state(AutoStates.score1)
                 .onEnter(()->specimenScoredPressed=true)
-                .transition(()->specimenScorer.getState()== SpecimenScoreStates.OPENCLAW)
+                .transition(()->specimenScorer.getState()==SpecimenScoreStates.OPENCLAW)
                 .state(AutoStates.prespecPos2)
                 .onEnter(()->{
                     follower.followPath(scoretopregrab, true);
                 })
-                .transitionTimed(0.7)
+                .transitionTimed(1)
                 .state(AutoStates.specPos2)
                 .onEnter(()->{
                     follower.followPath(pregrabtograb, true);
                 })
                 .transition(()->follower.atParametricEnd())
-                .transitionTimed(1.1)
                 .state(AutoStates.closeClaw2)
                 .onEnter(()->closedPressed=true)
-                .transitionTimed(0.1)
+                .transitionTimed(0.2)
                 .state(AutoStates.depositPos2)
                 .onEnter(()->{
-                    follower.followPath(grabtoscore2, true);
+                    follower.followPath(grabtoscore, true);
                 })
-                .transitionTimed(1.5)
+                .transitionTimed(1.9)
                 .state(AutoStates.score2)
                 .onEnter(()->specimenScoredPressed=true)
-                .transition(()->specimenScorer.getState()== SpecimenScoreStates.OPENCLAW)
+                .transition(()->specimenScorer.getState()==SpecimenScoreStates.OPENCLAW)
                 .state(AutoStates.prespecPos3)
                 .onEnter(()->{
-                    follower.followPath(score2topregrab, true);
+                    follower.followPath(scoretopregrab, true);
                 })
-                .transitionTimed(0.7)
+                .transitionTimed(1)
                 .state(AutoStates.specPos3)
                 .onEnter(()->{
                     follower.followPath(pregrabtograb, true);
                 })
                 .transition(()->follower.atParametricEnd())
-                .transitionTimed(1.1)
                 .state(AutoStates.closeClaw3)
                 .onEnter(()->closedPressed=true)
-                .transitionTimed(0.1)
+                .transitionTimed(0.2)
                 .state(AutoStates.depositPos3)
                 .onEnter(()->{
                     follower.followPath(grabtoscore3, true);
                 })
-                .transitionTimed(1.8)
+                .transitionTimed(1.9)
                 .state(AutoStates.score3)
                 .onEnter(()->specimenScoredPressed=true)
-                .transition(()->specimenScorer.getState()== SpecimenScoreStates.OPENCLAW)
+                .transition(()->specimenScorer.getState()==SpecimenScoreStates.OPENCLAW)
                 .state(AutoStates.prespecPos4)
                 .onEnter(()->{
                     follower.followPath(score3topregrab, true);
                 })
-                .transitionTimed(1.25)
+                .transitionTimed(1)
                 .state(AutoStates.specPos4)
                 .onEnter(()->{
                     follower.followPath(pregrabtograb, true);
                 })
                 .transition(()->follower.atParametricEnd())
-                .transitionTimed(0.3)
                 .state(AutoStates.closeClaw4)
                 .onEnter(()->closedPressed=true)
-                .transitionTimed(0.1)
+                .transitionTimed(0.2)
                 .state(AutoStates.depositPos4)
                 .onEnter(()->{
-                    follower.followPath(grabtoscore4, true);
+                    follower.followPath(grabtoscore2, true);
+                    continueSpecScored=false;
                 })
-                .transitionTimed(1.7)
+                .transitionTimed(1.9)
                 .state(AutoStates.score4)
                 .onEnter(()->specimenScoredPressed=true)
-                .transition(()->specimenScorer.getState()== SpecimenScoreStates.OPENCLAW)
-                .state(AutoStates.prespecPos5)
-                .onEnter(()->{
-                    follower.followPath(score4topregrab, true);
-                })
-                .transitionTimed(1.25)
-                .state(AutoStates.specPos5)
-                .onEnter(()->{
-                    follower.followPath(pregrabtograb, true);
-                })
-                .transition(()->follower.atParametricEnd())
-                .transitionTimed(0.3)
-                .state(AutoStates.closeClaw5)
-                .onEnter(()->outtake.closeClaw())
-                .transitionTimed(0.1)
-                .state(AutoStates.bucket)
-                .onEnter(()->{
-                    follower.followPath(grabtobucket, true);
-                    outtake.setTargetPos(1280);
-                })
-                .transitionTimed(2.2)
-
-                .state(AutoStates.dropLift)
-                .onEnter(()->outtake.setTargetPos(1240))
-                .transitionTimed(0.2)
-                .state(AutoStates.openClaw)
-                .onEnter(()-> {
-                    outtake.openClaw();
-                    outtake.setTargetPos((int)(outtake.getSetPoint()-40));
-                })
-                .transitionTimed(0.4)
+                .transition(()->specimenScorer.getState()==SpecimenScoreStates.OPENCLAW)
                 .state(AutoStates.park)
                 .onEnter(()->{
-                    outtake.transferPos();
-                    follower.followPath(buckettopark,true);
+                    follower.followPath(score2topark, true);
                 })
-                .transitionTimed(2)
+                .transitionTimed(1.5)
                 .state(AutoStates.DONE)
                 .onEnter(()->telemetry.addLine("Done"))
                 .build();
         telemetry.addData("zero power accel multiplier", FollowerConstants.zeroPowerAccelerationMultiplier);
         telemetry.update();
         outtake.closeClaw();
-        intake.transferPos();
-        outtake.setTargetPos(0);
-        hang.setLatchPos(Hang.LatchPositions.FULLY_RETRACTED);
-        while (opModeInInit()) {
-            if (!(controlhub==null)) {
-                controlhub.clearBulkCache();
-                telemetry.addLine("bulk reading only chub");
-            }else{
-                for (LynxModule hub:allHubs){
-                    hub.clearBulkCache();
-                }
-            }
-            follower.updatePose();
-            intake.update();
-            outtake.update();
-            telemetry.addData("Outtake motor power", outtake.currPower);
-
-            telemetry.addData("Pose", follower.getPose().toString());
-            telemetry.update();
-        }
         waitForStart();
         autoMachine.start();
         sampleMachine.start();
         specimenScorer.start();
         specimenScorer.setState(SpecimenScoreStates.HOLD);
         outtake.specHold();
-        follower.update();
-        Pose prevPose=follower.getPose();
         while (opModeIsActive()){
             if (!(controlhub==null)) {
                 controlhub.clearBulkCache();
@@ -611,32 +526,17 @@ public class SpecimenAuto6New extends LinearOpMode {
             sampleMachine.update();
             specimenScorer.update();
             follower.update();
-            //follower.telemetryDebug(telemetry);
+            follower.telemetryDebug(telemetry);
             intake.update();
             outtake.update();
 
             System.out.println(follower.getPose().toString());
-            Pose currPose=follower.getPose();
-            if (normalize(Math.toDegrees(prevPose.getHeading()),Math.toDegrees(currPose.getHeading()))>20){
-                System.out.println("PROBABLE JUMP");
-            }
-            prevPose=currPose;
 
             telemetry.addData("Path State", autoMachine.getState());
             telemetry.addData("Sample State", sampleMachine.getState());
-            telemetry.addData("Outtake Pos", outtake.getCachedPos());
 
             telemetry.addData("Position", follower.getPose().toString());
-
             telemetry.update();
-        }
-    }
-    private double normalize(double a, double b){
-        double c=Math.abs(a-b);
-        if (c>180){
-            return c-180;
-        }else{
-            return c;
         }
     }
 }
