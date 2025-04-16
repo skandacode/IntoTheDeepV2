@@ -13,8 +13,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import java.util.Arrays;
 @Config
 public class Intake {
-    CachedMotorEx extendoMotor;
-    CachedMotorEx intakeMotor;
+    public CachedMotorEx extendoMotor;
+    public CachedMotorEx intakeMotor;
     private CachedServo intakeFlip1;
     private CachedServo intakeFlip2;
     private CachedServo cover;

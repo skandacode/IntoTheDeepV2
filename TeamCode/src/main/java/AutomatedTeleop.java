@@ -32,7 +32,7 @@ public class AutomatedTeleop extends LinearOpMode {
     public static Intake.SampleColor allianceColor= Intake.SampleColor.BLUE;
     Intake.SampleColor currentSense= Intake.SampleColor.NONE;
     public static int hangPos=85;
-    public static int maxExtend=410;
+    public static int maxExtend=420;
     public static boolean lowBucket=false;
     public static int lowBucketPos=500;
     public static double currentThresh = 31;

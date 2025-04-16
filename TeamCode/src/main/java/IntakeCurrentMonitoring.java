@@ -1,5 +1,3 @@
-package subsystems;
-
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -11,6 +9,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
+import subsystems.Intake;
+
 @Config
 @TeleOp
 public class IntakeCurrentMonitoring extends LinearOpMode {
@@ -19,7 +19,7 @@ public class IntakeCurrentMonitoring extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-
+        AutomatedTeleop.maxExtend=400;
         intake=new Intake(hardwareMap);
         telemetry=new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         waitForStart();
