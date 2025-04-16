@@ -38,8 +38,8 @@ public class Hang {
     }
     public void setLatchPos(LatchPositions pos){
         if (pos == LatchPositions.FULLY_RETRACTED){
-            leftLatch.setPosition(0.98);
-            rightLatch.setPosition(0.02);
+            leftLatch.setPosition(1);
+            rightLatch.setPosition(0);
             System.out.println("Latch fully retracted");
         }
         if (pos == LatchPositions.EXTENDED){

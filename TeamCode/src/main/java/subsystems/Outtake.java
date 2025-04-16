@@ -108,12 +108,12 @@ public class Outtake {
     public void transferPos(){
         closeClaw();
         setRail(0.23);
-        setFlip(0.725);
+        setFlip(0.7);
         setWrist(0.17);
         setTargetPos(0);
     }
     public void setForTransfer(){
-        setFlip(0.7);
+        setFlip(0.73);
     }
     public void partialSampleFlip(){
         closeClaw();

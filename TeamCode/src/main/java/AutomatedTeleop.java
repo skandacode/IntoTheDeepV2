@@ -32,7 +32,7 @@ public class AutomatedTeleop extends LinearOpMode {
     public static Intake.SampleColor allianceColor= Intake.SampleColor.BLUE;
     Intake.SampleColor currentSense= Intake.SampleColor.NONE;
     public static int hangPos=85;
-    public static int maxExtend=480;
+    public static int maxExtend=460;
     public static boolean lowBucket=false;
     public static int lowBucketPos=500;
     public static double currentThresh = 31;
@@ -383,9 +383,10 @@ public class AutomatedTeleop extends LinearOpMode {
                     .onEnter(()->{
                         drive.setLatchPos(Hang.LatchPositions.PULLDOWN);
                         drive.setPtoEngaged(true);
+                        drive.setWeightedPowers(0, 0, 0);
                     })
                     .loop(()->outtake.update())
-                    .transitionTimed(4.5)
+                    .transitionTimed(4.3)
 
                     .state(hangStates.PULLDOWN2)
                     .onEnter(()->outtake.setMotors(0))
