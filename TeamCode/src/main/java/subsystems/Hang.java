@@ -26,7 +26,7 @@ public class Hang {
     public void setPtoEngaged(boolean engaged){
         ptoEngaged=engaged;
         if (ptoEngaged){
-            leftpto.setPosition(0.4);
+            leftpto.setPosition(0.43);
             rightpto.setPosition(0.5);
         }else{
             leftpto.setPosition(0.7);

@@ -430,13 +430,13 @@ public class SpecimenAutoPedroPlusOnePark extends LinearOpMode {
                 .onEnter(()->{
                     follower.followPath(score3topregrab, true);
                 })
-                .transitionTimed(1.25)
+                .transitionTimed(1.1)
                 .state(AutoStates.specPos4)
                 .onEnter(()->{
                     follower.followPath(pregrabtograb, true);
                 })
                 .transition(()->follower.atParametricEnd())
-                .transitionTimed(0.3)
+                .transitionTimed(0.35)
                 .state(AutoStates.closeClaw4)
                 .onEnter(()->closedPressed=true)
                 .transitionTimed(0.2)
@@ -452,7 +452,7 @@ public class SpecimenAutoPedroPlusOnePark extends LinearOpMode {
                 .onEnter(()->{
                     follower.followPath(score4topregrab, true);
                 })
-                .transitionTimed(1.25)
+                .transitionTimed(1.1)
                 .state(AutoStates.specPos5)
                 .onEnter(()->{
                     follower.followPath(pregrabtograb, true);

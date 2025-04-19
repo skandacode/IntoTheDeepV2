@@ -28,6 +28,10 @@ public class FullTesting extends LinearOpMode {
     public static double motorpower = 0;
     public static double extendopower = 0;
     public static double intakepower = 0;
+
+    public static double PTOLEFT = 0.7;
+    public static double PTORIGHT = 0.1;
+
     @Override
     public void runOpMode() throws InterruptedException {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
@@ -75,14 +79,18 @@ public class FullTesting extends LinearOpMode {
             extendo.setPower(extendopower);
             rightlatch.setPosition(latchpos);
             leftlatch.setPosition(1-latchpos);
-
+            /*
             if (pto_engaged){
-                leftpto.setPosition(0.4);
+                leftpto.setPosition(0.43);
                 rightpto.setPosition(0.5);
             }else{
                 leftpto.setPosition(0.7);
                 rightpto.setPosition(0.1);
             }
+            */
+            leftpto.setPosition(PTOLEFT);
+            rightpto.setPosition(PTORIGHT);
+
             cover.setPosition(coverpos);
             intakeflip1.setPosition(intakeflippos);
             intakeflip2.setPosition(1-intakeflippos);

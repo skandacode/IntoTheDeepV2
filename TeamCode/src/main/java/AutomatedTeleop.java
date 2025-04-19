@@ -32,7 +32,7 @@ public class AutomatedTeleop extends LinearOpMode {
     public static Intake.SampleColor allianceColor= Intake.SampleColor.BLUE;
     Intake.SampleColor currentSense= Intake.SampleColor.NONE;
     public static int hangPos=85;
-    public static int maxExtend=420;
+    public static int maxExtend=430;
     public static boolean lowBucket=false;
     public static int lowBucketPos=500;
     public static double currentThresh = 31;
@@ -126,7 +126,7 @@ public class AutomatedTeleop extends LinearOpMode {
                 .onEnter(() -> {
                     intake.setIntakePower(1);
                 })
-                .transitionTimed(0.2, ()->outtake.setForTransfer())
+                .transitionTimed(0.4, ()->outtake.setForTransfer())
 
                 .state(SampleStates.CLOSE)
                 .onEnter(() -> {
@@ -192,8 +192,8 @@ public class AutomatedTeleop extends LinearOpMode {
                 .transitionTimed(0.3)
                 .transition(()->gamepad1.left_trigger>0.1 || (gamepad1.left_stick_y<-0.9 && !gamepad1.right_bumper))
                 .onExit(() -> {
-                    outtake.setTargetPos(0);
                     outtake.transferPos();
+                    outtake.setTargetPos(0);
                 })
                 .state(SampleStates.LOWERLIFT)
                 .transitionTimed(0.35, SampleStates.IDLE)
@@ -386,7 +386,7 @@ public class AutomatedTeleop extends LinearOpMode {
                         drive.setWeightedPowers(0, 0, 0);
                     })
                     .loop(()->outtake.update())
-                    .transitionTimed(4.3)
+                    .transitionTimed(4)
 
                     .state(hangStates.PULLDOWN2)
                     .onEnter(()->outtake.setMotors(0))
