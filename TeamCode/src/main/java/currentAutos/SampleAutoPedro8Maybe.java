@@ -39,14 +39,15 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
     private final Pose substrafe2 = new Pose(-17.7, -4, Math.toRadians(-10));
     private final Pose subPose3 = new Pose(-15.5, -8, Math.toRadians(5));
     private final Pose substrafe3 = new Pose(-17.7, 2, Math.toRadians(15));
-    private final Pose presubPose = new Pose(-30, -9, Math.toRadians(0));
+    private final Pose presubPose = new Pose(-30, -2, Math.toRadians(0));
+    private final Pose presubPosebucket = new Pose(-17, -9, Math.toRadians(0));
 
 
     private final Pose presubPoseto = new Pose(-50, -9, Math.toRadians(0));
 
 
 
-    private final Pose scorePose = new Pose(-57.5, -53.5, Math.toRadians(75));
+    private final Pose scorePose = new Pose(-57, -53.5, Math.toRadians(75));
     private final Pose scorePosepreload = new Pose(-56, -55.4, Math.toRadians(67));
     private final Pose scorePosesub = new Pose(-58.5, -56.5, Math.toRadians(60));
     private final Pose startPose = new Pose(-36, -61.5, Math.toRadians(90));
@@ -158,7 +159,7 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
                         intake.setIntakePower(-1);
                     }
                 })
-                .transitionTimed(0.022)
+                .transitionTimed(0.027)
 
                 .state(SampleStates.OPENCOVER)
                 .onEnter(() -> {

@@ -116,7 +116,7 @@ public class AutomatedTeleop extends LinearOpMode {
                 .state(SampleStates.OPENCOVER)
                 .onEnter(() -> {
                     intake.setCover(false);
-                    intake.setIntakePower(0.1);
+                    intake.setIntakePower(0.25);
                     outtake.openClaw();
                 })
                 .transition(()-> intake.isRetracted())
