@@ -8,7 +8,6 @@ import com.pedropathing.pathgen.BezierCurve;
 import com.pedropathing.pathgen.BezierLine;
 import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
-import com.pedropathing.util.Constants;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -25,7 +24,6 @@ import subsystems.Outtake;
 
 @Autonomous(preselectTeleOp = "AutomatedTeleop")
 public class SampleAutoPedro8Maybe extends LinearOpMode {
-
     private Follower follower;
     Hang hang;
     Intake intake;
@@ -40,7 +38,6 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
     private final Pose subPose3 = new Pose(-15.5, -8, Math.toRadians(5));
     private final Pose substrafe3 = new Pose(-17.7, 2, Math.toRadians(15));
     private final Pose presubPose = new Pose(-30, -2, Math.toRadians(0));
-    private final Pose presubPosebucket = new Pose(-17, -9, Math.toRadians(0));
 
 
     private final Pose presubPoseto = new Pose(-50, -9, Math.toRadians(0));
@@ -56,7 +53,7 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
     private final Pose sample3 = new Pose(-55, -48, Math.toRadians(113));
 
     public enum SampleStates {
-        IDLE, EXTEND, SENSORWAIT, SENSE, RETRACT, PULSEEJECT, OPENCOVER, WAIT, CLOSE, LIFT, FULLYCLOSE, PARTIALFLIP, SCORE, AUTOWAIT, OPEN, LOWERLIFT, EJECTFLIP, EJECTLIDOPEN
+        IDLE, EXTEND, SENSORWAIT, SENSE, RETRACT, WAIT, CLOSE, LIFT, PARTIALFLIP, SCORE, AUTOWAIT, OPEN, LOWERLIFT, EJECTFLIP, REINTAKE, EJECTLIDOPEN
     }
     public static Intake.SampleColor allianceColor= Intake.SampleColor.BLUE;
     Intake.SampleColor currentSense= Intake.SampleColor.NONE;
@@ -67,12 +64,11 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
     private boolean known=true;
     private int count=0;
 
-    enum AutoStates{PRELOAD, WAIT, OPENCLAW1,
+    enum AutoStates{PRELOAD, OPENCLAW1,
         TOSAMPLE1, INTAKE1, SCORESAMPLE1,WAIT2,OPENCLAW2,
         TOSAMPLE2, INTAKE2,SCORESAMPLE2, WAIT3,OPENCLAW3,
         TOSAMPLE3, INTAKE3,SCORESAMPLE3,WAIT4,OPENCLAW4,WAITTORETRACT,
-        TOSUB1, EXTENDSUB1, DROPEJECT, INTAKESUB1, CHOOSE_STATE, RETRACTSUB1, PULSEREVERSE, STRAFE1, TOSCORESUB1, WAITSUB1, EXTENDTOSCORE1, OPENCLAWSUB1,
-        DONE}
+        TOSUB1, EXTENDSUB1, DROPEJECT, INTAKESUB1, CHOOSE_STATE, RETRACTSUB1, PULSEREVERSE, STRAFE1, TOSCORESUB1, OPENCLAWSUB1}
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -145,25 +141,14 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
                 .state(SampleStates.RETRACT)
                 .onEnter(()->{
                     intake.transferPos();
-                    intake.setCover(true);
                     outtake.transferPos();
                     outtake.openClaw();
                 })
-                .transitionTimed(0.01)
-
-                .state(SampleStates.PULSEEJECT)
-                .onEnter(()->{
-                    intake.setCover(false);
-                    outtake.openClaw();
-                    if (!known){
-                        intake.setIntakePower(-1);
-                    }
-                })
-                .transitionTimed(0.027)
-
-                .state(SampleStates.OPENCOVER)
+                .transitionTimed(0.02)
+                .state(SampleStates.REINTAKE)
                 .onEnter(() -> {
                     intake.setIntakePower(0.25);
+                    outtake.openClaw();
                 })
                 .transition(()-> intake.isRetracted())
                 .transitionTimed(1)
@@ -172,7 +157,7 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
                 .onEnter(() -> {
                     intake.setIntakePower(1);
                 })
-                .transitionTimed(waitTime(known))
+                .transitionTimed(0.3)
                 .onExit(()->outtake.setForTransfer())
 
 
@@ -180,28 +165,21 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
                 .onEnter(() -> {
                     outtake.closeClaw();
                     intake.setIntakePower(1);
+                    intake.setCover(false);
                 })
                 .transitionTimed(0.2)
 
                 .state(SampleStates.LIFT)
                 .onEnter(() -> {
                     outtake.setTargetPos(1250);
+                    intake.setIntakePower(0);
                     if (known){
-                        intake.intakePos(maxExtend-70);
-                        intake.setIntakePower(0);
-                    }else{
-                        intake.setIntakePower(-0.5);
-                    }
-                    if (known){
+                        intake.intakePos(250);
                         intake.setTargetPos(250);
                     }
                 })
                 .transitionTimed(0.35)
                 .onExit(()->outtake.closeClaw())
-
-                .state(SampleStates.FULLYCLOSE)
-                .onEnter(()->outtake.closeClaw())
-                .transitionTimed(0.1)
 
                 .state(SampleStates.PARTIALFLIP)
                 .onEnter(()->{
@@ -273,11 +251,6 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
                 .setLinearHeadingInterpolation(scorePose.getHeading(), subPose.getHeading())
                 .setZeroPowerAccelerationMultiplier(4)
                 .build();
-        PathChain subtoscore = follower.pathBuilder()
-                .addPath(new BezierCurve(new Point(subPose), new Point(presubPose),new Point(scorePosesub)))
-                .setLinearHeadingInterpolation(subPose.getHeading(), scorePosesub.getHeading())
-                .setZeroPowerAccelerationMultiplier(4.5)
-                .build();
         PathChain subtostrafe = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(subPose), new Point(substrafe)))
                 .setLinearHeadingInterpolation(subPose.getHeading(), substrafe.getHeading())
@@ -288,11 +261,6 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
                 .setLinearHeadingInterpolation(scorePose.getHeading(), subPose2.getHeading())
                 .setZeroPowerAccelerationMultiplier(4.5)
                 .build();
-        PathChain sub2toscore = follower.pathBuilder()
-                .addPath(new BezierCurve(new Point(subPose2), new Point(presubPose),new Point(scorePosesub)))
-                .setLinearHeadingInterpolation(subPose2.getHeading(), scorePosesub.getHeading())
-                .setZeroPowerAccelerationMultiplier(4.5)
-                .build();
         PathChain sub2tostrafe2 = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(subPose2), new Point(substrafe2)))
                 .setLinearHeadingInterpolation(subPose2.getHeading(), substrafe2.getHeading())
@@ -301,11 +269,6 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
         PathChain scoretosub3 = follower.pathBuilder()
                 .addPath(new BezierCurve(new Point(scorePose), new Point(presubPoseto),new Point(subPose3)))
                 .setLinearHeadingInterpolation(scorePose.getHeading(), subPose3.getHeading())
-                .setZeroPowerAccelerationMultiplier(4.5)
-                .build();
-        PathChain sub3toscore = follower.pathBuilder()
-                .addPath(new BezierCurve(new Point(subPose3), new Point(presubPose),new Point(scorePosesub)))
-                .setLinearHeadingInterpolation(subPose3.getHeading(), scorePosesub.getHeading())
                 .setZeroPowerAccelerationMultiplier(4.5)
                 .build();
         PathChain sub3tostrafe3 = follower.pathBuilder()

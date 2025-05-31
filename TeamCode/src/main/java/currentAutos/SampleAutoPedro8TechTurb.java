@@ -28,8 +28,6 @@ import subsystems.Outtake;
 
 @Autonomous
 public class SampleAutoPedro8TechTurb extends LinearOpMode {
-
-    private static final Logger log = LoggerFactory.getLogger(SampleAutoPedro8Maybe.class);
     private Follower follower;
     Hang hang;
     Intake intake;

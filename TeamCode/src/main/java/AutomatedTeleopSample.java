@@ -22,7 +22,7 @@ public class AutomatedTeleopSample extends LinearOpMode {
     Outtake outtake;
     Intake intake;
     public enum SampleStates {
-        IDLE, EXTEND, SENSORWAIT, SENSE, RETRACT, REINTAKE, WAIT, CLOSE, LIFT, FULLYCLOSE, PARTIALFLIP, SCORE, AUTOWAIT, OPEN, LOWERLIFT, EJECTFLIP, EJECTLIDOPEN
+        IDLE, EXTEND, SENSORWAIT, SENSE, RETRACT, REINTAKE, WAIT, CLOSE, LIFT, PARTIALFLIP, SCORE, AUTOWAIT, OPEN, LOWERLIFT, EJECTFLIP, EJECTLIDOPEN
     }
     enum hangStates{
         LIFTOUTTAKE, READY, PULLDOWN1, PULLDOWN2, COAST
@@ -121,7 +121,7 @@ public class AutomatedTeleopSample extends LinearOpMode {
                 .onEnter(() -> {
                     intake.setIntakePower(1);
                 })
-                .transitionTimed(0.4, ()->outtake.setForTransfer())
+                .transitionTimed(0.5, ()->outtake.setForTransfer())
 
                 .state(SampleStates.CLOSE)
                 .onEnter(() -> {
@@ -142,11 +142,6 @@ public class AutomatedTeleopSample extends LinearOpMode {
                 })
                 .transitionTimed(0.35)
                 .onExit(()->outtake.closeClaw())
-
-                .state(SampleStates.FULLYCLOSE)
-                .onEnter(()->outtake.closeClaw())
-                .transition(()->gamepad1.right_trigger>0.3)//drop to human player
-                .transitionTimed(0.05)
 
                 .state(SampleStates.PARTIALFLIP)
                 .onEnter(()->{
