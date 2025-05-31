@@ -1,19 +1,11 @@
 package subsystems;
 
 import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
-import com.arcrobotics.ftclib.controller.PIDFController;
 import com.arcrobotics.ftclib.controller.wpilibcontroller.SimpleMotorFeedforward;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
-import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
-
-import subsystems.pathing.WayPoint;
 
 public class Drivetrain {
     CachedMotorEx leftFront;
@@ -29,7 +21,7 @@ public class Drivetrain {
 
     CachedServo leftpto, rightpto;
 
-    public Drivetrain(HardwareMap hwMap, Telemetry telemetry, FtcDashboard dashboard) {
+    public Drivetrain(HardwareMap hwMap) {
         leftFront = new CachedMotorEx(hwMap, "frontleft");
         leftBack = new CachedMotorEx(hwMap, "backleft");
         rightFront = new CachedMotorEx(hwMap, "frontright");

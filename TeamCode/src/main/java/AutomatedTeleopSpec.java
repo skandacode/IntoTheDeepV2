@@ -53,7 +53,7 @@ public class AutomatedTeleopSpec extends LinearOpMode {
         }
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
-        drive = new Drivetrain(hardwareMap, telemetry,  FtcDashboard.getInstance());
+        drive = new Drivetrain(hardwareMap);
         intake = new Intake(hardwareMap);
         outtake = new Outtake(hardwareMap);
         StateMachine sampleMachine = new StateMachineBuilder()
