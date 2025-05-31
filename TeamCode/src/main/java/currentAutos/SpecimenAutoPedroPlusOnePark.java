@@ -557,12 +557,10 @@ public class SpecimenAutoPedroPlusOnePark extends LinearOpMode {
             telemetry.update();
         }
     }
-    private double normalize(double a, double b){
-        double c=Math.abs(a-b);
-        if (c>180){
-            return c-180;
-        }else{
-            return c;
-        }
+
+
+    private double normalize(double a, double b) {
+        double diff = Math.abs((a - b) % 360);
+        return diff > 180 ? 360 - diff : diff;
     }
 }

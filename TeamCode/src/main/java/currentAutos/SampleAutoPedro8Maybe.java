@@ -615,21 +615,11 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
 
         }
     }
-    private double waitTime(boolean k){
-        if (k){
-            return 0.09;
-        }else{
-            return 0.65;
-        }
+    private double waitTime(boolean k) {
+        return k ? 0.09 : 0.65;
     }
-    private double normalize(double a, double b){
-        a=a%180;
-        b=b%180;
-        double c=Math.abs(a-b);
-        if (c>180){
-            return c-180;
-        }else{
-            return c;
-        }
+    private double normalize(double a, double b) {
+        double diff = Math.abs((a - b) % 360);
+        return diff > 180 ? 360 - diff : diff;
     }
 }

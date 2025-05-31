@@ -590,19 +590,12 @@ public class SampleAutoPedro8TechTurb extends LinearOpMode {
 
         }
     }
-    private double waitTime(boolean k){
-        if (k){
-            return 0.1;
-        }else{
-            return 0.3;
-        }
+    private double waitTime(boolean k) {
+        return k ? 0.09 : 0.65;
     }
-    private double normalize(double a, double b){
-        double c=Math.abs(a-b);
-        if (c>180){
-            return c-180;
-        }else{
-            return c;
-        }
+
+    private double normalize(double a, double b) {
+        double diff = Math.abs((a - b) % 360);
+        return diff > 180 ? 360 - diff : diff;
     }
 }
