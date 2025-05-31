@@ -16,6 +16,8 @@ public class IntakeCurrentMonitoring extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         AutomatedTeleopSample.maxExtend=400;
+        AutomatedTeleopSpec.maxExtend=400;
+
         intake=new Intake(hardwareMap);
         telemetry=new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         waitForStart();

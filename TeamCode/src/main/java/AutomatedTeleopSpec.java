@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.sfdev.assembly.state.StateMachine;
 import com.sfdev.assembly.state.StateMachineBuilder;
 
@@ -274,8 +275,51 @@ public class AutomatedTeleopSpec extends LinearOpMode {
         outtake.transferPos();
         outtake.openClaw();
 
-        while (opModeIsActive() && intake.getFlipAnalog()>1.1){
+        if (outtake.getFlipAnalog()>1.7) {
+            outtake.closeClaw();
+            ElapsedTime time1 = new ElapsedTime();
+            time1.reset();
+            while (opModeIsActive() && time1.milliseconds()<500){
+                if (!(controlhub==null)) {
+                    controlhub.clearBulkCache();
+                    telemetry.addLine("bulk reading only chub");
+                }else{
+                    for (LynxModule hub:allHubs){
+                        hub.clearBulkCache();
+                    }
+                }
 
+                telemetry.addData("outtake analog", outtake.getFlipAnalog());
+                telemetry.update();
+            }
+        }
+
+        outtake.transferPos();
+
+        while (opModeIsActive() && intake.getFlipAnalog()>1.1){
+            if (!(controlhub==null)) {
+                controlhub.clearBulkCache();
+                telemetry.addLine("bulk reading only chub");
+            }else{
+                for (LynxModule hub:allHubs){
+                    hub.clearBulkCache();
+                }
+            }
+            telemetry.addData("intake analog", intake.getFlipAnalog());
+            telemetry.update();
+        }
+
+        while (opModeIsActive() && outtake.getFlipAnalog()>1.7){
+            if (!(controlhub==null)) {
+                controlhub.clearBulkCache();
+                telemetry.addLine("bulk reading only chub");
+            }else{
+                for (LynxModule hub:allHubs){
+                    hub.clearBulkCache();
+                }
+            }
+            telemetry.addData("outtake analog", outtake.getFlipAnalog());
+            telemetry.update();
         }
 
         sampleMachine.start();
@@ -340,6 +384,8 @@ public class AutomatedTeleopSpec extends LinearOpMode {
             if (gamepad1.dpad_left){
                 overfillPos=false;
             }
+
+            intake.setSweeper(!gamepad1.dpad_up);
 
             telemetry.addData("Low Bucket", lowBucket);
             telemetry.addData("Overfillpos", overfillPos);
