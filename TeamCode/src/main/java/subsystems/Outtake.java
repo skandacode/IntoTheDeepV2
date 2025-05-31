@@ -107,13 +107,13 @@ public class Outtake {
     }
     public void transferPos(){
         closeClaw();
-        setRail(0.21);
-        setFlip(0.71);
-        setWrist(0.17);
+        setRail(0.35);
+        setFlip(0.53);
+        setWrist(0);
         setTargetPos(0);
     }
     public void setForTransfer(){
-        setFlip(0.74);
+        setFlip(0.58);
     }
     public void partialSampleFlip(){
         closeClaw();
@@ -171,7 +171,7 @@ public class Outtake {
         //System.out.println("Opened wide claw");
     }
     public void closeClaw(){
-        claw.setPosition(0.885);
+        claw.setPosition(0.92);
         //System.out.println("Closed claw");
     }
     public void partialCloseClaw(){

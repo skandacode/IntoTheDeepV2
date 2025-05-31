@@ -4,13 +4,11 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.sfdev.assembly.state.StateMachine;
 import com.sfdev.assembly.state.StateMachineBuilder;
 
 import java.util.List;
 
-import currentAutos.SpecimenAuto6New;
 import subsystems.Drivetrain;
 import subsystems.Hang;
 import subsystems.Intake;
@@ -18,7 +16,7 @@ import subsystems.Outtake;
 
 @Config
 @TeleOp
-public class AutomatedTeleop extends LinearOpMode {
+public class AutomatedTeleopSpec extends LinearOpMode {
     Drivetrain drive;
     Outtake outtake;
     Intake intake;
@@ -158,6 +156,7 @@ public class AutomatedTeleop extends LinearOpMode {
                     if (lowBucket){
                         outtake.setTargetPos(lowBucketPos);
                     }
+                    intake.setTargetPos(400);
                 })
                 .transition(()->gamepad1.right_trigger>0.3)
                 .transition(()->(outtake.getCachedPos()>900 && !lowBucket) || (outtake.getCachedPos()>lowBucketPos-150 && lowBucket))
@@ -274,6 +273,11 @@ public class AutomatedTeleop extends LinearOpMode {
         intake.transferPos();
         outtake.transferPos();
         outtake.openClaw();
+
+        while (opModeIsActive() && intake.getFlipAnalog()>1.1){
+
+        }
+
         sampleMachine.start();
         specimenScorer.start();
         long prevLoop = System.nanoTime();

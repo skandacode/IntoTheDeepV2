@@ -40,8 +40,7 @@ public class FullTesting extends LinearOpMode {
         Servo wrist = hardwareMap.servo.get("wrist");
         Servo flip1 = hardwareMap.servo.get("flip1");
         Servo flip2 = hardwareMap.servo.get("flip2");
-        Servo intakeflip1 = hardwareMap.servo.get("intakeFlip1");
-        Servo intakeflip2 = hardwareMap.servo.get("intakeFlip2");
+        Servo intakeflip= hardwareMap.servo.get("intakeFlip");
         Servo cover = hardwareMap.servo.get("cover");
         Servo rightlatch = hardwareMap.servo.get("latch_right");
         Servo leftlatch = hardwareMap.servo.get("latch_left");
@@ -92,8 +91,7 @@ public class FullTesting extends LinearOpMode {
             rightpto.setPosition(PTORIGHT);
 
             cover.setPosition(coverpos);
-            intakeflip1.setPosition(intakeflippos);
-            intakeflip2.setPosition(1-intakeflippos);
+            intakeflip.setPosition(intakeflippos);
             telemetry.addData("outtakeMotor1 pos", outtakeMotor1.getCurrentPosition());
             telemetry.addData("extendo pos", extendo.getCurrentPosition());
 

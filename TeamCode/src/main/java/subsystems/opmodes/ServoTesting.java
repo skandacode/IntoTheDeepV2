@@ -14,8 +14,8 @@ public class ServoTesting extends LinearOpMode {
     public static double test2 = 0.5;
     @Override
     public void runOpMode() throws InterruptedException {
-        Servo testServo1 = hardwareMap.servo.get("testServo1");
-        Servo testServo2 = hardwareMap.servo.get("testServo2");
+        Servo testServo1 = hardwareMap.servo.get("sweeper");
+        Servo testServo2 = hardwareMap.servo.get("cover");
 
         waitForStart();
 

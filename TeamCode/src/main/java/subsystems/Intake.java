@@ -15,8 +15,8 @@ import java.util.Arrays;
 public class Intake {
     public CachedMotorEx extendoMotor;
     public CachedMotorEx intakeMotor;
-    private CachedServo intakeFlip1;
-    private CachedServo intakeFlip2;
+    private CachedServo intakeFlip;
+    private CachedServo sweeper;
     private CachedServo cover;
     public TouchSensor limitSwitch;
     private CachedMotorEx backrightdt;
@@ -34,7 +34,7 @@ public class Intake {
     private boolean retracted = true;
 
     public enum SampleColor {RED, BLUE, YELLOW, NONE}
-    public static double distThreshold = 4.9;
+    public static double distThreshold = 3.5;
 
     public double intakePower=0;
 
@@ -47,8 +47,8 @@ public class Intake {
         extendoMotor = new CachedMotorEx(hwMap, "extendo");
         intakeMotor = new CachedMotorEx(hwMap, "intake");
         backrightdt = new CachedMotorEx(hwMap, "backright");
-        intakeFlip1 = new CachedServo(hwMap.servo.get("intakeFlip1"));
-        intakeFlip2 = new CachedServo(hwMap.servo.get("intakeFlip2"));
+        intakeFlip = new CachedServo(hwMap.servo.get("intakeFlip"));
+        sweeper = new CachedServo(hwMap.servo.get("sweeper"));
         cover = new CachedServo(hwMap.servo.get("cover"));
         limitSwitch = hwMap.touchSensor.get("intakeEnd");
         intakecolor = hwMap.get(RevColorSensorV3.class, "color");
@@ -65,14 +65,20 @@ public class Intake {
         intakePower=power;
     }
     public void setIntakeFlip(double pos){
-        intakeFlip1.setPosition(pos);
-        intakeFlip2.setPosition(1-pos);
+        intakeFlip.setPosition(pos);
     }
     public void setCover(boolean closed){
         if (closed){
-            cover.setPosition(0.93);
+            cover.setPosition(0.15);
         }else{
-            cover.setPosition(0.1);
+            cover.setPosition(0.7);
+        }
+    }
+    public void setSweeper(boolean closed){
+        if (closed){
+            sweeper.setPosition(0.96);
+        }else{
+            sweeper.setPosition(0.2);
         }
     }
     public int getExtendoMotorPosition(){
@@ -119,26 +125,24 @@ public class Intake {
     }
     public void transferPos(){
         controller.setSetPoint(0);
-        setIntakeFlip(0.43);
-        setCover(false);
-        //setIntakePower(0.3);
+        setIntakeFlip(0.95);
     }
     public void intakePos(int target){
         controller.setSetPoint(target);
         intakePos();
     }
     public void intakePos(){
-        setIntakeFlip(0.61);
+        setIntakeFlip(0.77);
         setCover(true);
         setIntakePower(1);
     }
     public void intakeEject(){
-        setIntakeFlip(0.63);
+        setIntakeFlip(0.79);
     }
     public void eject(){
 
-        setIntakeFlip(0.3);
-        setIntakePower(0.5);
+        setIntakeFlip(0.78);
+        setIntakePower(-1);
     }
     public boolean isRetracted(){
         return limitSwitch.isPressed();
@@ -153,7 +157,7 @@ public class Intake {
         if (isSampleIntaked()){
             int[] rgbValues = getRawSensorValues();
             System.out.println(Arrays.toString(rgbValues));
-            int[] tweakedValues = new int[] {rgbValues[0]-20, rgbValues[1]-20, rgbValues[2]-30};
+            int[] tweakedValues = new int[] {rgbValues[0], rgbValues[1], rgbValues[2]};
             if (tweakedValues[0]>tweakedValues[1] && tweakedValues[0]>tweakedValues[2]){
                 System.out.println(Arrays.toString(tweakedValues)+" Red");
                 return SampleColor.RED;
@@ -167,11 +171,10 @@ public class Intake {
                 return SampleColor.BLUE;
             }
             System.out.println("Failed all checks but somethign is there");
+            return SampleColor.NONE;
         }else{
             return SampleColor.NONE;
         }
-        System.out.println("Possible intake hang");
-        return SampleColor.NONE;
     }
     public boolean isSampleIntaked(){
         return getDistance()<distThreshold;
