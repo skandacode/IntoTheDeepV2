@@ -22,7 +22,7 @@ public class AutomatedTeleopSample extends LinearOpMode {
     Outtake outtake;
     Intake intake;
     public enum SampleStates {
-        IDLE, EXTEND, SENSORWAIT, SENSE, RETRACT, REINTAKE, WAIT, CLOSE, LIFT, PARTIALFLIP, SCORE, AUTOWAIT, OPEN, LOWERLIFT, EJECTFLIP, EJECTLIDOPEN
+        IDLE, EXTEND, SENSORWAIT, SENSE, LIFTUP, RETRACT, REINTAKE, WAIT, CLOSE, LIFT, PARTIALFLIP, SCORE, AUTOWAIT, OPEN, LOWERLIFT, EJECTFLIP, EJECTLIDOPEN
     }
     enum hangStates{
         LIFTOUTTAKE, READY, PULLDOWN1, PULLDOWN2, COAST
@@ -69,7 +69,7 @@ public class AutomatedTeleopSample extends LinearOpMode {
                 .onEnter(()->intake.intakePos())
                 .loop(()->{
                     if (gamepad1.options){
-                        intake.setIntakePower(-1);
+                        intake.setIntakePower(-0.75);
                     }else{
                         intake.setIntakePower(1);
                     }
@@ -86,7 +86,7 @@ public class AutomatedTeleopSample extends LinearOpMode {
                 .transition(() -> {
                     currentSense=intake.getColor();
                     return currentSense == Intake.SampleColor.YELLOW || currentSense== allianceColor;
-                }, SampleStates.RETRACT)
+                }, SampleStates.LIFTUP)
                 .transition(()->currentSense == Intake.SampleColor.NONE, SampleStates.EXTEND)
                 .transition(() -> currentSense != Intake.SampleColor.YELLOW && currentSense != allianceColor, SampleStates.EJECTFLIP)
 
@@ -94,13 +94,13 @@ public class AutomatedTeleopSample extends LinearOpMode {
                 .onEnter(() -> {
                     intake.eject();
                 })
-                .transitionTimed(0.2, SampleStates.EJECTLIDOPEN)
-
-                .state(SampleStates.EJECTLIDOPEN, true)
-                .onEnter(() -> {
-                    intake.setCover(false);
-                })
                 .transitionTimed(0.5, SampleStates.EXTEND)
+
+                .state(SampleStates.LIFTUP)
+                .onEnter(()->{
+                    intake.liftUP();
+                })
+                .transitionTimed(0.1)
 
                 .state(SampleStates.RETRACT)
                 .onEnter(()->{
@@ -109,9 +109,11 @@ public class AutomatedTeleopSample extends LinearOpMode {
                     outtake.openClaw();
                 })
                 .transitionTimed(0.02)
+
+
                 .state(SampleStates.REINTAKE)
                 .onEnter(() -> {
-                    intake.setIntakePower(0.25);
+                    intake.setIntakePower(0.5);
                     outtake.openClaw();
                 })
                 .transition(()-> intake.isRetracted())

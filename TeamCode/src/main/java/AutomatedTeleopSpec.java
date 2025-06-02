@@ -22,7 +22,7 @@ public class AutomatedTeleopSpec extends LinearOpMode {
     Outtake outtake;
     Intake intake;
     public enum SampleStates {
-        IDLE, EXTEND, SENSORWAIT, SENSE, RETRACT, OPENCOVER, WAIT, CLOSE, LIFT, FULLYCLOSE, PARTIALFLIP, SCORE, AUTOWAIT, OPEN, LOWERLIFT, EJECTFLIP, EJECTLIDOPEN
+        IDLE, EXTEND, SENSORWAIT, SENSE, LIFTUP, RETRACT, OPENCOVER, WAIT, CLOSE, LIFT, FULLYCLOSE, PARTIALFLIP, SCORE, AUTOWAIT, OPEN, LOWERLIFT, EJECTFLIP, EJECTLIDOPEN
     }
     public enum SpecimenScoreStates {IDLE, C, INTAKEPOS, INTAKE, CLOSE_CLAW, HOLD, SCORE, OPENCLAW, CLOSEBEFORERETRACT, RESET, RETRACT}
     enum hangStates{
@@ -31,7 +31,7 @@ public class AutomatedTeleopSpec extends LinearOpMode {
     public static Intake.SampleColor allianceColor= Intake.SampleColor.BLUE;
     Intake.SampleColor currentSense= Intake.SampleColor.NONE;
     public static int hangPos=85;
-    public static int maxExtend=430;
+    public static int maxExtend=460;
     public static boolean lowBucket=false;
     public static int lowBucketPos=500;
     public static double currentThresh = 31;
@@ -87,7 +87,7 @@ public class AutomatedTeleopSpec extends LinearOpMode {
                 .transition(() -> {
                     currentSense=intake.getColor();
                     return currentSense == Intake.SampleColor.YELLOW || currentSense== allianceColor;
-                }, SampleStates.RETRACT)
+                }, SampleStates.LIFTUP)
                 .transition(()->currentSense == Intake.SampleColor.NONE, SampleStates.EXTEND)
                 .transition(() -> currentSense != Intake.SampleColor.YELLOW && currentSense != allianceColor, SampleStates.EJECTFLIP)
 
@@ -103,6 +103,12 @@ public class AutomatedTeleopSpec extends LinearOpMode {
                 })
                 .transitionTimed(0.5, SampleStates.EXTEND)
 
+                .state(SampleStates.LIFTUP)
+                .onEnter(()->{
+                    intake.liftUP();
+                })
+                .transitionTimed(0.1)
+
                 .state(SampleStates.RETRACT)
                 .onEnter(()->{
                     intake.transferPos();
@@ -112,6 +118,7 @@ public class AutomatedTeleopSpec extends LinearOpMode {
                     outtake.openClaw();
                 })
                 .transitionTimed(0.025)
+
                 .state(SampleStates.OPENCOVER)
                 .onEnter(() -> {
                     intake.setCover(false);

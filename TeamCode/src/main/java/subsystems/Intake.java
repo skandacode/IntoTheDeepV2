@@ -38,10 +38,6 @@ public class Intake {
 
     public double intakePower=0;
 
-    public static double k=0.05;
-    private double filtered=50;
-
-    public static double dropThresh = 1.852;
 
     public Intake(HardwareMap hwMap){
         extendoMotor = new CachedMotorEx(hwMap, "extendo");
@@ -127,6 +123,9 @@ public class Intake {
         controller.setSetPoint(0);
         setIntakeFlip(0.95);
     }
+    public void liftUP(){
+        setIntakeFlip(0.95);
+    }
     public void intakePos(int target){
         controller.setSetPoint(target);
         intakePos();
@@ -142,7 +141,7 @@ public class Intake {
     public void eject(){
 
         setIntakeFlip(0.78);
-        setIntakePower(-1);
+        setIntakePower(-0.75);
     }
     public boolean isRetracted(){
         return limitSwitch.isPressed();

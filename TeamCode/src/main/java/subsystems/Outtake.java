@@ -133,7 +133,7 @@ public class Outtake {
         setRail(0.1);
         setFlip(0.28);
         setWrist(0.7);
-        setTargetPos(1070);
+        setTargetPos(1020);
     }
     public void sampleOverfill(){
         closeClaw();
