@@ -123,7 +123,7 @@ public class AutomatedTeleopSample extends LinearOpMode {
                 .onEnter(() -> {
                     intake.setIntakePower(1);
                 })
-                .transitionTimed(0.5, ()->outtake.setForTransfer())
+                .transitionTimed(0.25, ()->outtake.setForTransfer())
 
                 .state(SampleStates.CLOSE)
                 .onEnter(() -> {
