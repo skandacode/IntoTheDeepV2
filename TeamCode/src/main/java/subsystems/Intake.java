@@ -26,7 +26,7 @@ public class Intake {
 
     public static double kP = 0.01;
     public static double kD = 0.0007;
-    public static double kF=0.09;
+    public static double kF=0.1;
 
     private PIDFController controller = new PIDFController(kP, 0, kD, 0);
 
@@ -67,7 +67,7 @@ public class Intake {
         if (closed){
             cover.setPosition(0.15);
         }else{
-            cover.setPosition(0.7);
+            cover.setPosition(0.4);
         }
     }
     public void setSweeper(boolean closed){
@@ -90,15 +90,10 @@ public class Intake {
         if (controller.getSetPoint() == 0){
             if (!retracted){
                 power=-1;
-                //System.out.println("Retracting and not pressed");
-
             }else{
                 power=-0.4;
                 if (currExtendoPos!=0) {
                     backrightdt.resetEncoder();
-                    //System.out.println("Resetting encoder and setting power to -0.4");
-                }else{
-                    //System.out.println("setting power to -0.4 without resetting encoder");
                 }
             }
         }
@@ -121,27 +116,32 @@ public class Intake {
     }
     public void transferPos(){
         controller.setSetPoint(0);
-        setIntakeFlip(0.95);
+        setIntakeFlip(0.99);
     }
     public void liftUP(){
-        setIntakeFlip(0.95);
+        setIntakeFlip(0.99);
     }
     public void intakePos(int target){
         controller.setSetPoint(target);
         intakePos();
     }
     public void intakePos(){
-        setIntakeFlip(0.77);
+        setIntakeFlip(0.75);
         setCover(true);
         setIntakePower(1);
     }
     public void intakeEject(){
         setIntakeFlip(0.79);
     }
-    public void eject(){
 
-        setIntakeFlip(0.78);
-        setIntakePower(-0.75);
+    public void pauseEject(){
+        setIntakePower(-0.2);
+        setCover(false);
+    }
+
+    public void eject(){
+        setIntakePower(0.8);
+        setCover(false);
     }
     public boolean isRetracted(){
         return limitSwitch.isPressed();

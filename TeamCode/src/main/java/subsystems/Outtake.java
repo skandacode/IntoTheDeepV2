@@ -66,7 +66,7 @@ public class Outtake {
             }
         }
         else if (Math.abs(currMotorPos-controller.getSetPoint())<10){
-            power=0.25;
+            power=0.3;
         }
         else{
             if (currMotorPos<controller.getSetPoint()){
@@ -107,13 +107,13 @@ public class Outtake {
     }
     public void transferPos(){
         closeClaw();
-        setRail(0.35);
-        setFlip(0.53);
+        setRail(0.33);
+        setFlip(0.55);
         setWrist(0);
         setTargetPos(0);
     }
     public void setForTransfer(){
-        setFlip(0.58);
+        setFlip(0.59);
     }
     public void partialSampleFlip(){
         closeClaw();
@@ -137,10 +137,10 @@ public class Outtake {
     }
     public void sampleOverfill(){
         closeClaw();
-        setRail(0.1);
-        setWrist(0.7);
+        setRail(0.15);
+        setWrist(0.8);
         setFlip(0.2);
-        setTargetPos(1150);
+        setTargetPos(1200);
     }
     public void specHold(){
         setClaw(0.87);

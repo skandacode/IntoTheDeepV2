@@ -1,5 +1,14 @@
 package currentAutos;
 
+import com.bylazar.ftcontrol.panels.Panels;
+import com.bylazar.ftcontrol.panels.integration.TelemetryManager;
+import com.bylazar.ftcontrol.panels.json.Canvas;
+import com.bylazar.ftcontrol.panels.json.CanvasRotation;
+import com.bylazar.ftcontrol.panels.json.Circle;
+
+import com.bylazar.ftcontrol.panels.json.Line;
+import com.bylazar.ftcontrol.panels.json.Look;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.pedropathing.follower.Follower;
@@ -29,6 +38,9 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
     Intake intake;
     Outtake outtake;
     StateMachine autoMachine;
+    TelemetryManager panelsTelemetry = Panels.getTelemetry();
+
+
 
 
     private final Pose subPose = new Pose(-15.5, -3, Math.toRadians(0));
@@ -57,7 +69,7 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
     }
     public static Intake.SampleColor allianceColor= Intake.SampleColor.BLUE;
     Intake.SampleColor currentSense= Intake.SampleColor.NONE;
-    public static int maxExtend=470;
+    public static int maxExtend=480;
 
     private boolean extendPressed=false;
     private boolean scorePressed=false;
@@ -86,6 +98,8 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
         }
 
         telemetry=new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+
+        panelsTelemetry.setOffsets(0, 0, CanvasRotation.DEG_270);
 
         follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
 
@@ -382,6 +396,7 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
                     hang.setLatchPos(Hang.LatchPositions.TOUCHBAR);
                 })
                 .loop(()->{
+                    intake.setSweeper(false);
                     intake.transferPos();
                 })
                 .transition(()->sampleMachine.getState()==SampleStates.OPEN)
@@ -407,7 +422,10 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
                 .transitionTimed(0.1)
 
                 .state(AutoStates.EXTENDSUB1)
-                .loop(()->intake.setTargetPos(200))
+                .loop(()->{
+                    intake.setTargetPos(200);
+                    intake.setSweeper(true);
+                })
                 .transitionTimed(1.75)
 
                 .state(AutoStates.DROPEJECT)
@@ -547,11 +565,14 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
 
             }
             prevPose=currPose;
+
+            drawBot(currPose);
+
             long currLoop = System.nanoTime();
             telemetry.addData("Ms per loop", (currLoop - prevLoop) / 1000000);
             prevLoop = currLoop;
             telemetry.addData("Extend pressed", extendPressed);
-
+            panelsTelemetry.update(telemetry);
             //follower.telemetryDebug(telemetry);
             telemetry.addData("Intake jamming", intake.isJammed());
             telemetry.update();
@@ -564,5 +585,19 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
     private double normalize(double a, double b) {
         double diff = Math.abs((a - b) % 360);
         return diff > 180 ? 360 - diff : diff;
+    }
+    private void drawBot(Pose currPose){
+        panelsTelemetry.debug(
+                new Circle(new com.bylazar.ftcontrol.panels.json.Point(currPose.getX(), currPose.getY()), 10.0)
+                        .withLook(new Look("white", "black", 2, 0)),
+                new Line(new com.bylazar.ftcontrol.panels.json.Point(currPose.getX(), currPose.getY()),
+                        new com.bylazar.ftcontrol.panels.json.Point(
+                                currPose.getX()+Math.cos(currPose.getHeading())*10.0,
+                                currPose.getY()+Math.sin(currPose.getHeading())*10.0)
+                        ).withLook(new Look("", "black", 2, 1)
+                )
+
+        );
+        panelsTelemetry.update(telemetry);
     }
 }
