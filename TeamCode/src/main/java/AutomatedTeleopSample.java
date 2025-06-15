@@ -74,7 +74,7 @@ public class AutomatedTeleopSample extends LinearOpMode {
                         intake.setIntakePower(1);
                     }
                     if (!gamepad1.right_bumper){
-                        intake.setCover(false);
+                        intake.setCover(false);//TODO:move this somewhere else
                     }
                     intake.setTargetPos((int)(maxExtend*gamepad1.left_trigger));
                 })
@@ -95,7 +95,7 @@ public class AutomatedTeleopSample extends LinearOpMode {
 
                 .state(SampleStates.EJECTPAUSE, true)
                 .onEnter(() -> {
-                    intake.pauseEject();
+                    intake.pauseEject();//TODO:FIX EJECT
                 })
                 .transitionTimed(0.2, SampleStates.EJECT)
 
@@ -116,14 +116,14 @@ public class AutomatedTeleopSample extends LinearOpMode {
                     intake.transferPos();
                     outtake.transferPos();
                     outtake.openClaw();
-                    intake.setIntakePower(0.5);
+                    intake.setIntakePower(0.65);
                 })
                 .transitionTimed(0.02)
 
 
                 .state(SampleStates.REINTAKE)
                 .onEnter(() -> {
-                    intake.setIntakePower(0.7);
+                    intake.setIntakePower(0.75);
                     outtake.openClaw();
                 })
                 .transition(()-> intake.isRetracted())
