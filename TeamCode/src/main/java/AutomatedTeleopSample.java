@@ -1,6 +1,8 @@
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.bylazar.ftcontrol.panels.Panels;
+import com.bylazar.ftcontrol.panels.integration.TelemetryManager;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -38,6 +40,7 @@ public class AutomatedTeleopSample extends LinearOpMode {
     public static boolean overfillPos=false;
 
     double cachedCurrent = 0;
+    TelemetryManager panelsTelemetry = Panels.getTelemetry();
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -213,8 +216,8 @@ public class AutomatedTeleopSample extends LinearOpMode {
                 allianceColor = Intake.SampleColor.RED;
                 gamepad1.setLedColor(1, 0, 0, 1000);
             }
-            telemetry.addData("Alliance Color", allianceColor.toString());
-            telemetry.update();
+            panelsTelemetry.debug("Alliance Color: "+ allianceColor);
+            panelsTelemetry.update(telemetry);
         }
         waitForStart();
         intake.setCover(false);
@@ -229,15 +232,14 @@ public class AutomatedTeleopSample extends LinearOpMode {
             while (opModeIsActive() && time1.milliseconds()<500){
                 if (!(controlhub==null)) {
                     controlhub.clearBulkCache();
-                    telemetry.addLine("bulk reading only chub");
+                    panelsTelemetry.debug("bulk reading only chub");
                 }else{
                     for (LynxModule hub:allHubs){
                         hub.clearBulkCache();
                     }
                 }
-
-                telemetry.addData("outtake analog", outtake.getFlipAnalog());
-                telemetry.update();
+                panelsTelemetry.debug("outtake analog: "+ outtake.getFlipAnalog());
+                panelsTelemetry.update(telemetry);
             }
         }
 
@@ -246,27 +248,28 @@ public class AutomatedTeleopSample extends LinearOpMode {
         while (opModeIsActive() && intake.getFlipAnalog()>1.1){
             if (!(controlhub==null)) {
                 controlhub.clearBulkCache();
-                telemetry.addLine("bulk reading only chub");
+                panelsTelemetry.debug("bulk reading only chub");
             }else{
                 for (LynxModule hub:allHubs){
                     hub.clearBulkCache();
                 }
             }
-            telemetry.addData("intake analog", intake.getFlipAnalog());
-            telemetry.update();
+            panelsTelemetry.debug("intake analog: "+ intake.getFlipAnalog());
+            panelsTelemetry.update(telemetry);
         }
 
         while (opModeIsActive() && outtake.getFlipAnalog()>1.7){
             if (!(controlhub==null)) {
                 controlhub.clearBulkCache();
-                telemetry.addLine("bulk reading only chub");
+                panelsTelemetry.debug("bulk reading only chub");
             }else{
                 for (LynxModule hub:allHubs){
                     hub.clearBulkCache();
                 }
             }
-            telemetry.addData("outtake analog", outtake.getFlipAnalog());
+            panelsTelemetry.debug("outtake analog: "+ outtake.getFlipAnalog());
             telemetry.update();
+            panelsTelemetry.update(telemetry);
         }
 
 
@@ -277,7 +280,7 @@ public class AutomatedTeleopSample extends LinearOpMode {
         while (opModeIsActive() && !gamepad1.left_stick_button) {
             if (!(controlhub==null)) {
                 controlhub.clearBulkCache();
-                telemetry.addLine("bulk reading only chub");
+                panelsTelemetry.debug("bulk reading only chub");
             }else{
                 for (LynxModule hub:allHubs){
                     hub.clearBulkCache();
@@ -301,23 +304,27 @@ public class AutomatedTeleopSample extends LinearOpMode {
             intake.update();
             outtake.update();
             if (gamepad1.share){
-                telemetry.addData("intake distance", intake.getDistance());
-                telemetry.addData("intake color", intake.getColor());
+                panelsTelemetry.debug("intake distance: "+ intake.getDistance());
+                panelsTelemetry.debug("intake color: "+ intake.getColor());
             }
-            telemetry.addData("gamepad strafe", gamepad1.left_stick_x);
-            telemetry.addData("alliance color", allianceColor.toString());
 
-            telemetry.addData("intake retracted", intake.isRetracted());
-            telemetry.addData("outtake retracted", outtake.isRetracted());
+            panelsTelemetry.debug("gamepad strafe: "+ gamepad1.left_stick_x);
+            panelsTelemetry.debug("alliance color: "+ allianceColor);
 
-            telemetry.addData("State sample", sampleMachine.getState());
 
-            telemetry.addData("Outtake Pos", outtake.getCachedPos());
-            telemetry.addData("Extendo Pos", intake.getCachedExtendoPos());
-            telemetry.addData("Intake target pos", intake.getTarget());
-            telemetry.addData("Outtake target pos", outtake.getSetPoint());
-            telemetry.addData("intake end direct", intake.limitSwitch.isPressed());
-            telemetry.addData("Outtake analog", outtake.getFlipAnalog());
+            panelsTelemetry.debug("intake retracted: "+ intake.isRetracted());
+            panelsTelemetry.debug("outtake retracted: "+ outtake.isRetracted());
+
+
+            panelsTelemetry.debug("State sample: "+ sampleMachine.getState());
+
+
+            panelsTelemetry.debug("Outtake Pos: "+ outtake.getCachedPos());
+            panelsTelemetry.debug("Extendo Pos: "+ intake.getCachedExtendoPos());
+            panelsTelemetry.debug("Intake target pos: "+ intake.getTarget());
+            panelsTelemetry.debug("Outtake target pos: "+ outtake.getSetPoint());
+            panelsTelemetry.debug("intake end direct: "+ intake.limitSwitch.isPressed());
+            panelsTelemetry.debug("Outtake analog: "+ outtake.getFlipAnalog());
             if (gamepad2.a){
                 lowBucket=true;
                 gamepad1.rumble(1000);
@@ -332,14 +339,14 @@ public class AutomatedTeleopSample extends LinearOpMode {
                 overfillPos=false;
             }
             intake.setSweeper(!gamepad1.dpad_up);
-            telemetry.addData("Low Bucket", lowBucket);
-            telemetry.addData("Overfillpos", overfillPos);
+            panelsTelemetry.debug("Low Bucket: "+ lowBucket);
+            panelsTelemetry.debug("Overfillpos: "+ overfillPos);
 
             long currLoop = System.nanoTime();
-            telemetry.addData("Ms per loop", (currLoop - prevLoop) / 1000000);
+            panelsTelemetry.debug("Ms per loop: "+ ((currLoop - prevLoop) / 1000000));
             prevLoop = currLoop;
 
-            telemetry.update();
+            panelsTelemetry.update(telemetry);
         }
         if (opModeIsActive()){
             sampleMachine.stop();
@@ -410,14 +417,12 @@ public class AutomatedTeleopSample extends LinearOpMode {
                 hangMachine.update();
                 intake.update();
                 cachedCurrent = drive.getCurrent();
-                telemetry.addData("Outtake Pos", outtake.getCachedPos());
-                telemetry.addData("Drive current", cachedCurrent);
-                System.out.println("Is greater than thresh: "+(getCachedCurrent()>currentThresh));
-                System.out.println("Drive current: "+getCachedCurrent());
-                System.out.println("Thresh: "+currentThresh);
-
-
-                telemetry.update();
+                panelsTelemetry.debug("Outtake Pos: "+ outtake.getCachedPos());
+                panelsTelemetry.debug("Drive current: "+ cachedCurrent);
+                panelsTelemetry.debug("Is greater than thresh: "+(getCachedCurrent()>currentThresh));
+                panelsTelemetry.debug("Drive current: "+ getCachedCurrent());
+                panelsTelemetry.debug("Thresh: "+ currentThresh);
+                panelsTelemetry.update(telemetry);
             }
         }
     }
