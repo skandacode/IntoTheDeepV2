@@ -57,15 +57,9 @@ public class SpecimenAutoPedroPlusOnePark extends LinearOpMode {
     private final Pose bucketturn = new Pose(-60, -59.5, Math.toRadians(15));
 
 
-    public enum SampleStates {
-        IDLE, EXTEND, RETRACT, OPENCOVER, WAIT, CLOSE, LIFT, PARTIALFLIP, SCORE, AUTOWAIT, OPEN, LOWERLIFT, EJECTFLIP, EJECTLIDOPEN
-    }
     public enum SpecimenScoreStates {IDLE, C, INTAKEPOS, INTAKE, FULLYOPEN, CLOSE_CLAW, HOLD, SCORE, OPENCLAW, CLOSEBEFORERETRACT, RESET, RETRACT}
 
     public static int maxExtend=400;
-    public static boolean extendPressed=false;
-    public static boolean sampleScorePressed =false;
-
 
     public static boolean closedPressed=false;
     public static boolean specimenScoredPressed =false;

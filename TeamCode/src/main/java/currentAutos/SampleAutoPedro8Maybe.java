@@ -572,10 +572,9 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
             telemetry.addData("Ms per loop", (currLoop - prevLoop) / 1000000);
             prevLoop = currLoop;
             telemetry.addData("Extend pressed", extendPressed);
-            panelsTelemetry.update(telemetry);
             //follower.telemetryDebug(telemetry);
             telemetry.addData("Intake jamming", intake.isJammed());
-            telemetry.update();
+            panelsTelemetry.update(telemetry);
 
         }
     }

@@ -21,7 +21,6 @@ public class FullTesting extends LinearOpMode {
     public static double railpos = 0.7;
     public static double clawpos = 0.8;
     public static double outtakeMotorPower = 0;
-    public static boolean pto_engaged = false;
     public static double latchpos = 0.5;
     public static double intakeflippos = 0.5;
     public static double coverpos = 0.5;
