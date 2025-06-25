@@ -57,7 +57,7 @@ public class AutomatedTeleopSpec extends LinearOpMode {
         intake = new Intake(hardwareMap);
         outtake = new Outtake(hardwareMap);
         StateMachine sampleMachine = new StateMachineBuilder()
-                .state(SampleStates.IDLE)
+                .state(AutomatedTeleopSample.SampleStates.IDLE)
                 .onEnter(() -> {
                     intake.transferPos();
                     intake.setIntakePower(0);
@@ -66,99 +66,99 @@ public class AutomatedTeleopSpec extends LinearOpMode {
                     intake.setTargetPos((int)(maxExtend*gamepad1.left_trigger));
                 })
                 .transition(() -> gamepad1.right_bumper && gamepad1.left_trigger>0.1 && intake.getCachedExtendoPos()>50)
-                .state(SampleStates.EXTEND)
+                .state(AutomatedTeleopSample.SampleStates.EXTEND)
                 .onEnter(()->intake.intakePos())
                 .loop(()->{
                     if (gamepad1.options){
-                        intake.setIntakePower(-1);
+                        intake.setIntakePower(-0.75);
                     }else{
                         intake.setIntakePower(1);
+                    }
+                    if (!gamepad1.right_bumper){
+                        intake.setCover(false);//TODO:move this somewhere else
                     }
                     intake.setTargetPos((int)(maxExtend*gamepad1.left_trigger));
                 })
                 .transition(()->intake.isSampleIntaked())
-                .transition(()->(gamepad1.left_trigger<0.1 || !gamepad1.right_bumper) && !intake.isSampleIntaked(), SampleStates.IDLE)
-                .transition(()->(gamepad1.left_trigger<0.1 || !gamepad1.right_bumper) && intake.isSampleIntaked(), SampleStates.SENSORWAIT, ()->System.out.println("arka released trigger before but moving on"))
+                .transition(()->(gamepad1.left_trigger<0.1 || !gamepad1.right_bumper) && !intake.isSampleIntaked(), AutomatedTeleopSample.SampleStates.IDLE)
+                .transition(()->(gamepad1.left_trigger<0.1 || !gamepad1.right_bumper) && intake.isSampleIntaked(), AutomatedTeleopSample.SampleStates.SENSORWAIT, ()->System.out.println("arka released trigger before but moving on"))
 
-                .state(SampleStates.SENSORWAIT)
+                .state(AutomatedTeleopSample.SampleStates.SENSORWAIT)
                 .onEnter(()->intake.intakePos())
                 .transitionTimed(0.01)
-                .state(SampleStates.SENSE)
+                .state(AutomatedTeleopSample.SampleStates.SENSE)
                 .transition(() -> {
                     currentSense=intake.getColor();
                     return currentSense == Intake.SampleColor.YELLOW || currentSense== allianceColor;
-                }, SampleStates.LIFTUP)
-                .transition(()->currentSense == Intake.SampleColor.NONE, SampleStates.EXTEND)
-                .transition(() -> currentSense != Intake.SampleColor.YELLOW && currentSense != allianceColor, SampleStates.EJECTFLIP)
+                }, AutomatedTeleopSample.SampleStates.LIFTUP)
+                .transition(()->currentSense == Intake.SampleColor.NONE, AutomatedTeleopSample.SampleStates.EXTEND)
+                .transition(() -> currentSense != Intake.SampleColor.YELLOW && currentSense != allianceColor, AutomatedTeleopSample.SampleStates.EJECTPAUSE)
 
-                .state(SampleStates.EJECTFLIP, true)
+                .state(AutomatedTeleopSample.SampleStates.EJECTPAUSE, true)
                 .onEnter(() -> {
+                    intake.pauseEject();//TODO:FIX EJECT
+                })
+                .transitionTimed(0.2, AutomatedTeleopSample.SampleStates.EJECT)
+
+                .state(AutomatedTeleopSample.SampleStates.EJECT, true)
+                .onEnter(()->{
                     intake.eject();
+                    intake.setIntakePower(0.8);
                 })
-                .transitionTimed(0.2, SampleStates.EJECTLIDOPEN)
+                .transitionTimed(0.5, AutomatedTeleopSample.SampleStates.EXTEND)
 
-                .state(SampleStates.EJECTLIDOPEN, true)
-                .onEnter(() -> {
-                    intake.setCover(false);
-                })
-                .transitionTimed(0.5, SampleStates.EXTEND)
-
-                .state(SampleStates.LIFTUP)
+                .state(AutomatedTeleopSample.SampleStates.LIFTUP)
                 .onEnter(()->{
                     intake.liftUP();
                 })
                 .transitionTimed(0.1)
 
-                .state(SampleStates.RETRACT)
+                .state(AutomatedTeleopSample.SampleStates.RETRACT)
                 .onEnter(()->{
                     intake.transferPos();
-                    intake.setIntakePower(-1);
-                    intake.setCover(true);
                     outtake.transferPos();
                     outtake.openClaw();
+                    intake.setIntakePower(0.1);
                 })
-                .transitionTimed(0.025)
+                .transitionTimed(0.1)
 
-                .state(SampleStates.OPENCOVER)
+
+                .state(AutomatedTeleopSample.SampleStates.REINTAKE)
                 .onEnter(() -> {
-                    intake.setCover(false);
-                    intake.setIntakePower(0.25);
+                    intake.setIntakePower(0.75);
                     outtake.openClaw();
                 })
                 .transition(()-> intake.isRetracted())
-                .transition(()->gamepad1.x, SampleStates.IDLE)
+                .transition(()->gamepad1.x, AutomatedTeleopSample.SampleStates.IDLE)
 
-                .state(SampleStates.WAIT)
+                .state(AutomatedTeleopSample.SampleStates.WAIT)
                 .onEnter(() -> {
-                    intake.setIntakePower(1);
+                    intake.setIntakePower(0.4);
+                    intake.setCover(false);
                 })
-                .transitionTimed(0.4, ()->outtake.setForTransfer())
+                .transitionTimed(0.3, ()->outtake.setForTransfer())
 
-                .state(SampleStates.CLOSE)
+                .state(AutomatedTeleopSample.SampleStates.CLOSE)
                 .onEnter(() -> {
                     outtake.closeClaw();
                     intake.setIntakePower(1);
+                    intake.setCover(false);
                 })
-                .transitionTimed(0.2)
+                .transitionTimed(0.4)
 
-                .state(SampleStates.LIFT)
+                .state(AutomatedTeleopSample.SampleStates.LIFT)
                 .onEnter(() -> {
                     if (lowBucket){
                         outtake.setTargetPos(lowBucketPos);
                     }else{
                         outtake.setTargetPos(1250);
                     }
-                    intake.setIntakePower(-0.5);
+                    intake.setIntakePower(0);
                 })
                 .transitionTimed(0.35)
                 .onExit(()->outtake.closeClaw())
 
-                .state(SampleStates.FULLYCLOSE)
-                .onEnter(()->outtake.closeClaw())
-                .transition(()->gamepad1.right_trigger>0.3)//drop to human player
-                .transitionTimed(0.05)
-
-                .state(SampleStates.PARTIALFLIP)
+                .state(AutomatedTeleopSample.SampleStates.PARTIALFLIP)
                 .onEnter(()->{
                     outtake.partialSampleFlip();
                     if (lowBucket){
@@ -169,7 +169,7 @@ public class AutomatedTeleopSpec extends LinearOpMode {
                 .transition(()->gamepad1.right_trigger>0.3)
                 .transition(()->(outtake.getCachedPos()>900 && !lowBucket) || (outtake.getCachedPos()>lowBucketPos-150 && lowBucket))
 
-                .state(SampleStates.SCORE)
+                .state(AutomatedTeleopSample.SampleStates.SCORE)
                 .loop(() -> {
                     if (gamepad1.right_trigger > 0.3) {
                         outtake.sampleScore();
@@ -188,12 +188,11 @@ public class AutomatedTeleopSpec extends LinearOpMode {
 
                 })
                 .transition(() -> gamepad1.left_bumper)
-                .state(SampleStates.OPEN)
+                .state(AutomatedTeleopSample.SampleStates.OPEN)
                 .onEnter(() -> {
                     outtake.openClaw();
                     if (gamepad1.right_trigger>0.3){
                         outtake.setTargetPos(200);
-                        intake.setTargetPos(200);
                     }
                 })
                 .transitionTimed(0.3)
@@ -202,10 +201,11 @@ public class AutomatedTeleopSpec extends LinearOpMode {
                     outtake.transferPos();
                     outtake.setTargetPos(0);
                 })
-                .state(SampleStates.LOWERLIFT)
-                .transitionTimed(0.35, SampleStates.IDLE)
+                .state(AutomatedTeleopSample.SampleStates.LOWERLIFT)
+                .transitionTimed(0.35, AutomatedTeleopSample.SampleStates.IDLE)
                 .onExit(()->outtake.openClaw())
                 .build();
+
         StateMachine specimenScorer = new StateMachineBuilder()
                 .state(SpecimenScoreStates.IDLE)
                 .transition(() -> gamepad1.dpad_up && outtake.getSetPoint()==0)

@@ -144,7 +144,7 @@ public class Outtake {
     }
     public void specHold(){
         setClaw(0.87);
-        setRail(0.35);
+        setRail(0.4);
         setFlip(0.65);
         setWrist(0.5);
         setTargetPos(575);
@@ -152,7 +152,7 @@ public class Outtake {
     }
     public void specScore(){
         setClaw(0.85);
-        setRail(0.4);
+        setRail(0.43);
         setFlip(0.5);
         setWrist(0.4);
         setTargetPos(650);

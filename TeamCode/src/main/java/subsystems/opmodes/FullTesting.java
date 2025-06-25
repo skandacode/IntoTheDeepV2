@@ -40,7 +40,7 @@ public class FullTesting extends LinearOpMode {
         Servo flip1 = hardwareMap.servo.get("flip1");
         Servo flip2 = hardwareMap.servo.get("flip2");
         Servo intakeflip= hardwareMap.servo.get("intakeFlip");
-        Servo cover = hardwareMap.servo.get("cover");
+        Servo cover = hardwareMap.servo.get("caover");
         Servo rightlatch = hardwareMap.servo.get("latch_right");
         Servo leftlatch = hardwareMap.servo.get("latch_left");
         Servo rightpto = hardwareMap.servo.get("right_pto");

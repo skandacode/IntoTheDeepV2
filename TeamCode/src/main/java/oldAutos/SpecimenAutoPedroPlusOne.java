@@ -50,7 +50,7 @@ public class SpecimenAutoPedroPlusOne extends LinearOpMode {
     private final Pose startPose = new Pose(-2, -61.5, Math.toRadians(90));
     private final Pose sample1 = new Pose(20, -37, Math.toRadians(38));
     private final Pose sample2 = new Pose(30, -39, Math.toRadians(33));
-    private final Pose sample3 = new Pose(35.5, -36, Math.toRadians(27));
+    private final Pose sample3 = new Pose(37, -36, Math.toRadians(27));
     private final Pose sampleReverse = new Pose(26, -42, Math.toRadians(-45));
     private final Pose park = new Pose(35, -55, Math.toRadians(0));
     private final Pose bucket = new Pose(-60, -61, Math.toRadians(45));

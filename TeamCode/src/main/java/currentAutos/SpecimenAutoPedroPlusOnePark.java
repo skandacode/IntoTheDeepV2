@@ -48,9 +48,9 @@ public class SpecimenAutoPedroPlusOnePark extends LinearOpMode {
     private final Pose scorePose4 = new Pose(-15, -26, Math.toRadians(90));
 
     private final Pose startPose = new Pose(-2, -61, Math.toRadians(90));
-    private final Pose sample1 = new Pose(20, -44, Math.toRadians(45));
+    private final Pose sample1 = new Pose(22.5, -42.5, Math.toRadians(45));
     private final Pose sample2 = new Pose(30, -37, Math.toRadians(33));
-    private final Pose sample3 = new Pose(35.5, -36, Math.toRadians(27));
+    private final Pose sample3 = new Pose(38, -33.5, Math.toRadians(27));
     private final Pose sampleReverse = new Pose(26, -42, Math.toRadians(-45));
     private final Pose park = new Pose(35, -56, Math.toRadians(0));
     private final Pose bucket = new Pose(-59.5, -60.5, Math.toRadians(0));
@@ -59,7 +59,7 @@ public class SpecimenAutoPedroPlusOnePark extends LinearOpMode {
 
     public enum SpecimenScoreStates {IDLE, C, INTAKEPOS, INTAKE, FULLYOPEN, CLOSE_CLAW, HOLD, SCORE, OPENCLAW, CLOSEBEFORERETRACT, RESET, RETRACT}
 
-    public static int maxExtend=400;
+    public static int maxExtend=460;
 
     public static boolean closedPressed=false;
     public static boolean specimenScoredPressed =false;
@@ -265,6 +265,7 @@ public class SpecimenAutoPedroPlusOnePark extends LinearOpMode {
                 .state(AutoStates.depositPosPreload)
                 .onEnter(()->{
                     follower.followPath(scorePreload, true);
+                    intake.setSweeper(true);
                     //outtake.setRail(0.64);
                 })
                 .transitionTimed(1.2)
@@ -321,11 +322,11 @@ public class SpecimenAutoPedroPlusOnePark extends LinearOpMode {
                 .transitionTimed(0.7)
                 .state(AutoStates.intakeReversePos2)
                 .onEnter(()->follower.followPath(intake2toreverse, true))
-                .transitionTimed(0.6)
+                .transitionTimed(0.9)
                 .state(AutoStates.intakeReverse2)
                 .onEnter(()->{
                     intake.intakePos(330);
-                    intake.setIntakePower(-0.7);
+                    intake.setIntakePower(-1);
                 })
                 .loop(()->intake.setIntakePower(-1))
                 .transitionTimed(0.25)
@@ -347,8 +348,8 @@ public class SpecimenAutoPedroPlusOnePark extends LinearOpMode {
                 .onEnter(()->follower.followPath(intake3toreverse, true))
                 .transitionTimed(0.7)
                 .state(AutoStates.intakeReverse3)
-                .onEnter(()->intake.setIntakePower(-0.7))
-                .loop(()->intake.setIntakePower(-0.7))
+                .onEnter(()->intake.setIntakePower(-1))
+                .loop(()->intake.setIntakePower(-1))
                 .transitionTimed(0.3)
                 .state(AutoStates.prespecPos1)
                 .onEnter(()->{

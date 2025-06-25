@@ -105,6 +105,7 @@ public class AutomatedTeleopSample extends LinearOpMode {
                 .state(SampleStates.EJECT, true)
                 .onEnter(()->{
                     intake.eject();
+                    intake.setIntakePower(0.8);
                 })
                 .transitionTimed(0.5, SampleStates.EXTEND)
 
@@ -119,9 +120,9 @@ public class AutomatedTeleopSample extends LinearOpMode {
                     intake.transferPos();
                     outtake.transferPos();
                     outtake.openClaw();
-                    intake.setIntakePower(0.65);
+                    intake.setIntakePower(0.1);
                 })
-                .transitionTimed(0.02)
+                .transitionTimed(0.1)
 
 
                 .state(SampleStates.REINTAKE)
@@ -137,7 +138,7 @@ public class AutomatedTeleopSample extends LinearOpMode {
                     intake.setIntakePower(0.4);
                     intake.setCover(false);
                 })
-                .transitionTimed(0.1, ()->outtake.setForTransfer())
+                .transitionTimed(0.3, ()->outtake.setForTransfer())
 
                 .state(SampleStates.CLOSE)
                 .onEnter(() -> {
@@ -268,7 +269,6 @@ public class AutomatedTeleopSample extends LinearOpMode {
                 }
             }
             panelsTelemetry.debug("outtake analog: "+ outtake.getFlipAnalog());
-            telemetry.update();
             panelsTelemetry.update(telemetry);
         }
 

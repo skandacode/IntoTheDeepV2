@@ -140,7 +140,6 @@ public class Intake {
     }
 
     public void eject(){
-        setIntakePower(0.8);
         setCover(false);
     }
     public boolean isRetracted(){
