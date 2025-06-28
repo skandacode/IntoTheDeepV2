@@ -346,7 +346,7 @@ public class SpecimenAutoPedroPlusOnePark extends LinearOpMode {
                 .transitionTimed(0.7)
                 .state(AutoStates.intakeReversePos3)
                 .onEnter(()->follower.followPath(intake3toreverse, true))
-                .transitionTimed(0.7)
+                .transitionTimed(0.85)
                 .state(AutoStates.intakeReverse3)
                 .onEnter(()->intake.setIntakePower(-1))
                 .loop(()->intake.setIntakePower(-1))

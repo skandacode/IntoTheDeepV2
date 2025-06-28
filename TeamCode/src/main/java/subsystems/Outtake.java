@@ -108,17 +108,17 @@ public class Outtake {
     public void transferPos(){
         closeClaw();
         setRail(0.33);
-        setFlip(0.55);
+        setFlip(0.61);
         setWrist(0);
         setTargetPos(0);
     }
     public void setForTransfer(){
-        setFlip(0.59);
+        setFlip(0.65);
     }
     public void partialSampleFlip(){
         closeClaw();
         setRail(0.35);
-        setFlip(0.4);
+        setFlip(0.43);
         setWrist(0.55);
         setTargetPos(1250);
     }
@@ -143,7 +143,7 @@ public class Outtake {
         setTargetPos(1200);
     }
     public void specHold(){
-        setClaw(0.87);
+        setClaw(0.89);
         setRail(0.4);
         setFlip(0.65);
         setWrist(0.5);

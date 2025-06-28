@@ -327,7 +327,7 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
                     extendPressed=true;
                 })
                 .transition(()->sampleMachine.getState()== SampleStates.RETRACT)
-                .transitionTimed(1, ()->{
+                .transitionTimed(1.5, ()->{
                     intake.setIntakePower(-1);
                     extendPressed=false;
                     System.out.println("Timed out 1");
@@ -350,13 +350,13 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
                 .onEnter(()->{
                     follower.followPath(scoretoSamp2, true);
                 })
-                .transitionTimed(0.05)
+                .transitionTimed(0.15)
                 .state(AutoStates.INTAKE2)
                 .onEnter(()->{
                     extendPressed=true;
                 })
                 .transition(()->sampleMachine.getState()== SampleStates.RETRACT)
-                .transitionTimed(1, ()->{
+                .transitionTimed(1.5, ()->{
                     intake.setIntakePower(-1);
                     extendPressed=false;
                     System.out.println("Timed out 2");
@@ -388,7 +388,7 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
                     extendPressed=true;
                 })
                 .transition(()->sampleMachine.getState()== SampleStates.RETRACT)
-                .transitionTimed(1, ()->{
+                .transitionTimed(1.5, ()->{
                     intake.setIntakePower(-1);
                     extendPressed=false;
                     System.out.println("Timed out 3");

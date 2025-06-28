@@ -65,9 +65,9 @@ public class Intake {
     }
     public void setCover(boolean closed){
         if (closed){
-            cover.setPosition(0.15);
+            cover.setPosition(0.175);
         }else{
-            cover.setPosition(0.4);
+            cover.setPosition(0.45);
         }
     }
     public void setSweeper(boolean closed){
@@ -119,7 +119,7 @@ public class Intake {
         setIntakeFlip(0.99);
     }
     public void liftUP(){
-        setIntakeFlip(0.99);
+        setIntakeFlip(1);
     }
     public void intakePos(int target){
         controller.setSetPoint(target);

@@ -31,7 +31,7 @@ public class AutomatedTeleopSpec extends LinearOpMode {
     public static Intake.SampleColor allianceColor= Intake.SampleColor.BLUE;
     Intake.SampleColor currentSense= Intake.SampleColor.NONE;
     public static int hangPos=85;
-    public static int maxExtend=460;
+    public static int maxExtend=480;
     public static boolean lowBucket=false;
     public static int lowBucketPos=500;
     public static double currentThresh = 31;
@@ -233,7 +233,7 @@ public class AutomatedTeleopSpec extends LinearOpMode {
                 .transitionTimed(0.3)
                 .state(SpecimenScoreStates.HOLD)
                 .onEnter(() -> outtake.specHold())
-                .transition(() -> (outtake.atTarget() && gamepad1.left_bumper))
+                .transition(() -> (gamepad1.left_bumper))
                 .state(SpecimenScoreStates.SCORE)
                 .onEnter(()->outtake.specScore())
                 .transitionTimed(0.3)
@@ -392,7 +392,7 @@ public class AutomatedTeleopSpec extends LinearOpMode {
                 overfillPos=false;
             }
 
-            intake.setSweeper(!gamepad1.dpad_up);
+            intake.setSweeper(!gamepad1.dpad_right);
 
             telemetry.addData("Low Bucket", lowBucket);
             telemetry.addData("Overfillpos", overfillPos);
