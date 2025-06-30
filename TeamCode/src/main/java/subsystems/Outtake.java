@@ -107,8 +107,8 @@ public class Outtake {
     }
     public void transferPos(){
         closeClaw();
-        setRail(0.33);
-        setFlip(0.61);
+        setRail(0.35);
+        setFlip(0.60);
         setWrist(0);
         setTargetPos(0);
     }
@@ -130,7 +130,7 @@ public class Outtake {
     }
     public void sampleScore(){
         closeClaw();
-        setRail(0.1);
+        setRail(0.08);
         setFlip(0.28);
         setWrist(0.7);
         setTargetPos(1020);
@@ -144,7 +144,7 @@ public class Outtake {
     }
     public void specHold(){
         setClaw(0.89);
-        setRail(0.4);
+        setRail(0.45);
         setFlip(0.65);
         setWrist(0.5);
         setTargetPos(575);
@@ -152,12 +152,12 @@ public class Outtake {
     }
     public void specScore(){
         setClaw(0.85);
-        setRail(0.43);
+        setRail(0.45);
         setFlip(0.5);
         setWrist(0.4);
         setTargetPos(650);
-
     }
+
     public int getCachedPos(){
         //return currMotorPos;
         return getOuttakePosition();

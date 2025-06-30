@@ -120,7 +120,7 @@ public class AutomatedTeleopSample extends LinearOpMode {
                     intake.transferPos();
                     outtake.transferPos();
                     outtake.openClaw();
-                    intake.setIntakePower(0.1);
+                    intake.setIntakePower(0.5);
                 })
                 .transitionTimed(0.1)
 

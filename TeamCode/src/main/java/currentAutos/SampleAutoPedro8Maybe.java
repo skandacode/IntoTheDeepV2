@@ -59,11 +59,11 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
     private final Pose scorePosesub = new Pose(-57.5, -55.5, Math.toRadians(60));
     private final Pose startPose = new Pose(-36, -61.5, Math.toRadians(90));
     private final Pose sample1 = new Pose(-50, -48.5, Math.toRadians(77));
-    private final Pose sample2 = new Pose(-58.5, -49, Math.toRadians(84));
-    private final Pose sample3 = new Pose(-39, -36, Math.toRadians(160));
+    private final Pose sample2 = new Pose(-57.5, -48.5, Math.toRadians(84));
+    private final Pose sample3 = new Pose(-39, -36, Math.toRadians(159));
 
     public enum SampleStates {
-        IDLE, EXTEND, SENSORWAIT, SENSE, RETRACT, PULSE, WAIT, CLOSE, LIFT, PARTIALFLIP, SCORE, AUTOWAIT, OPEN, LOWERLIFT, EJECTFLIP, REVERSE, REINTAKE, EJECTLIDOPEN
+        IDLE, EXTEND, SENSORWAIT, SENSE, LIFTUP, RETRACT, PULSE, WAIT, CLOSE, LIFT, PARTIALFLIP, SCORE, AUTOWAIT, OPEN, LOWERLIFT, EJECTFLIP, REVERSE, REINTAKE, EJECTLIDOPEN
     }
     public static Intake.SampleColor allianceColor= Intake.SampleColor.BLUE;
     Intake.SampleColor currentSense= Intake.SampleColor.NONE;
@@ -134,7 +134,7 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
                 .transition(() -> {
                     currentSense=intake.getColor();
                     return currentSense == Intake.SampleColor.YELLOW || currentSense== allianceColor;
-                }, SampleStates.RETRACT)
+                }, SampleStates.LIFTUP)
                 .transition(()->currentSense == Intake.SampleColor.NONE, SampleStates.EXTEND)
                 .transition(() -> currentSense != Intake.SampleColor.YELLOW && currentSense != allianceColor, SampleStates.EJECTFLIP)
 
@@ -152,6 +152,11 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
                 })
                 .transitionTimed(0.01, SampleStates.EXTEND)
 
+                .state(SampleStates.LIFTUP)
+                .onEnter(()->{
+                    intake.liftUP();
+                })
+                .transitionTimed(0.1)
 
                 .state(SampleStates.RETRACT)
                 .onEnter(()->{
@@ -164,7 +169,9 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
 
                 .state(SampleStates.PULSE)
                 .onEnter(()->{
-                    intake.setIntakePower(-0.8);
+                    if(!known){
+                        intake.setIntakePower(-0.8);
+                    }
                 })
                 .transitionTimed(0.015)
 
@@ -180,6 +187,7 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
                 .state(SampleStates.WAIT)
                 .onEnter(() -> {
                     intake.setIntakePower(0.4);
+                    intake.setCover(false);
                 })
                 .transitionTimed(0.2)
                 .onExit(()->outtake.setForTransfer())

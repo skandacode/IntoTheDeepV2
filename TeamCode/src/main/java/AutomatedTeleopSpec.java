@@ -347,10 +347,12 @@ public class AutomatedTeleopSpec extends LinearOpMode {
                 drive.setWeightedPowers(-gamepad1.left_stick_y/5, -gamepad1.left_stick_x/5, -gamepad1.right_stick_x/5, 0);
             }
 
-            if (gamepad1.touchpad && sampleMachine.getState()== SampleStates.IDLE && specimenScorer.getState()== SpecimenScoreStates.IDLE){
+            if (gamepad1.touchpad && sampleMachine.getState()== SampleStates.IDLE){
                 intake.setIntakePower(0.5);
                 intake.setExtendoPower(-0.3);
                 sampleMachine.setState(SampleStates.WAIT);
+                specimenScorer.setState(SpecimenScoreStates.IDLE);
+
             }
             if (gamepad2.right_trigger>0.8){
                 drive.setLatchPos(Hang.LatchPositions.EXTENDED);
@@ -406,6 +408,7 @@ public class AutomatedTeleopSpec extends LinearOpMode {
         if (opModeIsActive()){
             sampleMachine.stop();
             specimenScorer.stop();
+            drive.setLatchPos(Hang.LatchPositions.EXTENDED);
             StateMachine hangMachine = new StateMachineBuilder()
                     .state(hangStates.LIFTOUTTAKE)
                     .onEnter(()->outtake.setTargetPos(1050))
