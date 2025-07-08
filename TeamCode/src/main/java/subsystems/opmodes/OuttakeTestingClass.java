@@ -15,7 +15,6 @@ public class OuttakeTestingClass extends LinearOpMode {
     Outtake outtake;
     public static double wristpos = 0.5;
     public static double flippos = 0.5;
-    public static double railpos = 0.5;
     public static double clawpos = 0.8;
     public static int outtakeTargetPos = 0;
     @Override
@@ -28,7 +27,6 @@ public class OuttakeTestingClass extends LinearOpMode {
         while (opModeIsActive()){
             outtake.setWrist(wristpos);
             outtake.setFlip(flippos);
-            outtake.setRail(railpos);
             outtake.setClaw(clawpos);
             outtake.setTargetPos(outtakeTargetPos);
             outtake.update();

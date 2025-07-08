@@ -201,7 +201,6 @@ public class SampleAutoPedro8TechTurb extends LinearOpMode {
                 .state(SampleStates.SCORE)
                 .onEnter(()->{
                     outtake.specGrab();
-                    outtake.setRail(0.35);
                 })
 
                 .transition(() -> scorePressed)

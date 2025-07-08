@@ -34,7 +34,7 @@ public class AutomatedTeleopSample extends LinearOpMode {
     public static int hangPos=85;
     public static int maxExtend=475;
     public static boolean lowBucket=false;
-    public static int lowBucketPos=500;
+    public static int lowBucketPos=570;
     public static double currentThresh = 31;
 
     public static boolean overfillPos=false;

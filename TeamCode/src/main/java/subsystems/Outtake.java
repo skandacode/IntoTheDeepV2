@@ -12,7 +12,6 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 public class Outtake {
     private CachedMotorEx outtakeMotor1;
     private CachedMotorEx outtakeMotor2;
-    private CachedServo rail;
     private CachedServo claw;
     private CachedServo wrist;
     private CachedServo flip1;
@@ -36,7 +35,6 @@ public class Outtake {
         outtakeMotor2.setRunMode(Motor.RunMode.RawPower);
         outtakeMotor1.setRunMode(Motor.RunMode.RawPower);
 
-        rail = new CachedServo(hwMap.servo.get("rail"));
         claw = new CachedServo(hwMap.servo.get("claw"));
         wrist = new CachedServo(hwMap.servo.get("wrist"));
         flip1 = new CachedServo(hwMap.servo.get("flip1"));
@@ -83,9 +81,6 @@ public class Outtake {
         outtakeMotor2.set(power);
     }
     //functions that set servos to positions
-    public void setRail(double pos){
-        rail.setPosition(pos+0.01);
-    }
     public void setClaw(double pos){
         claw.setPosition(pos);
     }
@@ -94,7 +89,7 @@ public class Outtake {
     }
     public void setFlip(double pos){
         flip1.setPosition(pos);
-        flip2.setPosition(1-pos);
+        flip2.setPosition(pos);
     }
     public int getOuttakePosition(){
         return -outtakeMotor1.getCurrentPosition();
@@ -107,44 +102,38 @@ public class Outtake {
     }
     public void transferPos(){
         closeClaw();
-        setRail(0.35);
         setFlip(0.60);
-        setWrist(0);
+        setWrist(0.9);
         setTargetPos(0);
     }
     public void setForTransfer(){
-        setFlip(0.65);
+        setFlip(0.64);
     }
     public void partialSampleFlip(){
         closeClaw();
-        setRail(0.35);
         setFlip(0.43);
         setWrist(0.55);
         setTargetPos(1250);
     }
     public void specGrab(){
         closeClaw();
-        setRail(0.1);
         setFlip(0.03);
         setWrist(0.6);
     }
     public void sampleScore(){
         closeClaw();
-        setRail(0.08);
-        setFlip(0.28);
-        setWrist(0.7);
-        setTargetPos(1020);
+        setFlip(0.2);
+        setWrist(0.4);
+        setTargetPos(1050);
     }
     public void sampleOverfill(){
         closeClaw();
-        setRail(0.15);
-        setWrist(0.8);
+        setWrist(0.2);
         setFlip(0.2);
-        setTargetPos(1200);
+        setTargetPos(1150);
     }
     public void specHold(){
         setClaw(0.89);
-        setRail(0.45);
         setFlip(0.65);
         setWrist(0.5);
         setTargetPos(575);
@@ -152,7 +141,6 @@ public class Outtake {
     }
     public void specScore(){
         setClaw(0.85);
-        setRail(0.45);
         setFlip(0.5);
         setWrist(0.4);
         setTargetPos(650);

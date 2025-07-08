@@ -351,7 +351,6 @@ public class SpecimenAutoPedroPlusOne extends LinearOpMode {
                 .state(AutoStates.depositPosPreload)
                 .onEnter(()->{
                     follower.followPath(scorePreload, true);
-                    outtake.setRail(0.64);
                 })
                 .transitionTimed(1.5)
                 .state(AutoStates.scorePreload)

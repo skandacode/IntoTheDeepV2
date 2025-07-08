@@ -19,7 +19,6 @@ public class OuttakeTesting extends LinearOpMode {
     public static double outtakeMotor2Power = 0;
     @Override
     public void runOpMode() throws InterruptedException {
-        Servo rail = hardwareMap.servo.get("rail");
         Servo claw = hardwareMap.servo.get("claw");
         Servo wrist = hardwareMap.servo.get("wrist");
         Servo flip1 = hardwareMap.servo.get("flip1");
@@ -36,7 +35,6 @@ public class OuttakeTesting extends LinearOpMode {
             wrist.setPosition(wristpos);
             flip1.setPosition(flippos);
             flip2.setPosition(1-flippos);
-            rail.setPosition(railpos);
         }
     }
 }
