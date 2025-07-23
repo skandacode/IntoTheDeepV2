@@ -103,7 +103,7 @@ public class Outtake {
     public void transferPos(){
         closeClaw();
         setFlip(0.60);
-        setWrist(0.9);
+        setWrist(0.92);
         setTargetPos(0);
     }
     public void setForTransfer(){
@@ -122,15 +122,15 @@ public class Outtake {
     }
     public void sampleScore(){
         closeClaw();
-        setFlip(0.2);
-        setWrist(0.4);
+        setFlip(0.26);
+        setWrist(0.36);
         setTargetPos(1050);
     }
     public void sampleOverfill(){
         closeClaw();
         setWrist(0.2);
-        setFlip(0.2);
-        setTargetPos(1150);
+        setFlip(0.26);
+        setTargetPos(1120);
     }
     public void specHold(){
         setClaw(0.89);
@@ -151,7 +151,7 @@ public class Outtake {
         return getOuttakePosition();
     }
     public void openClaw(){
-        claw.setPosition(0.73);
+        claw.setPosition(0.79);
         //System.out.println("Opened claw");
     }
     public void openClawWide(){

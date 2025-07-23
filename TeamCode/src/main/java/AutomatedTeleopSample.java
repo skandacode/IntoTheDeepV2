@@ -34,7 +34,7 @@ public class AutomatedTeleopSample extends LinearOpMode {
     public static int hangPos=85;
     public static int maxExtend=475;
     public static boolean lowBucket=false;
-    public static int lowBucketPos=570;
+    public static int lowBucketPos=500;
     public static double currentThresh = 31;
 
     public static boolean overfillPos=false;
@@ -65,7 +65,7 @@ public class AutomatedTeleopSample extends LinearOpMode {
                     intake.setIntakePower(0);
                 })
                 .loop(()->{
-                    intake.setTargetPos((int)(maxExtend*gamepad1.left_trigger));
+                    intake.setTargetPos((int)(maxExtend*gamepad1.left_trigger+150*gamepad1.right_trigger));
                 })
                 .transition(() -> gamepad1.right_bumper && gamepad1.left_trigger>0.1 && intake.getCachedExtendoPos()>50)
                 .state(SampleStates.EXTEND)
@@ -79,7 +79,7 @@ public class AutomatedTeleopSample extends LinearOpMode {
                     if (!gamepad1.right_bumper){
                         intake.setCover(false);//TODO:move this somewhere else
                     }
-                    intake.setTargetPos((int)(maxExtend*gamepad1.left_trigger));
+                    intake.setTargetPos((int)(maxExtend*gamepad1.left_trigger + 150*gamepad1.right_trigger));
                 })
                 .transition(()->intake.isSampleIntaked())
                 .transition(()->(gamepad1.left_trigger<0.1 || !gamepad1.right_bumper) && !intake.isSampleIntaked(), SampleStates.IDLE)
@@ -277,7 +277,7 @@ public class AutomatedTeleopSample extends LinearOpMode {
 
         sampleMachine.start();
         long prevLoop = System.nanoTime();
-        while (opModeIsActive() && !gamepad1.left_stick_button) {
+        while (opModeIsActive() && !(gamepad1.left_stick_button && intake.getTarget()==0)) {
             if (!(controlhub==null)) {
                 controlhub.clearBulkCache();
                 panelsTelemetry.debug("bulk reading only chub");

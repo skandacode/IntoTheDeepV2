@@ -54,11 +54,11 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
 
 
 
-    private final Pose scorePose = new Pose(-56.5, -53, Math.toRadians(75));
-    private final Pose scorePosepreload = new Pose(-55.5, -55, Math.toRadians(67));
-    private final Pose scorePosesub = new Pose(-57.5, -55.5, Math.toRadians(60));
+    private final Pose scorePose = new Pose(-56.5, -53, Math.toRadians(72));
+    private final Pose scorePosepreload = new Pose(-57, -55, Math.toRadians(67));
+    private final Pose scorePosesub = new Pose(-57.5, -55.5, Math.toRadians(73));
     private final Pose startPose = new Pose(-36, -61.5, Math.toRadians(90));
-    private final Pose sample1 = new Pose(-50, -48.5, Math.toRadians(77));
+    private final Pose sample1 = new Pose(-53, -49, Math.toRadians(67));
     private final Pose sample2 = new Pose(-57.5, -48.5, Math.toRadians(84));
     private final Pose sample3 = new Pose(-39, -36, Math.toRadians(159));
 
@@ -146,12 +146,6 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
                 })
                 .transitionTimed(0.6, SampleStates.EXTEND)
 
-                .state(SampleStates.REVERSE)
-                .onEnter(() -> {
-                    intake.setIntakePower(-0.1);
-                })
-                .transitionTimed(0.01, SampleStates.EXTEND)
-
                 .state(SampleStates.LIFTUP)
                 .onEnter(()->{
                     intake.liftUP();
@@ -160,20 +154,14 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
 
                 .state(SampleStates.RETRACT)
                 .onEnter(()->{
-                    intake.setIntakeFlip(0.99);
-                    intake.setIntakePower(0.5);
-                    outtake.transferPos();
-                    outtake.openClaw();
-                })
-                .transitionTimed(0.1)
-
-                .state(SampleStates.PULSE)
-                .onEnter(()->{
-                    if(!known){
-                        intake.setIntakePower(-0.8);
+                    if(!known) {
+                        intake.setIntakeFlip(0.99);
+                        intake.setIntakePower(0.5);
+                        outtake.transferPos();
+                        outtake.openClaw();
                     }
                 })
-                .transitionTimed(0.015)
+                .transitionTimed(0.1)
 
                 .state(SampleStates.REINTAKE)
                 .onEnter(() -> {
@@ -189,7 +177,7 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
                     intake.setIntakePower(0.4);
                     intake.setCover(false);
                 })
-                .transitionTimed(0.2)
+                .transitionTimed(0.08)
                 .onExit(()->outtake.setForTransfer())
 
 
@@ -199,7 +187,7 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
                     intake.setIntakePower(1);
                     intake.setCover(false);
                 })
-                .transitionTimed(0.3)
+                .transitionTimed(0.2)
 
                 .state(SampleStates.LIFT)
                 .onEnter(() -> {
@@ -230,6 +218,8 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
                 .state(SampleStates.OPEN)
                 .onEnter(() -> {
                     outtake.openClaw();
+                    outtake.setFlip(0.2);
+                    outtake.setWrist(0.2);
                     scorePressed=false;
                 })
                 .transitionTimed(0.2)
@@ -317,7 +307,7 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
                     follower.followPath(scorePreload, true);
                     sampleMachine.setState(SampleStates.LIFT);
                 })
-                .transitionTimed(0.9)
+                .transitionTimed(0.7)
                 .state(AutoStates.OPENCLAW1)
                 .onEnter(()->{
                     scorePressed=true;
@@ -335,12 +325,10 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
                     extendPressed=true;
                 })
                 .transition(()->sampleMachine.getState()== SampleStates.RETRACT)
-                .transitionTimed(1.5, ()->{
-                    intake.setIntakePower(-1);
+                .transitionTimed(1, ()->{
                     extendPressed=false;
                     System.out.println("Timed out 1");
                 })
-
                 .state(AutoStates.SCORESAMPLE1)
                 .onEnter(()->follower.followPath(samp1toScore, true))
                 .transition(()->follower.atParametricEnd())
@@ -364,8 +352,7 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
                     extendPressed=true;
                 })
                 .transition(()->sampleMachine.getState()== SampleStates.RETRACT)
-                .transitionTimed(1.5, ()->{
-                    intake.setIntakePower(-1);
+                .transitionTimed(1, ()->{
                     extendPressed=false;
                     System.out.println("Timed out 2");
                 })
@@ -381,7 +368,6 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
                     scorePressed=true;
                 })
                 .transition(()->sampleMachine.getState()== SampleStates.LOWERLIFT)
-
                 .state(AutoStates.TOSAMPLE3)
                 .onEnter(()->{
                     follower.followPath(scoretoSamp3, true);
@@ -396,8 +382,7 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
                     extendPressed=true;
                 })
                 .transition(()->sampleMachine.getState()== SampleStates.RETRACT)
-                .transitionTimed(1.5, ()->{
-                    intake.setIntakePower(-1);
+                .transitionTimed(1, ()->{
                     extendPressed=false;
                     System.out.println("Timed out 3");
                 })
@@ -414,7 +399,7 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
                 .loop(()->{
                     intake.transferPos();
                 })
-                .transitionTimed(0.25)
+                .transitionTimed(0.1)
                 .state(AutoStates.OPENCLAW4)
                 .onEnter(()->{
                     scorePressed=true;
@@ -430,7 +415,6 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
                 .state(AutoStates.WAITTORETRACT)
                 .loop(()->{
                     intake.transferPos();
-                    intake.setIntakePower(-0.1);
                 })
                 .transitionTimed(0.15)
 
@@ -453,7 +437,7 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
                 .loop(()->{
                     intake.setTargetPos(300);
                 })
-                .transitionTimed(1.75)
+                .transitionTimed(1.6)
 
                 .state(AutoStates.DROPEJECT)
                 .onEnter(()->{
@@ -493,12 +477,14 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
                         follower.followPath(sub3tostrafe3);
                         maxExtend=500;
                         System.out.println("sub3tostrafe3");
+                        count=0;
                     }
                     count++;
                 })
+                .transition(()->sampleMachine.getState()== SampleStates.LIFTUP, AutoStates.TOSCORESUB1, ()->intake.setTargetPos(420))
                 .transition(()->sampleMachine.getState()== SampleStates.RETRACT, AutoStates.TOSCORESUB1, ()->intake.setTargetPos(420))
                 .transition(()->sampleMachine.getState()== SampleStates.SCORE, AutoStates.TOSCORESUB1, ()->intake.setTargetPos(420))
-                .transitionTimed(0.7, AutoStates.INTAKESUB1)
+                .transitionTimed(1, AutoStates.INTAKESUB1)
 
                 .state(AutoStates.TOSCORESUB1)
                 .onEnter(()->{
@@ -515,7 +501,7 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
                         intake.setTargetPos(450);
                     }
                 })
-                .transitionTimed(2.3, ()->System.out.println("timed out while coming back"))
+                .transitionTimed(1.7, ()->System.out.println("timed out while coming back"))
                 .transition(()->follower.atParametricEnd(), ()->System.out.println("finished path while coming back"))
 
                 .state(AutoStates.OPENCLAWSUB1)

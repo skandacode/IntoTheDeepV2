@@ -34,7 +34,7 @@ public class Intake {
     private boolean retracted = true;
 
     public enum SampleColor {RED, BLUE, YELLOW, NONE}
-    public static double distThreshold = 3.5;
+    public static double distThreshold = 3.3;
 
     public double intakePower=0;
 
@@ -126,7 +126,7 @@ public class Intake {
         intakePos();
     }
     public void intakePos(){
-        setIntakeFlip(0.75);
+        setIntakeFlip(0.87);
         setCover(true);
         setIntakePower(1);
     }
