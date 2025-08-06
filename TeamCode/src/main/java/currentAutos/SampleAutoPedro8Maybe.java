@@ -42,11 +42,11 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
 
 
     private final Pose subPose = new Pose(-15.5, -3, Math.toRadians(0));
-    private final Pose substrafe = new Pose(-17.7, -3, Math.toRadians(-15));
+    private final Pose substrafe = new Pose(-17.7, -3, Math.toRadians(0));
     private final Pose subPose2 = new Pose(-15.5, -7, Math.toRadians(0));
-    private final Pose substrafe2 = new Pose(-17.7, -3, Math.toRadians(10));
+    private final Pose substrafe2 = new Pose(-17.7, 3, Math.toRadians(0));
     private final Pose subPose3 = new Pose(-15.5, 3, Math.toRadians(0));
-    private final Pose substrafe3 = new Pose(-17.7, 3, Math.toRadians(15));
+    private final Pose substrafe3 = new Pose(-17.7, -7, Math.toRadians(0));
     private final Pose presubPose = new Pose(-30, -2, Math.toRadians(0));
 
 
@@ -60,7 +60,7 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
     private final Pose startPose = new Pose(-36, -61.5, Math.toRadians(90));
     private final Pose sample1 = new Pose(-53, -49, Math.toRadians(67));
     private final Pose sample2 = new Pose(-57.5, -48.5, Math.toRadians(84));
-    private final Pose sample3 = new Pose(-39, -36, Math.toRadians(159));
+    private final Pose sample3 = new Pose(-39, -36, Math.toRadians(161));
 
     public enum SampleStates {
         IDLE, EXTEND, SENSORWAIT, SENSE, LIFTUP, RETRACT, PULSE, WAIT, CLOSE, LIFT, PARTIALFLIP, SCORE, AUTOWAIT, OPEN, LOWERLIFT, EJECTFLIP, REVERSE, REINTAKE, EJECTLIDOPEN
@@ -435,7 +435,7 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
 
                 .state(AutoStates.EXTENDSUB1)
                 .loop(()->{
-                    intake.setTargetPos(300);
+                    intake.setTargetPos(400);
                 })
                 .transitionTimed(1.6)
 
@@ -465,7 +465,7 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
 
                 .state(AutoStates.STRAFE1)
                 .onEnter(()->{
-                    intake.setTargetPos(200);
+                    intake.setTargetPos(100);
                     if (count==0){
                         maxExtend=400;
                         follower.followPath(subtostrafe);
@@ -484,7 +484,7 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
                 .transition(()->sampleMachine.getState()== SampleStates.LIFTUP, AutoStates.TOSCORESUB1, ()->intake.setTargetPos(420))
                 .transition(()->sampleMachine.getState()== SampleStates.RETRACT, AutoStates.TOSCORESUB1, ()->intake.setTargetPos(420))
                 .transition(()->sampleMachine.getState()== SampleStates.SCORE, AutoStates.TOSCORESUB1, ()->intake.setTargetPos(420))
-                .transitionTimed(1, AutoStates.INTAKESUB1)
+                .transitionTimed(0.6, AutoStates.INTAKESUB1)
 
                 .state(AutoStates.TOSCORESUB1)
                 .onEnter(()->{
@@ -501,7 +501,7 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
                         intake.setTargetPos(450);
                     }
                 })
-                .transitionTimed(1.7, ()->System.out.println("timed out while coming back"))
+                .transitionTimed(1.75, ()->System.out.println("timed out while coming back"))
                 .transition(()->follower.atParametricEnd(), ()->System.out.println("finished path while coming back"))
 
                 .state(AutoStates.OPENCLAWSUB1)
