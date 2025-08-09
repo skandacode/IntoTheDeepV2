@@ -60,7 +60,7 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
     private final Pose startPose = new Pose(-36, -61.5, Math.toRadians(90));
     private final Pose sample1 = new Pose(-53, -49, Math.toRadians(67));
     private final Pose sample2 = new Pose(-57.5, -48.5, Math.toRadians(84));
-    private final Pose sample3 = new Pose(-39, -36, Math.toRadians(161));
+    private final Pose sample3 = new Pose(-39, -36, Math.toRadians(161.5));
 
     public enum SampleStates {
         IDLE, EXTEND, SENSORWAIT, SENSE, LIFTUP, RETRACT, PULSE, WAIT, CLOSE, LIFT, PARTIALFLIP, SCORE, AUTOWAIT, OPEN, LOWERLIFT, EJECTFLIP, REVERSE, REINTAKE, EJECTLIDOPEN
@@ -458,10 +458,10 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
 
                 .state(AutoStates.PULSEREVERSE)
                 .onEnter(()->{
-                    intake.setIntakePower(-0.8);
+                    intake.setIntakePower(-0.2);
                     System.out.println("Ejecting");
                 })
-                .transitionTimed(0.15, AutoStates.INTAKESUB1, ()->intake.setIntakePower(1))
+                .transitionTimed(0.04, AutoStates.INTAKESUB1, ()->intake.setIntakePower(1))
 
                 .state(AutoStates.STRAFE1)
                 .onEnter(()->{
@@ -483,7 +483,10 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
                 })
                 .transition(()->sampleMachine.getState()== SampleStates.LIFTUP, AutoStates.TOSCORESUB1, ()->intake.setTargetPos(420))
                 .transition(()->sampleMachine.getState()== SampleStates.RETRACT, AutoStates.TOSCORESUB1, ()->intake.setTargetPos(420))
+                .transition(()->sampleMachine.getState()== SampleStates.WAIT, AutoStates.TOSCORESUB1, ()->intake.setTargetPos(420))
+                .transition(()->sampleMachine.getState()== SampleStates.CLOSE, AutoStates.TOSCORESUB1, ()->intake.setTargetPos(420))
                 .transition(()->sampleMachine.getState()== SampleStates.SCORE, AutoStates.TOSCORESUB1, ()->intake.setTargetPos(420))
+                .transition(()->sampleMachine.getState()== SampleStates.LIFT, AutoStates.TOSCORESUB1, ()->intake.setTargetPos(420))
                 .transitionTimed(0.6, AutoStates.INTAKESUB1)
 
                 .state(AutoStates.TOSCORESUB1)
