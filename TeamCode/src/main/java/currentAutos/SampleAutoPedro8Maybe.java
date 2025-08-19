@@ -504,7 +504,7 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
                         intake.setTargetPos(450);
                     }
                 })
-                .transitionTimed(1.75, ()->System.out.println("timed out while coming back"))
+                .transitionTimed(1.9, ()->System.out.println("timed out while coming back"))
                 .transition(()->follower.atParametricEnd(), ()->System.out.println("finished path while coming back"))
 
                 .state(AutoStates.OPENCLAWSUB1)

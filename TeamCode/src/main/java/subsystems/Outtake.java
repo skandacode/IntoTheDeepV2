@@ -122,7 +122,7 @@ public class Outtake {
     }
     public void sampleScore(){
         closeClaw();
-        setFlip(0.26);
+        setFlip(0.2);
         setWrist(0.36);
         setTargetPos(1050);
     }

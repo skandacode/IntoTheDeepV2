@@ -153,7 +153,7 @@ public class AutomatedTeleopSample extends LinearOpMode {
                     if (lowBucket){
                         outtake.setTargetPos(lowBucketPos);
                     }else{
-                        outtake.setTargetPos(1250);
+                        outtake.setTargetPos((int) (1250-(50*gamepad1.right_trigger)));
                     }
                     intake.setIntakePower(0);
                 })
@@ -184,7 +184,12 @@ public class AutomatedTeleopSample extends LinearOpMode {
                     else if (overfillPos){
                         outtake.sampleOverfill();
 
-                    }else{
+                    }
+                    else if (gamepad1.left_trigger > 0.1) {
+                        outtake.sampleScore();
+                        outtake.setTargetPos((int) (1050-50*gamepad1.left_trigger));
+                    }
+                    else{
                         outtake.sampleScore();
                     }
 
