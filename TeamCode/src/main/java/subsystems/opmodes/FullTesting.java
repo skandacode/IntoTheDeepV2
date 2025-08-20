@@ -18,7 +18,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 public class FullTesting extends LinearOpMode {
     public static double wristpos = 0.5;
     public static double flippos = 0.5;
-    public static double railpos = 0.7;
     public static double clawpos = 0.8;
     public static double outtakeMotorPower = 0;
     public static double latchpos = 0.5;
@@ -34,13 +33,12 @@ public class FullTesting extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
-        Servo rail = hardwareMap.servo.get("rail");
         Servo claw = hardwareMap.servo.get("claw");
         Servo wrist = hardwareMap.servo.get("wrist");
         Servo flip1 = hardwareMap.servo.get("flip1");
         Servo flip2 = hardwareMap.servo.get("flip2");
         Servo intakeflip= hardwareMap.servo.get("intakeFlip");
-        Servo cover = hardwareMap.servo.get("caover");
+        Servo cover = hardwareMap.servo.get("cover");
         Servo rightlatch = hardwareMap.servo.get("latch_right");
         Servo leftlatch = hardwareMap.servo.get("latch_left");
         Servo rightpto = hardwareMap.servo.get("right_pto");
@@ -68,7 +66,6 @@ public class FullTesting extends LinearOpMode {
             wrist.setPosition(wristpos);
             flip1.setPosition(flippos);
             flip2.setPosition(1-flippos);
-            rail.setPosition(railpos);
             backleft.setPower(motorpower);
             backright.setPower(-1*motorpower);
             frontleft.setPower(motorpower);
