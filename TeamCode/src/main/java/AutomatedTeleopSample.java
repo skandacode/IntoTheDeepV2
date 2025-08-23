@@ -39,6 +39,12 @@ public class AutomatedTeleopSample extends LinearOpMode {
 
     public static boolean overfillPos=false;
 
+    public static double EJECTPAUSETIMER = 0.05;
+    public static double EJECTTIME = 0.3;
+    public static double EJECTPOWER = -0.6;
+
+    public static int EJECTRETRACTAMOUNT = 100;
+
     double cachedCurrent = 0;
     TelemetryManager panelsTelemetry = Panels.getTelemetry();
 
@@ -98,16 +104,16 @@ public class AutomatedTeleopSample extends LinearOpMode {
 
                 .state(SampleStates.EJECTPAUSE, true)
                 .onEnter(() -> {
-                    intake.pauseEject();//TODO:FIX EJECT
+                    intake.setIntakePower(-0.75);
                 })
-                .transitionTimed(0.2, SampleStates.EJECT)
+                .transitionTimed(EJECTPAUSETIMER, SampleStates.EJECT)
 
                 .state(SampleStates.EJECT, true)
                 .onEnter(()->{
-                    intake.eject();
-                    intake.setIntakePower(0.8);
+                    intake.setTargetPos((int) intake.getTarget()-EJECTRETRACTAMOUNT);
+                    intake.setIntakePower(EJECTPOWER);
                 })
-                .transitionTimed(0.5, SampleStates.EXTEND)
+                .transitionTimed(EJECTTIME, SampleStates.EXTEND)
 
                 .state(SampleStates.LIFTUP)
                 .onEnter(()->{

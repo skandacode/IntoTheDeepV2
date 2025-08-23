@@ -13,7 +13,6 @@ public class OuttakeTesting extends LinearOpMode {
     public static double wristpos = 0.5;
 
     public static double flippos = 0.5;
-    public static double railpos = 0.5;
     public static double clawpos = 0.8;
     public static double outtakeMotor1Power = 0;
     public static double outtakeMotor2Power = 0;

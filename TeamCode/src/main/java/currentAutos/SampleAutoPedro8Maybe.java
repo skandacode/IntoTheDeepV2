@@ -15,6 +15,7 @@ import com.pedropathing.pathgen.BezierCurve;
 import com.pedropathing.pathgen.BezierLine;
 import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
+import com.pedropathing.util.Drawing;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -36,7 +37,6 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
     Intake intake;
     Outtake outtake;
     StateMachine autoMachine;
-    TelemetryManager panelsTelemetry = Panels.getTelemetry();
 
 
 
@@ -584,17 +584,12 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
 
             }
             prevPose=currPose;
-
-            drawBot(currPose);
-
             long currLoop = System.nanoTime();
             telemetry.addData("Ms per loop", (currLoop - prevLoop) / 1000000);
             prevLoop = currLoop;
             telemetry.addData("Extend pressed", extendPressed);
             //follower.telemetryDebug(telemetry);
             telemetry.addData("Intake jamming", intake.isJammed());
-            panelsTelemetry.update(telemetry);
-
         }
     }
     private double waitTime(boolean k) {
@@ -603,9 +598,5 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
     private double normalize(double a, double b) {
         double diff = Math.abs((a - b) % 360);
         return diff > 180 ? 360 - diff : diff;
-    }
-    private void drawBot(Pose currPose){
-        panelsTelemetry.debug("Pos: "+currPose.toString());
-        panelsTelemetry.update(telemetry);
     }
 }

@@ -126,7 +126,7 @@ public class Intake {
         intakePos();
     }
     public void intakePos(){
-        setIntakeFlip(0.83);
+        setIntakeFlip(0.86);
         setCover(true);
         setIntakePower(1);
     }

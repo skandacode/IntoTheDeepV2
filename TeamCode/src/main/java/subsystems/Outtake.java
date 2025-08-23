@@ -57,7 +57,11 @@ public class Outtake {
         retracted = limitSwitch.isPressed();
         if (controller.getSetPoint() == 0){
             if (!retracted){
-                power=-1;
+                if (currMotorPos <= 0) {
+                    power = -0.5;
+                }else {
+                    power = -1;
+                }
             }else{
                 power=-0.1;
                 outtakeMotor1.resetEncoder();
