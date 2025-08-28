@@ -435,7 +435,7 @@ public class SampleAutoPedro8Maybe extends LinearOpMode {
 
                 .state(AutoStates.EXTENDSUB1)
                 .loop(()->{
-                    intake.setTargetPos(400);
+                    intake.setTargetPos(475);
                 })
                 .transitionTimed(1.6)
 
